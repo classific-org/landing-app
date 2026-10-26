@@ -2,17 +2,7 @@ name: CI
 
 on:
     push:
-        paths:
-            - "landing-app/**"
-            - ".github/workflows/ci.yml"
     pull_request:
-        paths:
-            - "landing-app/**"
-            - ".github/workflows/ci.yml"
-
-defaults:
-    run:
-        working-directory: landing-app
 
 jobs:
     check:
