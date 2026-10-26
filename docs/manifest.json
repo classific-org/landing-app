@@ -1,0 +1,13 @@
+{
+  "brand": "Classific",
+  "version": "1.0",
+  "contents": [
+    "Design system guide",
+    "CSS tokens",
+    "Homepage reference image and crops",
+    "SVG wordmark concept",
+    "SVG icon set",
+    "SVG background patterns"
+  ],
+  "limitations": "Reference crops are not original layered artwork; logo concept is not trademark-cleared."
+}

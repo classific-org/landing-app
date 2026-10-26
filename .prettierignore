@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+playwright-report
+test-results
+bun.lock
+docs
+public/og
+public/sitemap.xml
+public/robots.txt
+public/llms.txt
+public/llms-full.txt

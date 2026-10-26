@@ -1,0 +1,16 @@
+/*
+ * Classific design tokens.
+ * Color, type scale, font and radius tokens live in the Tailwind @theme block in global.css,
+ * which emits them as CSS variables on :root (--color-ink, --text-h1, --radius-sm, ...).
+ * Layout tokens that have no Tailwind namespace live here.
+ */
+:root {
+    color-scheme: light;
+
+    --page-gutter: clamp(1.25rem, 4vw, 4rem);
+    --content-max: 90rem;
+    --section-y: clamp(3.5rem, 8vw, 8rem);
+    --grid-gap: clamp(1rem, 2vw, 1.75rem);
+
+    --transition-fast: 180ms ease-out;
+}

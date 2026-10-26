@@ -1,0 +1,51 @@
+name: CI
+
+on:
+    push:
+        paths:
+            - "landing-app/**"
+            - ".github/workflows/ci.yml"
+    pull_request:
+        paths:
+            - "landing-app/**"
+            - ".github/workflows/ci.yml"
+
+defaults:
+    run:
+        working-directory: landing-app
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        env:
+            SITE_ORIGIN: https://www.classific.example
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: "1.4.2"
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
+            - name: Install Playwright browsers
+              run: bunx playwright install --with-deps chromium
+            - name: Lint
+              run: bun run lint
+            - name: Typecheck
+              run: bun run typecheck
+            - name: Unit tests with coverage
+              run: bun run test:coverage
+            - name: Production build
+              run: bun run build
+            - name: SEO file checks
+              run: |
+                  test -f dist/robots.txt
+                  test -f dist/sitemap.xml
+                  test -f dist/llms.txt
+                  test -f dist/llms-full.txt
+                  test -f dist/og/classific-og.png
+                  ! grep -E "localhost|127\\.0\\.0\\.1" dist/robots.txt dist/sitemap.xml dist/llms.txt dist/llms-full.txt
+                  grep -q "https://www.classific.example/sitemap.xml" dist/robots.txt
+                  grep -q "https://www.classific.example/services/web-applications" dist/sitemap.xml
+            - name: End-to-end tests
+              run: bun run test:e2e
