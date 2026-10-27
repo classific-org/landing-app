@@ -49,8 +49,9 @@ describe("public route table", () => {
     it("attaches lastmod only when the record has a date", () => {
         const routes = buildPublicRoutes();
         expect(routes.find((route) => route.path === "/")?.lastmod).toBeUndefined();
-        expect(routes.find((route) => route.path === "/insights/what-discovery-actually-decides")?.lastmod).toBe(
-            "2026-02-10",
-        );
+        expect(
+            routes.find((route) => route.path === "/insights/what-discovery-actually-decides")
+                ?.lastmod,
+        ).toBe("2026-02-10");
     });
 });

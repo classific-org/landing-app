@@ -23,7 +23,9 @@ export type WorkPageViewModel = {
     hasProjects: boolean;
 };
 
-export function useWorkPage(loadProjects: () => Project[] = getPublishedProjects): WorkPageViewModel {
+export function useWorkPage(
+    loadProjects: () => Project[] = getPublishedProjects,
+): WorkPageViewModel {
     const [searchParams, setSearchParams] = useSearchParams();
     const [allProjects] = useState(loadProjects);
     const categories = useMemo(() => getProjectCategories(allProjects), [allProjects]);

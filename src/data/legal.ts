@@ -96,7 +96,8 @@ export const legalDocuments: LegalDocument[] = [
         ],
         seo: {
             title: "Terms of Service",
-            description: "Terms governing use of the Classific website and how enquiries are handled.",
+            description:
+                "Terms governing use of the Classific website and how enquiries are handled.",
         },
     },
 ];

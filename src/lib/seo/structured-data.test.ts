@@ -24,7 +24,9 @@ describe("structured data", () => {
 
     it("adds Service and BreadcrumbList on service pages", () => {
         const route = findPublicRoute("/services/web-applications")!;
-        const payloads = buildJsonLdForRoute(ORIGIN, route).map((item) => item.data as Record<string, unknown>);
+        const payloads = buildJsonLdForRoute(ORIGIN, route).map(
+            (item) => item.data as Record<string, unknown>,
+        );
         expect(payloads.some((item) => item["@type"] === "Service")).toBe(true);
         expect(payloads.some((item) => item["@type"] === "BreadcrumbList")).toBe(true);
         expect(buildServiceJsonLd(ORIGIN, route)?.name).toBe("Web Applications");
@@ -36,7 +38,9 @@ describe("structured data", () => {
         const article = buildArticleJsonLd(ORIGIN, route);
         expect(article?.headline).toBe("What discovery actually decides");
         expect(article?.author).toEqual({ "@type": "Organization", name: "Classific" });
-        expect(buildArticleJsonLd(ORIGIN, { ...route, slug: "draft-measuring-engineering-outcomes" })).toBeUndefined();
+        expect(
+            buildArticleJsonLd(ORIGIN, { ...route, slug: "draft-measuring-engineering-outcomes" }),
+        ).toBeUndefined();
         expect(buildServiceJsonLd(ORIGIN, { ...route, slug: "missing" })).toBeUndefined();
     });
 

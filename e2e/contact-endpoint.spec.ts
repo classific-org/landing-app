@@ -12,7 +12,7 @@ async function fillValidEnquiry(page: import("@playwright/test").Page) {
 
 test("mock success reports delivery only after the endpoint responds", async ({ page }) => {
     await page.route("**/api/enquiry", async (route) => {
-        await route.fulfill({ status: 202, contentType: "application/json", body: "{\"ok\":true}" });
+        await route.fulfill({ status: 202, contentType: "application/json", body: '{"ok":true}' });
     });
     await page.goto("/contact");
     await fillValidEnquiry(page);

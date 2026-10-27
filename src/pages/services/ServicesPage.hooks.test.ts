@@ -4,7 +4,15 @@ import { collectUnique, useServicesPage } from "@/pages/services/ServicesPage.ho
 
 describe("services page helpers", () => {
     it("collects unique values up to a limit", () => {
-        expect(collectUnique([["a", "b"], ["b", "c"]], 2)).toEqual(["a", "b"]);
+        expect(
+            collectUnique(
+                [
+                    ["a", "b"],
+                    ["b", "c"],
+                ],
+                2,
+            ),
+        ).toEqual(["a", "b"]);
         expect(collectUnique([[], ["x"]], 5)).toEqual(["x"]);
     });
 

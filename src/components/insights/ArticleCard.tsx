@@ -25,7 +25,11 @@ export function ArticleCard({ article, headingLevel = "h3" }: ArticleCardProps) 
                 <p className="mt-3 text-body text-body">{article.excerpt}</p>
             </div>
             <div className="lg:col-span-2 lg:text-right">
-                <Link to={href} className="arrow-link text-small" aria-label={`Read: ${article.title}`}>
+                <Link
+                    to={href}
+                    className="arrow-link text-small"
+                    aria-label={`Read: ${article.title}`}
+                >
                     <span>Read</span>
                     <Icon name="arrow-right" />
                 </Link>

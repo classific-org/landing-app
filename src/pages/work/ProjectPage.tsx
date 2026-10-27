@@ -74,7 +74,11 @@ export function ProjectPage() {
             <Section labelledBy="overview-title" tone="white">
                 <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
                     <div className="lg:col-span-4">
-                        <SectionHeading id="overview-title" eyebrow="Overview" title="The project." />
+                        <SectionHeading
+                            id="overview-title"
+                            eyebrow="Overview"
+                            title="The project."
+                        />
                     </div>
                     <div className="prose-editorial lg:col-span-7 lg:col-start-6">
                         <p>{project.description}</p>
@@ -137,7 +141,9 @@ export function ProjectPage() {
                                 <dl className="divide-y divide-rule border-y border-rule">
                                     {project.outcomes?.map((outcome) => (
                                         <div key={outcome.label} className="py-3">
-                                            <dt className="text-small text-body">{outcome.label}</dt>
+                                            <dt className="text-small text-body">
+                                                {outcome.label}
+                                            </dt>
                                             <dd className="text-h3">{outcome.value}</dd>
                                         </div>
                                     ))}
@@ -154,7 +160,12 @@ export function ProjectPage() {
             </Section>
 
             <Section labelledBy="related-title" tone="white">
-                <SectionHeading id="related-title" eyebrow="Related work" title="More projects." align="split" />
+                <SectionHeading
+                    id="related-title"
+                    eyebrow="Related work"
+                    title="More projects."
+                    align="split"
+                />
                 <div className="mt-12">
                     <ProjectGrid
                         projects={relatedProjects}

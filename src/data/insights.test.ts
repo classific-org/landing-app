@@ -8,7 +8,9 @@ import {
 
 describe("insight records", () => {
     it("exposes three published essays and keeps the draft unpublished", () => {
-        expect(articles.some((article) => article.slug === "draft-measuring-engineering-outcomes")).toBe(true);
+        expect(
+            articles.some((article) => article.slug === "draft-measuring-engineering-outcomes"),
+        ).toBe(true);
         const published = getPublishedArticles();
         expect(published).toHaveLength(3);
         expect(published.every((article) => article.status === "published")).toBe(true);

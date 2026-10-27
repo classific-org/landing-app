@@ -15,7 +15,12 @@ export function LegalPage() {
 
     return (
         <>
-            <PageHero eyebrow="Legal" title={document.title} copy={document.intro} breadcrumbs={breadcrumbs}>
+            <PageHero
+                eyebrow="Legal"
+                title={document.title}
+                copy={document.intro}
+                breadcrumbs={breadcrumbs}
+            >
                 <Alert
                     tone="warning"
                     className="mt-8 max-w-2xl border border-rule bg-accent-tint px-5 py-4 text-small text-ink"
@@ -40,7 +45,10 @@ export function LegalPage() {
                         <ol className="space-y-3 text-small">
                             {document.sections.map((section, index) => (
                                 <li key={section.heading}>
-                                    <a href={`#section-${index + 1}`} className="text-body hover:text-ink">
+                                    <a
+                                        href={`#section-${index + 1}`}
+                                        className="text-body hover:text-ink"
+                                    >
                                         {section.heading}
                                     </a>
                                 </li>
@@ -64,7 +72,9 @@ export function LegalPage() {
                             </section>
                         ))}
                         {document.lastUpdated ? (
-                            <p className="text-small text-body">Last updated {document.lastUpdated}</p>
+                            <p className="text-small text-body">
+                                Last updated {document.lastUpdated}
+                            </p>
                         ) : (
                             <p className="text-small text-body">
                                 Revision date will be recorded when the final text is approved.

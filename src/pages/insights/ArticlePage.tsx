@@ -59,7 +59,10 @@ export function ArticlePage() {
                                 <ArticleBody blocks={article.body} />
                                 {article.updatedAt ? (
                                     <p className="mt-12 border-t border-rule pt-4 text-small text-body">
-                                        Updated <time dateTime={article.updatedAt}>{article.updatedAt}</time>
+                                        Updated{" "}
+                                        <time dateTime={article.updatedAt}>
+                                            {article.updatedAt}
+                                        </time>
                                     </p>
                                 ) : null}
                             </div>
@@ -70,7 +73,11 @@ export function ArticlePage() {
 
             {relatedArticles.length > 0 ? (
                 <Section labelledBy="related-articles-title" tone="paper">
-                    <SectionHeading id="related-articles-title" eyebrow="Related" title="More insights." />
+                    <SectionHeading
+                        id="related-articles-title"
+                        eyebrow="Related"
+                        title="More insights."
+                    />
                     <div className="mt-10 border-b border-rule">
                         {relatedArticles.map((related) => (
                             <ArticleCard key={related.slug} article={related} headingLevel="h3" />

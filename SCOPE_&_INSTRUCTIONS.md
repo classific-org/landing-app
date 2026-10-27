@@ -1,4 +1,5 @@
 # Cursor Master Prompt: Classific Website
+
 ## Production-Grade Software Engineering Company Website
 
 You are a senior product designer, frontend architect, React engineer, accessibility specialist, SEO engineer, and QA engineer working on **Classific**, a professional software engineering and digital product development company.
@@ -148,17 +149,9 @@ Example:
 import { useHomePage } from "./HomePage.hooks";
 
 export function HomePage() {
-    const {
-        services,
-        featuredProjects,
-        handleProjectInquiry
-    } = useHomePage();
+  const { services, featuredProjects, handleProjectInquiry } = useHomePage();
 
-    return (
-        <main>
-            {/* Presentation only */}
-        </main>
-    );
+  return <main>{/* Presentation only */}</main>;
 }
 ```
 
@@ -246,15 +239,15 @@ Do not introduce these elements merely to make the site appear more visually imp
 
 ```css
 :root {
-    --color-ink: #111315;
-    --color-ink-soft: #25282B;
-    --color-body: #62666B;
-    --color-muted: #85898D;
-    --color-rule: #E5E5E2;
-    --color-paper: #F7F7F4;
-    --color-white: #FFFFFF;
-    --color-accent: #245BDB;
-    --color-accent-tint: #EAF0FF;
+  --color-ink: #111315;
+  --color-ink-soft: #25282b;
+  --color-body: #62666b;
+  --color-muted: #85898d;
+  --color-rule: #e5e5e2;
+  --color-paper: #f7f7f4;
+  --color-white: #ffffff;
+  --color-accent: #245bdb;
+  --color-accent-tint: #eaf0ff;
 }
 ```
 
@@ -279,16 +272,16 @@ Use responsive typography with `clamp()`.
 
 Initial scale:
 
-| Style | Desktop | Mobile |
-|---|---:|---:|
-| Display | 72px | 44px |
-| H1 | 60px | 40px |
-| H2 | 42px | 32px |
-| H3 | 24px | 21px |
-| Body large | 18px | 17px |
-| Body | 16px | 15px |
-| Small | 13px | 13px |
-| Eyebrow | 11px | 10px |
+| Style      | Desktop | Mobile |
+| ---------- | ------: | -----: |
+| Display    |    72px |   44px |
+| H1         |    60px |   40px |
+| H2         |    42px |   32px |
+| H3         |    24px |   21px |
+| Body large |    18px |   17px |
+| Body       |    16px |   15px |
+| Small      |    13px |   13px |
+| Eyebrow    |    11px |   10px |
 
 Use restrained font weights. Typography and spacing should create the hierarchy rather than excessive boldness.
 
@@ -1246,19 +1239,19 @@ Example script names:
 
 ```json
 {
-    "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "preview": "vite preview",
-        "lint": "eslint .",
-        "typecheck": "tsc --noEmit",
-        "test": "vitest run",
-        "test:watch": "vitest",
-        "test:coverage": "vitest run --coverage",
-        "test:e2e": "playwright test",
-        "seo:generate": "node scripts/generate-seo.mjs",
-        "check": "run-all-validation-tasks"
-    }
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "seo:generate": "node scripts/generate-seo.mjs",
+    "check": "run-all-validation-tasks"
+  }
 }
 ```
 

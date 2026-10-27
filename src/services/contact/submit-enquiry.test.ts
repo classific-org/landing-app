@@ -55,9 +55,11 @@ describe("enquiry client", () => {
     });
 
     it("reports sent only after a 2xx response", async () => {
-        const fetcher = vi.fn().mockResolvedValue(
-            new Response("ok", { status: 202, headers: { "content-type": "text/plain" } }),
-        );
+        const fetcher = vi
+            .fn()
+            .mockResolvedValue(
+                new Response("ok", { status: 202, headers: { "content-type": "text/plain" } }),
+            );
         const client = createEnquiryClient({
             endpoint: "https://forms.example/enquiry",
             fetcher,

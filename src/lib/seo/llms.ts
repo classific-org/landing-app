@@ -25,7 +25,10 @@ export function buildLlmsTxt(origin: string): string {
         "",
         section("Site"),
         "",
-        ...routes.map((route) => `- [${route.title}](${toAbsoluteUrl(origin, route.path)}): ${route.description}`),
+        ...routes.map(
+            (route) =>
+                `- [${route.title}](${toAbsoluteUrl(origin, route.path)}): ${route.description}`,
+        ),
         "",
     ];
     return `${lines.join("\n")}\n`;

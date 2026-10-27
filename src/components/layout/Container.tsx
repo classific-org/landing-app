@@ -5,5 +5,7 @@ type ContainerProps = {
 };
 
 export function Container({ children, className, as: Tag = "div" }: ContainerProps) {
-    return <Tag className={["container-page", className].filter(Boolean).join(" ")}>{children}</Tag>;
+    return (
+        <Tag className={["container-page", className].filter(Boolean).join(" ")}>{children}</Tag>
+    );
 }

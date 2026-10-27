@@ -10,7 +10,9 @@ export const REQUIRED_SEO_FILES = [
 
 export function assertNoLocalhost(content: string, label: string): void {
     if (LOCAL_HOST_PATTERN.test(content)) {
-        throw new Error(`${label} contains a localhost or loopback host, which is not allowed in production metadata.`);
+        throw new Error(
+            `${label} contains a localhost or loopback host, which is not allowed in production metadata.`,
+        );
     }
 }
 

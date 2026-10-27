@@ -12,10 +12,9 @@ export function renderWithRouter(
     ui: React.ReactNode,
     { path = "/", routes, ...options }: RenderRouteOptions = {},
 ): RenderResult {
-    const router = createMemoryRouter(
-        routes ?? [{ path: "*", element: ui }],
-        { initialEntries: [path] },
-    );
+    const router = createMemoryRouter(routes ?? [{ path: "*", element: ui }], {
+        initialEntries: [path],
+    });
     const headController = createSiteHeadController();
     return render(
         <App headController={headController} applyHead={false}>

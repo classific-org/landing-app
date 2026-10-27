@@ -15,9 +15,7 @@ export function rasterizeOgSvg(svg) {
     return renderer.render().asPng();
 }
 
-export async function renderOgImages({
-    directory = path.join(root, "public", "og"),
-} = {}) {
+export async function renderOgImages({ directory = path.join(root, "public", "og") } = {}) {
     const { titles } = await withViteSsr(root, async (vite) => {
         const [{ site }, { services }, { getPublishedProjects }, { getPublishedArticles }] =
             await Promise.all([
@@ -55,24 +53,34 @@ export async function renderOgImages({
 
     for (const service of titles.services) {
         const file = path.join(directory, "services", `${service.slug}.png`);
-        await writeFile(file, rasterizeOgSvg(buildOgSvg({ title: service.title, eyebrow: "SERVICE" })));
+        await writeFile(
+            file,
+            rasterizeOgSvg(buildOgSvg({ title: service.title, eyebrow: "SERVICE" })),
+        );
         written.push(file);
     }
     for (const article of titles.articles) {
         const file = path.join(directory, "insights", `${article.slug}.png`);
-        await writeFile(file, rasterizeOgSvg(buildOgSvg({ title: article.title, eyebrow: "INSIGHTS" })));
+        await writeFile(
+            file,
+            rasterizeOgSvg(buildOgSvg({ title: article.title, eyebrow: "INSIGHTS" })),
+        );
         written.push(file);
     }
     for (const project of titles.projects) {
         const file = path.join(directory, "work", `${project.slug}.png`);
-        await writeFile(file, rasterizeOgSvg(buildOgSvg({ title: project.title, eyebrow: "WORK" })));
+        await writeFile(
+            file,
+            rasterizeOgSvg(buildOgSvg({ title: project.title, eyebrow: "WORK" })),
+        );
         written.push(file);
     }
 
     return written;
 }
 
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isDirectRun =
+    process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isDirectRun) {
     const written = await renderOgImages();

@@ -51,7 +51,10 @@ export function createClassificThemeController(): ThemeController {
 
 export function applyClassificTheme(
     element: {
-        style: { setProperty(name: string, value: string): void; removeProperty(name: string): void };
+        style: {
+            setProperty(name: string, value: string): void;
+            removeProperty(name: string): void;
+        };
         setAttribute(name: string, value: string): void;
         removeAttribute(name: string): void;
     } = document.documentElement,

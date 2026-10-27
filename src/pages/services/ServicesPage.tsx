@@ -9,6 +9,9 @@ import { BulletList } from "@/components/ui/BulletList";
 import { TextLink } from "@/components/ui/TextLink";
 import { useServicesPage } from "@/pages/services/ServicesPage.hooks";
 
+import layeredArchitectureImg from "@/assets/services/layered_architecture.jpg";
+import connectedSystemsImg from "@/assets/services/connected_systems.jpg";
+
 export function ServicesPage() {
     const { services, stages, faqs, breadcrumbs, problems, deliverables } = useServicesPage();
 
@@ -34,8 +37,9 @@ export function ServicesPage() {
                 </div>
             </Section>
 
+            {/* Business Problems with Visual Companion */}
             <Section labelledBy="problems-title" tone="paper">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+                <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-10">
                     <div className="lg:col-span-5">
                         <SectionHeading
                             id="problems-title"
@@ -43,15 +47,31 @@ export function ServicesPage() {
                             title="Projects start with a problem, not a technology."
                             intro="The requests we hear most often share a pattern: a process that has outgrown its tools, or a system that holds the business back."
                         />
+                        <div className="mt-8 overflow-hidden rounded-md border border-rule bg-white shadow-xs">
+                            <div className="aspect-[16/10] overflow-hidden">
+                                <img
+                                    src={connectedSystemsImg}
+                                    alt="Connected systems architecture"
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                />
+                            </div>
+                            <div className="border-t border-rule bg-paper px-4 py-2.5 font-mono text-[11px] text-muted">
+                                DISTRIBUTED ARCHITECTURE &amp; DATA FLOW
+                            </div>
+                        </div>
                     </div>
-                    <div className="lg:col-span-6 lg:col-start-7">
-                        <BulletList items={problems} numbered />
+                    <div className="lg:col-span-7">
+                        <div className="rounded-md border border-rule bg-white p-8 shadow-xs">
+                            <BulletList items={problems} numbered />
+                        </div>
                     </div>
                 </div>
             </Section>
 
+            {/* Deliverables with Layered Architecture Asset */}
             <Section labelledBy="deliverables-title" tone="white">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+                <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-10">
                     <div className="lg:col-span-5">
                         <SectionHeading
                             id="deliverables-title"
@@ -59,9 +79,24 @@ export function ServicesPage() {
                             title="What you receive."
                             intro="Deliverables vary by project, but working software is always accompanied by the documentation and tooling needed to run it."
                         />
+                        <div className="mt-8 overflow-hidden rounded-md border border-rule bg-paper shadow-xs">
+                            <div className="aspect-[16/10] overflow-hidden">
+                                <img
+                                    src={layeredArchitectureImg}
+                                    alt="Layered software architecture on volcanic pedestal"
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                />
+                            </div>
+                            <div className="border-t border-rule bg-white px-4 py-2.5 font-mono text-[11px] text-muted">
+                                FULL-STACK DELIVERABLE STACK
+                            </div>
+                        </div>
                     </div>
-                    <div className="lg:col-span-6 lg:col-start-7">
-                        <BulletList items={deliverables} columns={1} />
+                    <div className="lg:col-span-7">
+                        <div className="rounded-md border border-rule bg-paper/60 p-8 shadow-xs">
+                            <BulletList items={deliverables} columns={1} />
+                        </div>
                     </div>
                 </div>
             </Section>
@@ -86,7 +121,7 @@ export function ServicesPage() {
             </Section>
 
             <Section labelledBy="faq-title" tone="white">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+                <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
                     <div className="lg:col-span-4">
                         <SectionHeading
                             id="faq-title"
@@ -94,7 +129,7 @@ export function ServicesPage() {
                             title="Frequently asked."
                         />
                     </div>
-                    <div className="lg:col-span-7 lg:col-start-6">
+                    <div className="lg:col-span-8">
                         <FaqList faqs={faqs} idPrefix="services-faq" />
                     </div>
                 </div>

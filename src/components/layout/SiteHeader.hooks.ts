@@ -49,7 +49,11 @@ export function useSiteHeader(): SiteHeaderViewModel {
     }, [isMenuOpen]);
 
     useEffect(() => {
-        if (!isMenuOpen || typeof window === "undefined" || typeof window.matchMedia !== "function") {
+        if (
+            !isMenuOpen ||
+            typeof window === "undefined" ||
+            typeof window.matchMedia !== "function"
+        ) {
             return;
         }
         const media = window.matchMedia(DESKTOP_QUERY);

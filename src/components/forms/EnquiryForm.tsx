@@ -39,7 +39,12 @@ export function EnquiryForm({ client }: EnquiryFormProps = {}) {
             {!sent ? (
                 <>
                     <div className="grid gap-8 sm:grid-cols-2">
-                        <FormField ids={fields.name.ids} label="Name" required error={fields.name.error}>
+                        <FormField
+                            ids={fields.name.ids}
+                            label="Name"
+                            required
+                            error={fields.name.error}
+                        >
                             <Input
                                 fieldIds={fields.name.ids}
                                 name="name"

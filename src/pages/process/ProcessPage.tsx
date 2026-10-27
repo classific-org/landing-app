@@ -6,6 +6,8 @@ import { ProcessSteps } from "@/components/process/ProcessSteps";
 import { FaqList } from "@/components/services/FaqList";
 import { useProcessPage } from "@/pages/process/ProcessPage.hooks";
 
+import processDiagramImg from "@/assets/process/process_discover_plan_design_develop_launch.jpg";
+
 export function ProcessPage() {
     const { stages, expectations, faqs, breadcrumbs } = useProcessPage();
 
@@ -18,7 +20,21 @@ export function ProcessPage() {
                 breadcrumbs={breadcrumbs}
             />
 
-            <Section labelledBy="stages-title" tone="white">
+            {/* Visual Process Sequence Hero Banner */}
+            <section className="border-b border-rule bg-white py-12 lg:py-16">
+                <div className="container-page">
+                    <div className="overflow-hidden rounded-md border border-rule bg-paper p-4 shadow-xs sm:p-8">
+                        <img
+                            src={processDiagramImg}
+                            alt="Classific 5-stage engineering sequence: Discover, Plan, Design, Develop, Launch"
+                            className="mx-auto h-auto max-h-56 w-full object-contain"
+                            loading="eager"
+                        />
+                    </div>
+                </div>
+            </section>
+
+            <Section labelledBy="stages-title" tone="paper">
                 <SectionHeading
                     id="stages-title"
                     eyebrow="Stages"
@@ -31,8 +47,8 @@ export function ProcessPage() {
                 </div>
             </Section>
 
-            <Section labelledBy="collaboration-title" tone="paper">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+            <Section labelledBy="collaboration-title" tone="white">
+                <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
                     <div className="lg:col-span-4">
                         <SectionHeading
                             id="collaboration-title"
@@ -41,19 +57,26 @@ export function ProcessPage() {
                             intro="Good software is built with the people who will use it. These expectations keep that collaboration productive."
                         />
                     </div>
-                    <dl className="grid gap-x-8 border-t border-rule sm:grid-cols-2 lg:col-span-7 lg:col-start-6">
+                    <dl className="grid gap-6 sm:grid-cols-2 lg:col-span-8">
                         {expectations.map((expectation) => (
-                            <div key={expectation.title} className="border-b border-rule py-8">
-                                <dt className="text-h3">{expectation.title}</dt>
-                                <dd className="mt-3 text-body text-body">{expectation.description}</dd>
+                            <div
+                                key={expectation.title}
+                                className="group rounded-md border border-rule bg-paper p-7 shadow-xs transition-all duration-300 hover:border-ink-soft/40 hover:bg-white hover:shadow-md"
+                            >
+                                <dt className="text-h3 font-medium text-ink transition-colors group-hover:text-accent">
+                                    {expectation.title}
+                                </dt>
+                                <dd className="mt-3 text-body text-body leading-relaxed">
+                                    {expectation.description}
+                                </dd>
                             </div>
                         ))}
                     </dl>
                 </div>
             </Section>
 
-            <Section labelledBy="support-title" tone="white">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+            <Section labelledBy="support-title" tone="paper">
+                <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
                     <div className="lg:col-span-5">
                         <SectionHeading
                             id="support-title"
@@ -62,7 +85,7 @@ export function ProcessPage() {
                             intro="Launch is a change in who depends on the software. We agree monitoring, response and improvement arrangements before go-live, so the weeks after release are calm rather than reactive."
                         />
                     </div>
-                    <div className="lg:col-span-6 lg:col-start-7">
+                    <div className="lg:col-span-7">
                         <FaqList faqs={faqs} idPrefix="process-faq" />
                     </div>
                 </div>

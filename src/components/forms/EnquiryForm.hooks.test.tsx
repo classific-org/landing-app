@@ -63,7 +63,10 @@ describe("enquiry form hook", () => {
 
     it("keeps the honeypot out of the visible field model", () => {
         const { result } = renderHook(() =>
-            useEnquiryForm({ isConfigured: false, submit: vi.fn().mockResolvedValue({ status: "unavailable" }) }),
+            useEnquiryForm({
+                isConfigured: false,
+                submit: vi.fn().mockResolvedValue({ status: "unavailable" }),
+            }),
         );
         expect(result.current.honeypot.name).toBe("website");
         act(() => result.current.honeypot.setValue("spam"));

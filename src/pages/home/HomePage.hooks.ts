@@ -22,7 +22,10 @@ export type HomePageViewModel = {
 
 export const FEATURED_PROJECT_LIMIT = 3;
 
-export function selectFeaturedProjects(projects: Project[], limit = FEATURED_PROJECT_LIMIT): Project[] {
+export function selectFeaturedProjects(
+    projects: Project[],
+    limit = FEATURED_PROJECT_LIMIT,
+): Project[] {
     return projects.slice(0, limit);
 }
 

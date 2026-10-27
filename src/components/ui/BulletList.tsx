@@ -18,7 +18,10 @@ export function BulletList({ items, columns = 1, numbered = false }: BulletListP
         >
             {items.map((item, index) => (
                 <li key={item} className="flex gap-4 border-b border-rule py-4 text-body text-body">
-                    <span className="mt-[0.2em] text-small tabular-nums text-body" aria-hidden="true">
+                    <span
+                        className="mt-[0.2em] text-small tabular-nums text-body"
+                        aria-hidden="true"
+                    >
                         {numbered ? (index + 1).toString().padStart(2, "0") : "—"}
                     </span>
                     <span>{item}</span>

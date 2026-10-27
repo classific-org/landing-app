@@ -13,7 +13,13 @@ export const publishedWebProject: Project = {
     technologies: ["TypeScript", "React"],
     services: ["web-applications"],
     publishedAt: "2026-01-12",
-    outcomes: [{ label: "Manual status updates", value: "Removed from the weekly process", verified: true }],
+    outcomes: [
+        {
+            label: "Manual status updates",
+            value: "Removed from the weekly process",
+            verified: true,
+        },
+    ],
 };
 
 export const publishedMobileProject: Project = {

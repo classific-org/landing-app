@@ -23,11 +23,23 @@ export function SiteFooter() {
                         <Link to="/" className="inline-flex" aria-label="Classific home">
                             <Wordmark className="h-7 w-auto" />
                         </Link>
-                        <p className="mt-6 max-w-sm text-body text-body">{description}</p>
+                        <p className="mt-5 max-w-sm text-body text-body leading-relaxed">
+                            {description}
+                        </p>
+
+                        <div className="mt-6">
+                            <span className="inline-flex items-center gap-2 rounded-full border border-rule bg-white/90 px-3 py-1 font-mono text-[11px] text-body shadow-xs">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
+                                </span>
+                                <span>Global studio • Open for inquiries</span>
+                            </span>
+                        </div>
                     </div>
 
                     <nav aria-labelledby="footer-services" className="lg:col-span-3 lg:col-start-6">
-                        <h2 id="footer-services" className="eyebrow mb-5">
+                        <h2 id="footer-services" className="eyebrow mb-5 text-ink">
                             Services
                         </h2>
                         <ul className="space-y-3">
@@ -35,7 +47,7 @@ export function SiteFooter() {
                                 <li key={item.href}>
                                     <Link
                                         to={item.href}
-                                        className="text-small text-body transition-colors hover:text-ink"
+                                        className="text-small text-body transition-colors hover:text-accent"
                                     >
                                         {item.label}
                                     </Link>
@@ -45,7 +57,7 @@ export function SiteFooter() {
                     </nav>
 
                     <nav aria-labelledby="footer-company" className="lg:col-span-2">
-                        <h2 id="footer-company" className="eyebrow mb-5">
+                        <h2 id="footer-company" className="eyebrow mb-5 text-ink">
                             Company
                         </h2>
                         <ul className="space-y-3">
@@ -53,7 +65,7 @@ export function SiteFooter() {
                                 <li key={item.href}>
                                     <Link
                                         to={item.href}
-                                        className="text-small text-body transition-colors hover:text-ink"
+                                        className="text-small text-body transition-colors hover:text-accent"
                                     >
                                         {item.label}
                                     </Link>
@@ -63,7 +75,7 @@ export function SiteFooter() {
                     </nav>
 
                     <div className="lg:col-span-2">
-                        <h2 className="eyebrow mb-5">Contact</h2>
+                        <h2 className="eyebrow mb-5 text-ink">Contact</h2>
                         {hasContact ? (
                             <address className="space-y-3 text-small not-italic text-body">
                                 {contact.email ? (
@@ -83,11 +95,16 @@ export function SiteFooter() {
                                 {contact.address ? <p>{contact.address}</p> : null}
                             </address>
                         ) : (
-                            <p className="text-small text-body">
-                                <Link to="/contact" className="text-link">
-                                    Start a project enquiry
-                                </Link>
-                            </p>
+                            <div className="space-y-3">
+                                <p className="text-small text-body">
+                                    <Link to="/contact" className="text-link font-medium">
+                                        Start a project enquiry
+                                    </Link>
+                                </p>
+                                <p className="font-mono text-[11px] text-muted">
+                                    Response within 24 business hours.
+                                </p>
+                            </div>
                         )}
                         {social.length > 0 ? (
                             <ul className="mt-5 space-y-3">
@@ -108,12 +125,15 @@ export function SiteFooter() {
                     </div>
                 </div>
 
-                <div className="mt-16 flex flex-col gap-4 border-t border-rule pt-6 text-small text-body sm:flex-row sm:items-center sm:justify-between">
-                    <p>{copyright}</p>
+                <div className="mt-16 flex flex-col gap-4 border-t border-rule pt-8 text-small text-muted sm:flex-row sm:items-center sm:justify-between">
+                    <p className="font-mono text-xs">{copyright}</p>
                     <ul className="flex gap-6">
                         {legalLinks.map((item) => (
                             <li key={item.href}>
-                                <Link to={item.href} className="transition-colors hover:text-ink">
+                                <Link
+                                    to={item.href}
+                                    className="transition-colors hover:text-ink font-mono text-xs"
+                                >
                                     {item.label}
                                 </Link>
                             </li>

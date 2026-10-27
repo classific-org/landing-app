@@ -14,8 +14,17 @@ type PageHeroProps = {
 
 export function PageHero({ eyebrow, title, copy, breadcrumbs, children, aside }: PageHeroProps) {
     return (
-        <section aria-labelledby="page-title" className="border-b border-rule bg-paper">
-            <Container className="py-14 lg:py-24">
+        <section
+            aria-labelledby="page-title"
+            className="relative overflow-hidden border-b border-rule bg-paper"
+        >
+            {/* Blueprint Grid Texture */}
+            <div
+                className="pointer-events-none absolute inset-0 grid-blueprint opacity-45"
+                aria-hidden="true"
+            />
+
+            <Container className="relative py-14 lg:py-24">
                 {breadcrumbs ? (
                     <div className="mb-8">
                         <Breadcrumbs items={breadcrumbs} />
@@ -23,14 +32,23 @@ export function PageHero({ eyebrow, title, copy, breadcrumbs, children, aside }:
                 ) : null}
                 <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
                     <div className="lg:col-span-8">
-                        <Eyebrow className="mb-5">{eyebrow}</Eyebrow>
-                        <h1 id="page-title" className="text-h1">
+                        <div className="flex items-center gap-2 mb-5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                            <Eyebrow>{eyebrow}</Eyebrow>
+                        </div>
+                        <h1 id="page-title" className="text-h1 leading-tight tracking-tight">
                             {title}
                         </h1>
-                        {copy ? <p className="mt-8 max-w-2xl text-body-lg text-body">{copy}</p> : null}
+                        {copy ? (
+                            <p className="mt-8 max-w-2xl text-body-lg text-body leading-relaxed">
+                                {copy}
+                            </p>
+                        ) : null}
                         {children}
                     </div>
-                    {aside ? <div className="lg:col-span-3 lg:col-start-10 lg:self-end">{aside}</div> : null}
+                    {aside ? (
+                        <div className="lg:col-span-3 lg:col-start-10 lg:self-end">{aside}</div>
+                    ) : null}
                 </div>
             </Container>
         </section>

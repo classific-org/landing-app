@@ -9,7 +9,9 @@ async function assertNoHorizontalOverflow(page: import("@playwright/test").Page,
             scrollWidth: doc.scrollWidth,
         };
     });
-    expect(overflow.scrollWidth, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(overflow.clientWidth + 1);
+    expect(overflow.scrollWidth, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(
+        overflow.clientWidth + 1,
+    );
 }
 
 const pages = ["/", "/services", "/work", "/process", "/about", "/insights", "/contact"];

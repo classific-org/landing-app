@@ -36,7 +36,10 @@ describe("SEO file assertions", () => {
         expect(() => assertRobotsShape("User-agent: *", ORIGIN)).toThrow(/public pages/);
         expect(() => assertRobotsShape("User-agent: *\nAllow: /\n", ORIGIN)).toThrow(/sitemap/);
         expect(() =>
-            assertRobotsShape(`User-agent: *\nAllow: /\nDisallow: /assets\nSitemap: ${ORIGIN}/sitemap.xml`, ORIGIN),
+            assertRobotsShape(
+                `User-agent: *\nAllow: /\nDisallow: /assets\nSitemap: ${ORIGIN}/sitemap.xml`,
+                ORIGIN,
+            ),
         ).toThrow(/assets/);
     });
 });

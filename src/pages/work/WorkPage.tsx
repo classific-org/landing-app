@@ -7,8 +7,15 @@ import { TextLink } from "@/components/ui/TextLink";
 import { useWorkPage } from "@/pages/work/WorkPage.hooks";
 
 export function WorkPage() {
-    const { projects, categories, activeCategory, showFilters, breadcrumbs, setCategory, hasProjects } =
-        useWorkPage();
+    const {
+        projects,
+        categories,
+        activeCategory,
+        showFilters,
+        breadcrumbs,
+        setCategory,
+        hasProjects,
+    } = useWorkPage();
 
     return (
         <>

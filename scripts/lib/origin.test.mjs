@@ -26,7 +26,9 @@ describe("origin helpers", () => {
     });
 
     it("strips trailing slashes and throws when the origin is not production-safe", () => {
-        expect(normalizeOrigin("https://www.classific.example/")).toBe("https://www.classific.example");
+        expect(normalizeOrigin("https://www.classific.example/")).toBe(
+            "https://www.classific.example",
+        );
         expect(requireProductionOrigin("https://www.classific.example/")).toBe(
             "https://www.classific.example",
         );

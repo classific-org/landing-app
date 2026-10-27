@@ -7,7 +7,9 @@ import { renderWithRouter } from "@/test/render";
 describe("project grid", () => {
     it("renders the honest empty state when nothing is published", () => {
         renderWithRouter(<ProjectGrid projects={[]} />);
-        expect(screen.getByTestId("projects-empty")).toHaveTextContent(/no published projects yet/i);
+        expect(screen.getByTestId("projects-empty")).toHaveTextContent(
+            /no published projects yet/i,
+        );
         expect(screen.queryByRole("link", { name: /operations portal/i })).not.toBeInTheDocument();
     });
 

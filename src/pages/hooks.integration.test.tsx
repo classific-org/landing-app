@@ -73,10 +73,9 @@ describe("routed page hooks", () => {
     });
 
     it("applies document head for the current location", () => {
-        const router = createMemoryRouter(
-            [{ path: "/about", Component: DocumentHead }],
-            { initialEntries: ["/about"] },
-        );
+        const router = createMemoryRouter([{ path: "/about", Component: DocumentHead }], {
+            initialEntries: ["/about"],
+        });
         render(
             <App headController={createSiteHeadController()} applyHead={false}>
                 <RouterProvider router={router} />

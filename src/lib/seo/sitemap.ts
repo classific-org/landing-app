@@ -6,7 +6,10 @@ export type SitemapEntry = {
     lastmod?: string;
 };
 
-export function buildSitemapEntries(origin: string, routes: PublicRoute[] = buildPublicRoutes()): SitemapEntry[] {
+export function buildSitemapEntries(
+    origin: string,
+    routes: PublicRoute[] = buildPublicRoutes(),
+): SitemapEntry[] {
     return routes.map((route) => ({
         loc: toAbsoluteUrl(origin, route.path),
         ...(route.lastmod ? { lastmod: route.lastmod } : {}),
@@ -22,7 +25,10 @@ function escapeXml(value: string): string {
         .replaceAll("'", "&apos;");
 }
 
-export function buildSitemapXml(origin: string, routes: PublicRoute[] = buildPublicRoutes()): string {
+export function buildSitemapXml(
+    origin: string,
+    routes: PublicRoute[] = buildPublicRoutes(),
+): string {
     const urls = buildSitemapEntries(origin, routes)
         .map((entry) => {
             const lastmod = entry.lastmod

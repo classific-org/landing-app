@@ -1,13 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { ALL_CATEGORY, filterProjects, resolveCategory, shouldShowFilters } from "@/lib/projects/filter";
+import {
+    ALL_CATEGORY,
+    filterProjects,
+    resolveCategory,
+    shouldShowFilters,
+} from "@/lib/projects/filter";
 import { publishedProjectFixtures } from "@/test/fixtures/projects";
 
 describe("project filters", () => {
     it("returns every project for the all category and filters otherwise", () => {
         expect(filterProjects(publishedProjectFixtures, ALL_CATEGORY)).toHaveLength(2);
-        expect(filterProjects(publishedProjectFixtures, "Web").map((project) => project.slug)).toEqual([
-            "operations-portal",
-        ]);
+        expect(
+            filterProjects(publishedProjectFixtures, "Web").map((project) => project.slug),
+        ).toEqual(["operations-portal"]);
         expect(filterProjects(publishedProjectFixtures, "Desktop")).toEqual([]);
     });
 

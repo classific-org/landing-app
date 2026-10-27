@@ -43,8 +43,8 @@ describe("document head patches", () => {
     it("marks unknown pages as noindex", () => {
         const patch = buildNotFoundHeadPatch();
         expect(patch.title).toBe("Page not found");
-        expect(patch.meta?.some((item) => item.name === "robots" && item.content?.includes("noindex"))).toBe(
-            true,
-        );
+        expect(
+            patch.meta?.some((item) => item.name === "robots" && item.content?.includes("noindex")),
+        ).toBe(true);
     });
 });

@@ -12,8 +12,9 @@ describe("sitemap builder", () => {
         expect(entries.every((entry) => entry.loc.startsWith(ORIGIN))).toBe(true);
         expect(entries.find((entry) => entry.loc === `${ORIGIN}/`)?.lastmod).toBeUndefined();
         expect(
-            entries.find((entry) => entry.loc === `${ORIGIN}/insights/what-discovery-actually-decides`)
-                ?.lastmod,
+            entries.find(
+                (entry) => entry.loc === `${ORIGIN}/insights/what-discovery-actually-decides`,
+            )?.lastmod,
         ).toBe("2026-02-10");
     });
 
@@ -29,7 +30,7 @@ describe("sitemap builder", () => {
                 breadcrumbs: [],
             },
         ]);
-        expect(xml).toContain("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
         expect(xml).toContain("<urlset");
         expect(xml).toContain(`${ORIGIN}/a&amp;b`);
         expect(xml).toContain("<lastmod>2026-01-01</lastmod>");

@@ -45,10 +45,16 @@ describe("site header behaviour", () => {
                 matches: false,
                 media: query,
                 onchange: null,
-                addEventListener: (_event: string, listener: (event: MediaQueryListEvent) => void) => {
+                addEventListener: (
+                    _event: string,
+                    listener: (event: MediaQueryListEvent) => void,
+                ) => {
                     listeners.add(listener);
                 },
-                removeEventListener: (_event: string, listener: (event: MediaQueryListEvent) => void) => {
+                removeEventListener: (
+                    _event: string,
+                    listener: (event: MediaQueryListEvent) => void,
+                ) => {
                     listeners.delete(listener);
                 },
                 addListener: () => undefined,

@@ -9,7 +9,9 @@ export type InsightsPageViewModel = {
     hasArticles: boolean;
 };
 
-export function useInsightsPage(loadArticles: () => Article[] = getPublishedArticles): InsightsPageViewModel {
+export function useInsightsPage(
+    loadArticles: () => Article[] = getPublishedArticles,
+): InsightsPageViewModel {
     const articles = loadArticles();
     return {
         articles,

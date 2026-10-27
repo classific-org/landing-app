@@ -36,7 +36,8 @@ export async function generateSeoFiles({
     return files;
 }
 
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isDirectRun =
+    process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isDirectRun) {
     const origin = requireProductionOrigin(process.env.SITE_ORIGIN);

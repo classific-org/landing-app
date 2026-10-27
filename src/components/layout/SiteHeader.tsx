@@ -10,24 +10,33 @@ export function SiteHeader() {
         useSiteHeader();
 
     return (
-        <header className="border-b border-rule bg-paper">
+        <header className="sticky top-0 z-50 border-b border-rule/80 glass-header shadow-xs transition-all duration-300">
             <Container className="flex h-[72px] items-center justify-between gap-6">
-                <Link to="/" className="inline-flex items-center" aria-label="Classific home">
-                    <Wordmark className="h-7 w-auto" />
-                </Link>
+                <div className="flex items-center gap-4">
+                    <Link to="/" className="inline-flex items-center" aria-label="Classific home">
+                        <Wordmark className="h-7 w-auto" />
+                    </Link>
+                    <span className="hidden items-center gap-2 rounded-full border border-rule bg-white/80 px-2.5 py-0.5 text-[11px] font-medium text-body shadow-xs xl:inline-flex">
+                        <span className="relative flex h-2 w-2">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
+                        </span>
+                        <span>Available for Q2/Q3 projects</span>
+                    </span>
+                </div>
 
                 <nav aria-label="Primary" className="hidden lg:block">
-                    <ul className="flex items-center gap-8">
+                    <ul className="flex items-center gap-1 xl:gap-2">
                         {navigation.map((item) => (
                             <li key={item.href}>
                                 <NavLink
                                     to={item.href}
                                     className={({ isActive }) =>
                                         [
-                                            "text-small font-medium transition-colors",
+                                            "rounded-md px-3.5 py-1.5 text-small font-medium transition-all duration-150",
                                             isActive
-                                                ? "text-ink underline decoration-ink underline-offset-8"
-                                                : "text-body hover:text-ink",
+                                                ? "bg-white text-ink shadow-xs border border-rule/80"
+                                                : "text-body hover:bg-white/60 hover:text-ink",
                                         ].join(" ")
                                     }
                                 >
@@ -39,7 +48,7 @@ export function SiteHeader() {
                 </nav>
 
                 <div className="hidden lg:block">
-                    <ButtonLink to={cta.href} variant="primary">
+                    <ButtonLink to={cta.href} variant="primary" withArrow>
                         {cta.label}
                     </ButtonLink>
                 </div>

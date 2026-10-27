@@ -15,7 +15,15 @@ type FormFieldProps = {
  * Label plus Sometic Field (description, control and error slots). The label is rendered
  * here with React's htmlFor so the association is explicit and free of DOM warnings.
  */
-export function FormField({ ids, label, required, description, error, children, className }: FormFieldProps) {
+export function FormField({
+    ids,
+    label,
+    required,
+    description,
+    error,
+    children,
+    className,
+}: FormFieldProps) {
     return (
         <div className={className}>
             <label id={ids.labelId} htmlFor={ids.id} className="field-label">

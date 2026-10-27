@@ -59,41 +59,42 @@ export const defaultEnquiryValues: EnquiryValues = {
 const serviceValues = SERVICE_OPTIONS.map((option) => option.value);
 const budgetValues = BUDGET_OPTIONS.map((option) => option.value);
 
-export const enquiryValidators: Record<keyof Omit<EnquiryValues, "website">, readonly Validator[]> = {
-    name: [pipe(required("Please enter your name."), maxLength(120, "Name is too long."))],
-    email: [
-        pipe(
-            required("Please enter your business email."),
-            email("Enter a valid email address, like name@company.com."),
-            maxLength(254, "Email is too long."),
-        ),
-    ],
-    company: [maxLength(160, "Company name is too long.")],
-    service: [
-        pipe(
-            required("Choose the service you are interested in."),
-            oneOf(serviceValues, "Choose one of the listed services."),
-        ),
-    ],
-    budget: [oneOf(budgetValues, "Choose one of the listed budget ranges.")],
-    message: [
-        pipe(
-            required("Tell us a little about the project."),
-            minLength(
-                MESSAGE_MIN_LENGTH,
-                `Please add a few more details (at least ${MESSAGE_MIN_LENGTH} characters).`,
+export const enquiryValidators: Record<keyof Omit<EnquiryValues, "website">, readonly Validator[]> =
+    {
+        name: [pipe(required("Please enter your name."), maxLength(120, "Name is too long."))],
+        email: [
+            pipe(
+                required("Please enter your business email."),
+                email("Enter a valid email address, like name@company.com."),
+                maxLength(254, "Email is too long."),
             ),
-            maxLength(MESSAGE_MAX_LENGTH, "Please shorten the description."),
-        ),
-    ],
-    privacy: [
-        custom(
-            (value) => value === true,
-            "Please confirm you have read the privacy policy.",
-            "privacy-required",
-        ),
-    ],
-};
+        ],
+        company: [maxLength(160, "Company name is too long.")],
+        service: [
+            pipe(
+                required("Choose the service you are interested in."),
+                oneOf(serviceValues, "Choose one of the listed services."),
+            ),
+        ],
+        budget: [oneOf(budgetValues, "Choose one of the listed budget ranges.")],
+        message: [
+            pipe(
+                required("Tell us a little about the project."),
+                minLength(
+                    MESSAGE_MIN_LENGTH,
+                    `Please add a few more details (at least ${MESSAGE_MIN_LENGTH} characters).`,
+                ),
+                maxLength(MESSAGE_MAX_LENGTH, "Please shorten the description."),
+            ),
+        ],
+        privacy: [
+            custom(
+                (value) => value === true,
+                "Please confirm you have read the privacy policy.",
+                "privacy-required",
+            ),
+        ],
+    };
 
 export function isHoneypotTriggered(values: Pick<EnquiryValues, "website">): boolean {
     return values.website.trim().length > 0;
@@ -111,7 +112,10 @@ export async function validateEnquiry(values: EnquiryValues): Promise<Validation
     return issues;
 }
 
-export function toEnquiryPayload(values: EnquiryValues, now: () => Date = () => new Date()): EnquiryPayload {
+export function toEnquiryPayload(
+    values: EnquiryValues,
+    now: () => Date = () => new Date(),
+): EnquiryPayload {
     return {
         name: values.name.trim(),
         email: values.email.trim(),

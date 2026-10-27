@@ -28,12 +28,7 @@ export function Section({
         <section
             id={id}
             aria-labelledby={labelledBy}
-            className={[
-                "section-y",
-                toneClass[tone],
-                rule ? "border-b border-rule" : "",
-                className,
-            ]
+            className={["section-y", toneClass[tone], rule ? "border-b border-rule" : "", className]
                 .filter(Boolean)
                 .join(" ")}
         >

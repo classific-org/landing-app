@@ -12,6 +12,20 @@ import { ProjectGrid } from "@/components/projects/ProjectGrid";
 import { NotFoundPage } from "@/pages/not-found/NotFoundPage";
 import { useServiceDetailPage } from "@/pages/services/ServiceDetailPage.hooks";
 
+import webApplicationsImg from "@/assets/services/web_applications.jpg";
+import mobileApplicationsImg from "@/assets/services/mobile_applications.jpg";
+import desktopApplicationsImg from "@/assets/services/desktop_applications.jpg";
+import crmErpImg from "@/assets/services/crm_erp_systems.jpg";
+import customSoftwareImg from "@/assets/services/custom_software.jpg";
+
+const serviceImages: Record<string, string> = {
+    "web-applications": webApplicationsImg,
+    "mobile-applications": mobileApplicationsImg,
+    "desktop-applications": desktopApplicationsImg,
+    "crm-cms-erp": crmErpImg,
+    "custom-software": customSoftwareImg,
+};
+
 export function ServiceDetailPage() {
     const model = useServiceDetailPage();
 
@@ -20,6 +34,7 @@ export function ServiceDetailPage() {
     }
 
     const { service, relatedServices, relatedProjects, stages, breadcrumbs } = model;
+    const imageSrc = serviceImages[service.slug];
 
     return (
         <>
@@ -29,17 +44,30 @@ export function ServiceDetailPage() {
                 copy={service.hero.copy}
                 breadcrumbs={breadcrumbs}
                 aside={
-                    <div className="flex flex-col gap-4">
-                        <Icon name={service.icon} className="h-8 w-8 text-ink" />
-                        <ButtonLink to="/contact" variant="primary" withArrow>
+                    <div className="flex flex-col gap-5 rounded-md border border-rule bg-white p-5 shadow-sm">
+                        {imageSrc ? (
+                            <div className="relative aspect-[4/3] w-full overflow-hidden rounded border border-rule bg-paper">
+                                <img
+                                    src={imageSrc}
+                                    alt={service.title}
+                                    className="h-full w-full object-cover"
+                                    loading="eager"
+                                />
+                                <div className="absolute left-3 top-3 rounded-full border border-rule/80 bg-white/90 p-1.5 shadow-xs backdrop-blur-xs">
+                                    <Icon name={service.icon} className="h-4 w-4 text-ink" />
+                                </div>
+                            </div>
+                        ) : null}
+                        <ButtonLink to="/contact" variant="primary" withArrow className="w-full">
                             Discuss a project
                         </ButtonLink>
                     </div>
                 }
             />
 
+            {/* Problems We Solve */}
             <Section labelledBy="problems-title" tone="white">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+                <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
                     <div className="lg:col-span-5">
                         <SectionHeading
                             id="problems-title"
@@ -47,12 +75,15 @@ export function ServiceDetailPage() {
                             title={`When ${service.navLabel.toLowerCase()} work becomes a priority.`}
                         />
                     </div>
-                    <div className="lg:col-span-6 lg:col-start-7">
-                        <BulletList items={service.problems} numbered />
+                    <div className="lg:col-span-7">
+                        <div className="rounded-md border border-rule bg-paper/60 p-8 shadow-xs">
+                            <BulletList items={service.problems} numbered />
+                        </div>
                     </div>
                 </div>
             </Section>
 
+            {/* Capabilities Cards */}
             <Section labelledBy="capabilities-title" tone="paper">
                 <SectionHeading
                     id="capabilities-title"
@@ -60,18 +91,26 @@ export function ServiceDetailPage() {
                     title="What this service covers."
                     align="split"
                 />
-                <dl className="mt-12 grid gap-x-8 border-t border-rule sm:grid-cols-2 lg:mt-16">
+                <dl className="mt-12 grid gap-6 sm:grid-cols-2 lg:mt-16">
                     {service.capabilities.map((capability) => (
-                        <div key={capability.title} className="border-b border-rule py-8">
-                            <dt className="text-h3">{capability.title}</dt>
-                            <dd className="mt-3 text-body text-body">{capability.description}</dd>
+                        <div
+                            key={capability.title}
+                            className="group rounded-md border border-rule bg-white p-7 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-ink-soft/40 hover:shadow-lg"
+                        >
+                            <dt className="text-h3 font-medium text-ink transition-colors group-hover:text-accent">
+                                {capability.title}
+                            </dt>
+                            <dd className="mt-3 text-body text-body leading-relaxed">
+                                {capability.description}
+                            </dd>
                         </div>
                     ))}
                 </dl>
             </Section>
 
+            {/* Use Cases and Deliverables */}
             <Section labelledBy="use-cases-title" tone="white">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+                <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
                     <div className="lg:col-span-5">
                         <SectionHeading
                             id="use-cases-title"
@@ -80,14 +119,20 @@ export function ServiceDetailPage() {
                             intro="Illustrative examples of the kind of software this service produces. Published case studies appear below once verified."
                         />
                     </div>
-                    <div className="lg:col-span-6 lg:col-start-7">
-                        <BulletList items={service.useCases} />
-                        <h3 className="eyebrow mt-12 mb-4">Deliverables</h3>
-                        <BulletList items={service.deliverables} />
+                    <div className="lg:col-span-7 space-y-8">
+                        <div className="rounded-md border border-rule bg-white p-8 shadow-xs">
+                            <h3 className="eyebrow mb-4 text-ink">Typical Implementations</h3>
+                            <BulletList items={service.useCases} />
+                        </div>
+                        <div className="rounded-md border border-rule bg-paper/60 p-8 shadow-xs">
+                            <h3 className="eyebrow mb-4 text-ink">Deliverables</h3>
+                            <BulletList items={service.deliverables} />
+                        </div>
                     </div>
                 </div>
             </Section>
 
+            {/* Process */}
             <Section labelledBy="service-process-title" tone="paper">
                 <SectionHeading
                     id="service-process-title"
@@ -101,6 +146,7 @@ export function ServiceDetailPage() {
                 </div>
             </Section>
 
+            {/* Related Work */}
             <Section labelledBy="related-work-title" tone="white">
                 <SectionHeading
                     id="related-work-title"
@@ -117,39 +163,61 @@ export function ServiceDetailPage() {
                 </div>
             </Section>
 
+            {/* FAQ */}
             <Section labelledBy="service-faq-title" tone="paper">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+                <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
                     <div className="lg:col-span-4">
-                        <SectionHeading id="service-faq-title" eyebrow="Questions" title="Frequently asked." />
-                        {relatedServices.length > 0 ? (
-                            <div className="mt-10">
-                                <h3 className="eyebrow mb-4">Related services</h3>
-                                <ul className="space-y-3">
-                                    {relatedServices.map((related) => (
-                                        <li key={related.slug}>
-                                            <Link
-                                                to={`/services/${related.slug}`}
-                                                className="arrow-link text-small"
-                                            >
-                                                <span>{related.title}</span>
-                                                <Icon name="arrow-right" />
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ) : null}
+                        <SectionHeading
+                            id="service-faq-title"
+                            eyebrow="Questions"
+                            title="Frequently asked."
+                        />
                     </div>
-                    <div className="lg:col-span-7 lg:col-start-6">
-                        <FaqList faqs={service.faqs} idPrefix={`${service.slug}-faq`} />
+                    <div className="lg:col-span-8">
+                        <FaqList faqs={service.faqs} idPrefix="service-faq" />
                     </div>
                 </div>
             </Section>
 
-            <ClosingCta
-                headline={`Let's talk about ${service.navLabel.toLowerCase()}.`}
-                copy="Share the challenge and the systems involved. We will respond with questions and a proposed way forward."
-            />
+            {/* Related Services */}
+            {relatedServices.length > 0 ? (
+                <Section labelledBy="related-services-title" tone="white">
+                    <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
+                        <div className="lg:col-span-4">
+                            <SectionHeading
+                                id="related-services-title"
+                                eyebrow="Connected disciplines"
+                                title="Frequently combined with."
+                            />
+                        </div>
+                        <ul className="divide-y divide-rule border-y border-rule lg:col-span-8">
+                            {relatedServices.map((related) => (
+                                <li key={related.slug} className="group">
+                                    <Link
+                                        to={`/services/${related.slug}`}
+                                        className="flex items-center justify-between gap-6 py-6 transition-colors hover:text-accent"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex h-9 w-9 items-center justify-center rounded border border-rule bg-paper text-ink transition-colors group-hover:border-accent group-hover:text-accent">
+                                                <Icon name={related.icon} className="h-4 w-4" />
+                                            </div>
+                                            <span className="text-h3 font-medium">
+                                                {related.title}
+                                            </span>
+                                        </div>
+                                        <Icon
+                                            name="arrow-right"
+                                            className="h-5 w-5 flex-none transition-transform duration-200 group-hover:translate-x-1"
+                                        />
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </Section>
+            ) : null}
+
+            <ClosingCta />
         </>
     );
 }

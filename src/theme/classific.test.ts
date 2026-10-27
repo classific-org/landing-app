@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { auditThemeContrast } from "@sometic/theme";
 import { meetsWcagContrast } from "@sometic/theme/contrast";
-import { applyClassificTheme, classificTokens, createClassificThemeController } from "@/theme/classific";
+import {
+    applyClassificTheme,
+    classificTokens,
+    createClassificThemeController,
+} from "@/theme/classific";
 
 describe("Classific theme", () => {
     it("passes the Sometic AA contrast audit for ink, body, accent and inverse pairs", () => {

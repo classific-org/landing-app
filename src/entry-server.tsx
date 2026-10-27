@@ -1,10 +1,6 @@
 import { StrictMode } from "react";
 import { renderToString } from "react-dom/server";
-import {
-    createStaticHandler,
-    createStaticRouter,
-    StaticRouterProvider,
-} from "react-router";
+import { createStaticHandler, createStaticRouter, StaticRouterProvider } from "react-router";
 import { serializeHead, mergePatches } from "@sometic/head";
 import { App } from "@/app/App";
 import { routes } from "@/app/routes";
@@ -44,8 +40,12 @@ export async function render(pathname: string, origin: string): Promise<RenderRe
         </StrictMode>,
     );
 
-    const snapshot = mergePatches([buildBaseHeadPatch(), resolveHeadPatchForPath(pathname, origin)]);
-    const statusCode = context.statusCode === 200 && !isKnownPath(pathname) ? 404 : context.statusCode;
+    const snapshot = mergePatches([
+        buildBaseHeadPatch(),
+        resolveHeadPatchForPath(pathname, origin),
+    ]);
+    const statusCode =
+        context.statusCode === 200 && !isKnownPath(pathname) ? 404 : context.statusCode;
 
     return {
         html,

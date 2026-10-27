@@ -22,18 +22,18 @@ CONTACT_ENDPOINT=
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `bun run dev` | Vite development server |
-| `bun run build` | Production build: OG images, SEO files, client bundle, prerender |
-| `bun run preview` | Preview the `dist` folder |
-| `bun run lint` | ESLint |
-| `bun run typecheck` | TypeScript |
-| `bun run test` | Vitest |
-| `bun run test:coverage` | Vitest with coverage thresholds |
-| `bun run test:e2e` | Playwright against the production preview |
-| `bun run seo:generate` | Write `robots.txt`, `sitemap.xml`, `llms.txt`, and `llms-full.txt` |
-| `bun run check` | Typecheck, lint, coverage, production build, and e2e |
+| Command                 | Purpose                                                            |
+| ----------------------- | ------------------------------------------------------------------ |
+| `bun run dev`           | Vite development server                                            |
+| `bun run build`         | Production build: OG images, SEO files, client bundle, prerender   |
+| `bun run preview`       | Preview the `dist` folder                                          |
+| `bun run lint`          | ESLint                                                             |
+| `bun run typecheck`     | TypeScript                                                         |
+| `bun run test`          | Vitest                                                             |
+| `bun run test:coverage` | Vitest with coverage thresholds                                    |
+| `bun run test:e2e`      | Playwright against the production preview                          |
+| `bun run seo:generate`  | Write `robots.txt`, `sitemap.xml`, `llms.txt`, and `llms-full.txt` |
+| `bun run check`         | Typecheck, lint, coverage, production build, and e2e               |
 
 `bun run check` and `bun run build` fail if `SITE_ORIGIN` is missing, is localhost, or is not an absolute `https` origin.
 
