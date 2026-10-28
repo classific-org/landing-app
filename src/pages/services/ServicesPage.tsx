@@ -36,7 +36,8 @@ export function ServicesPage() {
                 intro="Most engagements combine more than one. Each area below links to a detailed page with problems solved, capabilities, use cases and frequently asked questions."
             >
                 <div className="mt-14 lg:mt-20">
-                    <ServiceIndex services={services} layout="list" headingLevel="h3" thread />
+                    <span data-thread-node className="block h-0 w-0" aria-hidden="true" />
+                    <ServiceIndex services={services} layout="list" headingLevel="h3" />
                 </div>
             </Fold>
 

@@ -59,6 +59,20 @@ export const routes: RouteObject[] = [
                 },
             },
             {
+                path: "blog",
+                lazy: async () => {
+                    const module = await import("@/pages/blog/BlogPage");
+                    return { Component: module.BlogPage };
+                },
+            },
+            {
+                path: "blog/:slug",
+                lazy: async () => {
+                    const module = await import("@/pages/blog/BlogPostPage");
+                    return { Component: module.BlogPostPage };
+                },
+            },
+            {
                 path: "insights",
                 lazy: async () => {
                     const module = await import("@/pages/insights/InsightsPage");

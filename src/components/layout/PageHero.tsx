@@ -90,7 +90,7 @@ export function PageHero({
                                 {copy}
                             </p>
                         ) : null}
-                        {aside}
+                        {aside ? <div className="mt-8 lg:mt-10">{aside}</div> : null}
                         {children}
                     </div>
 

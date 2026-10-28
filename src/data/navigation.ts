@@ -13,7 +13,7 @@ export const companyNavigation: NavItem[] = [
     { label: "About", href: "/about" },
     { label: "Process", href: "/process" },
     { label: "Work", href: "/work" },
-    { label: "Insights", href: "/insights" },
+    { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
 ];
 

@@ -201,7 +201,8 @@ export function HomePage() {
                 intro="Each service is delivered by the same team with the same approach to discovery, design, testing and support."
             >
                 <div className="mt-14 lg:mt-20">
-                    <ServiceIndex services={services} layout="grid" tone="dark" thread />
+                    <span data-thread-node className="block h-0 w-0" aria-hidden="true" />
+                    <ServiceIndex services={services} layout="grid" tone="dark" />
                 </div>
                 <Reveal className="mt-10 text-paper">
                     <TextLink to="/services" variant="arrow">

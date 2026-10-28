@@ -2,6 +2,7 @@ import { site } from "@/data/site";
 import { services } from "@/data/services";
 import { getPublishedProjects } from "@/data/projects";
 import { getPublishedArticles } from "@/data/insights";
+import { getPublishedBlogPosts } from "@/data/blog";
 import { legalDocuments } from "@/data/legal";
 import { normalizePath } from "@/lib/seo/urls";
 
@@ -13,6 +14,8 @@ export type RouteKind =
     | "project"
     | "process"
     | "about"
+    | "blog"
+    | "blog-post"
     | "insights"
     | "article"
     | "contact"
@@ -115,6 +118,29 @@ export function buildPublicRoutes(): PublicRoute[] {
             ogType: "website",
             breadcrumbs: [home, { label: "About", path: "/about" }],
         },
+        {
+            path: "/blog",
+            kind: "blog",
+            title: "Engineering Blog",
+            description:
+                "Notes and articles on building software that lasts, platform architecture and system maintainability.",
+            ogType: "website",
+            breadcrumbs: [home, { label: "Blog", path: "/blog" }],
+        },
+        ...getPublishedBlogPosts().map<PublicRoute>((post) => ({
+            path: `/blog/${post.slug}`,
+            kind: "blog-post",
+            slug: post.slug,
+            title: post.title,
+            description: post.excerpt,
+            ogType: "article",
+            lastmod: post.publishedAt,
+            breadcrumbs: [
+                home,
+                { label: "Blog", path: "/blog" },
+                { label: post.title, path: `/blog/${post.slug}` },
+            ],
+        })),
         {
             path: "/insights",
             kind: "insights",
