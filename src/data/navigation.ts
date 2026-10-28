@@ -5,7 +5,6 @@ export const primaryNavigation: NavItem[] = [
     { label: "Work", href: "/work" },
     { label: "Process", href: "/process" },
     { label: "About", href: "/about" },
-    { label: "Insights", href: "/insights" },
 ];
 
 export const primaryCta: NavItem = { label: "Start a Project", href: "/contact" };

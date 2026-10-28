@@ -242,27 +242,31 @@ export function HomePage() {
                 node
             >
                 <div className="mt-14 grid gap-14 lg:mt-20 lg:grid-cols-12 lg:gap-10">
-                    <Reveal className="lg:col-span-4">
-                        <p className="eyebrow text-paper">Engineering standards</p>
-                        <ul className="mt-4 border-t border-paper/30">
-                            {standards.map((item) => (
-                                <li
-                                    key={item}
-                                    className="flex items-start gap-3 border-b border-paper/15 py-3.5 text-small text-paper/75"
-                                >
-                                    <span className="mt-0.5 text-accent" aria-hidden="true">
-                                        ✓
-                                    </span>
-                                    <span>{item}</span>
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="mt-8 text-paper">
-                            <TextLink to="/about" variant="arrow">
-                                About Classific
-                            </TextLink>
+                    <div className="lg:col-span-4">
+                        <div className="lg:sticky lg:top-28">
+                            <Reveal>
+                                <p className="eyebrow text-paper">Engineering standards</p>
+                                <ul className="mt-4 border-t border-paper/30">
+                                    {standards.map((item) => (
+                                        <li
+                                            key={item}
+                                            className="flex items-start gap-3 border-b border-paper/15 py-3.5 text-small text-paper/75"
+                                        >
+                                            <span className="mt-0.5 text-accent" aria-hidden="true">
+                                                ✓
+                                            </span>
+                                            <span>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="mt-8 text-paper">
+                                    <TextLink to="/about" variant="arrow">
+                                        About Classific
+                                    </TextLink>
+                                </div>
+                            </Reveal>
                         </div>
-                    </Reveal>
+                    </div>
 
                     <dl className="grid gap-x-10 sm:grid-cols-2 lg:col-span-8">
                         {principles.map((principle, index) => (

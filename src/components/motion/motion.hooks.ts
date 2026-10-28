@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { requestScrollFrame, subscribeToScroll } from "@/components/motion/scroll-driver";
 
 export function prefersReducedMotion(): boolean {
     return (
@@ -7,6 +8,8 @@ export function prefersReducedMotion(): boolean {
         window.matchMedia("(prefers-reduced-motion: reduce)").matches
     );
 }
+
+const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(high, value));
 
 type RevealOptions = {
     /** Fraction of the viewport height to hold back before the element counts as visible. */
@@ -65,8 +68,27 @@ export function useReveal<T extends HTMLElement>({
 }
 
 /**
- * Moves a child a few percent against the scroll direction while its frame is on screen.
- * Writes one CSS variable per frame; the stylesheet turns it into a transform.
+ * Tracks whether an element is near the viewport, so scroll-linked work is skipped while it is
+ * far away. The returned getter is read inside the shared scroll loop.
+ */
+function observeVisibility(element: HTMLElement, margin: string) {
+    let visible = false;
+    const observer = new IntersectionObserver(
+        ([entry]) => {
+            visible = entry?.isIntersecting ?? false;
+            if (visible) {
+                requestScrollFrame();
+            }
+        },
+        { rootMargin: margin },
+    );
+    observer.observe(element);
+    return { isVisible: () => visible, stop: () => observer.disconnect() };
+}
+
+/**
+ * Moves the `.parallax-image` children a few percent against the scroll direction while their
+ * frame is on screen. Writes the transform directly on those images.
  */
 export function useParallax<T extends HTMLElement>(strength = 8) {
     const ref = useRef<T>(null);
@@ -76,42 +98,34 @@ export function useParallax<T extends HTMLElement>(strength = 8) {
         if (!element || prefersReducedMotion()) {
             return;
         }
+        const images = Array.from(element.querySelectorAll<HTMLElement>(".parallax-image"));
+        if (images.length === 0) {
+            return;
+        }
 
-        let frame = 0;
-        let visible = false;
-
-        const update = () => {
-            frame = 0;
-            const rect = element.getBoundingClientRect();
-            const viewport = window.innerHeight || 1;
-            const progress = (rect.top + rect.height / 2 - viewport / 2) / viewport;
-            const clamped = Math.max(-1, Math.min(1, progress));
-            element.style.setProperty("--parallax", `${(-clamped * strength).toFixed(2)}%`);
-        };
-        const schedule = () => {
-            if (visible && frame === 0) {
-                frame = requestAnimationFrame(update);
-            }
-        };
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                visible = entry?.isIntersecting ?? false;
-                schedule();
+        const visibility = observeVisibility(element, "10% 0px");
+        const unsubscribe = subscribeToScroll(
+            () => {
+                if (!visibility.isVisible()) {
+                    return null;
+                }
+                const rect = element.getBoundingClientRect();
+                const viewport = window.innerHeight || 1;
+                return -clamp((rect.top + rect.height / 2 - viewport / 2) / viewport, -1, 1);
             },
-            { rootMargin: "10% 0px" },
+            (progress) => {
+                if (progress === null) {
+                    return;
+                }
+                const offset = `translate3d(0, ${(progress * strength).toFixed(2)}%, 0)`;
+                images.forEach((image) => (image.style.transform = offset));
+            },
         );
-        observer.observe(element);
-        window.addEventListener("scroll", schedule, { passive: true });
-        window.addEventListener("resize", schedule, { passive: true });
-        update();
 
         return () => {
-            observer.disconnect();
-            window.removeEventListener("scroll", schedule);
-            window.removeEventListener("resize", schedule);
-            cancelAnimationFrame(frame);
-            element.style.removeProperty("--parallax");
+            unsubscribe();
+            visibility.stop();
+            images.forEach((image) => image.style.removeProperty("transform"));
         };
     }, [strength]);
 
@@ -131,23 +145,35 @@ export function useScrolled(
 
     useEffect(() => {
         let last: boolean | null = null;
-        const check = () => {
-            const limit = typeof offset === "function" ? offset() : offset;
-            const next = window.scrollY > limit;
-            if (next !== last) {
-                last = next;
-                callback.current(next);
-            }
-        };
-        check();
-        window.addEventListener("scroll", check, { passive: true });
-        return () => window.removeEventListener("scroll", check);
+        return subscribeToScroll(
+            () => window.scrollY > (typeof offset === "function" ? offset() : offset),
+            (scrolled) => {
+                if (scrolled !== last) {
+                    last = scrolled;
+                    callback.current(scrolled);
+                }
+            },
+        );
     }, [offset]);
 }
 
 /**
- * Writes `--hero-p` (0 at the top of the page, 1 once the element has scrolled out of view) on
- * the element. CSS turns it into the sideways drift of the hero lines.
+ * Slides alternate lines of a heading sideways: even lines one way, odd lines the other. Writes
+ * the transform on each line directly, so nothing else in the subtree is restyled.
+ */
+function shiftLines(lines: HTMLElement[], amount: number) {
+    lines.forEach((line) => {
+        const direction = Number(line.dataset.line ?? 0) % 2 === 0 ? 1 : -1;
+        line.style.transform = `translate3d(${(direction * amount).toFixed(1)}px, 0, 0)`;
+    });
+}
+
+const collectLines = (element: HTMLElement) =>
+    Array.from(element.querySelectorAll<HTMLElement>("[data-line]"));
+
+/**
+ * Drives the hero's sideways drift: the lines slide in opposite directions as the page scrolls
+ * away from the top (0 at the top, full drift once the element has scrolled out of view).
  */
 export function useScrollProgress<T extends HTMLElement>() {
     const ref = useRef<T>(null);
@@ -157,28 +183,27 @@ export function useScrollProgress<T extends HTMLElement>() {
         if (!element || prefersReducedMotion()) {
             return;
         }
+        const lines = collectLines(element);
+        if (lines.length === 0) {
+            return;
+        }
 
-        let frame = 0;
-        const update = () => {
-            frame = 0;
-            const height = element.offsetHeight || 1;
-            const progress = Math.max(0, Math.min(1, window.scrollY / height));
-            element.style.setProperty("--hero-p", progress.toFixed(3));
-        };
-        const schedule = () => {
-            if (frame === 0) {
-                frame = requestAnimationFrame(update);
-            }
-        };
+        let last = -1;
+        const unsubscribe = subscribeToScroll(
+            () => clamp(window.scrollY / (element.offsetHeight || 1), 0, 1),
+            (progress) => {
+                if (progress === last) {
+                    return;
+                }
+                last = progress;
+                // Even lines drift left, odd lines right, up to 7vw.
+                shiftLines(lines, -progress * window.innerWidth * 0.07);
+            },
+        );
 
-        update();
-        window.addEventListener("scroll", schedule, { passive: true });
-        window.addEventListener("resize", schedule, { passive: true });
         return () => {
-            window.removeEventListener("scroll", schedule);
-            window.removeEventListener("resize", schedule);
-            cancelAnimationFrame(frame);
-            element.style.removeProperty("--hero-p");
+            unsubscribe();
+            lines.forEach((line) => line.style.removeProperty("transform"));
         };
     }, []);
 
@@ -186,9 +211,8 @@ export function useScrollProgress<T extends HTMLElement>() {
 }
 
 /**
- * Drives the sideways drift of a giant heading's lines. Writes `--drift` on the element: 0 when
- * the heading is centred in the viewport, towards +1 as it enters from below and -1 as it leaves
- * above. CSS moves alternate lines in opposite directions, like the home hero's lines do.
+ * Drives the sideways drift of a giant heading's lines: aligned when the heading is centred in
+ * the viewport, spreading apart as it enters from below and leaves above (up to 5vw).
  */
 export function useLineDrift<T extends HTMLElement>() {
     const ref = useRef<T>(null);
@@ -198,41 +222,33 @@ export function useLineDrift<T extends HTMLElement>() {
         if (!element || prefersReducedMotion()) {
             return;
         }
+        const lines = collectLines(element);
+        if (lines.length === 0) {
+            return;
+        }
 
-        let frame = 0;
-        let visible = false;
-
-        const update = () => {
-            frame = 0;
-            const rect = element.getBoundingClientRect();
-            const viewport = window.innerHeight || 1;
-            const progress = (rect.top + rect.height / 2 - viewport / 2) / viewport;
-            element.style.setProperty("--drift", Math.max(-1, Math.min(1, progress)).toFixed(3));
-        };
-        const schedule = () => {
-            if (visible && frame === 0) {
-                frame = requestAnimationFrame(update);
-            }
-        };
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                visible = entry?.isIntersecting ?? false;
-                schedule();
+        const visibility = observeVisibility(element, "25% 0px");
+        const unsubscribe = subscribeToScroll(
+            () => {
+                if (!visibility.isVisible()) {
+                    return null;
+                }
+                const rect = element.getBoundingClientRect();
+                const viewport = window.innerHeight || 1;
+                return clamp((rect.top + rect.height / 2 - viewport / 2) / viewport, -1, 1);
             },
-            { rootMargin: "25% 0px" },
+            (progress) => {
+                if (progress === null) {
+                    return;
+                }
+                shiftLines(lines, progress * window.innerWidth * 0.05);
+            },
         );
-        observer.observe(element);
-        window.addEventListener("scroll", schedule, { passive: true });
-        window.addEventListener("resize", schedule, { passive: true });
-        update();
 
         return () => {
-            observer.disconnect();
-            window.removeEventListener("scroll", schedule);
-            window.removeEventListener("resize", schedule);
-            cancelAnimationFrame(frame);
-            element.style.removeProperty("--drift");
+            unsubscribe();
+            visibility.stop();
+            lines.forEach((line) => line.style.removeProperty("transform"));
         };
     }, []);
 

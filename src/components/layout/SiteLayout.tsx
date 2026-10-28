@@ -12,7 +12,7 @@ export function SiteLayout() {
             <DocumentHead />
             <SkipLink />
             <SiteHeader />
-            <main id="main-content" className="flex-1" tabIndex={-1}>
+            <main id="main-content" className="flex-1 overflow-x-clip" tabIndex={-1}>
                 {/* Keyed by path so each route change replays a short opacity and lift. */}
                 <div key={pathname} className="page-enter">
                     <Outlet />

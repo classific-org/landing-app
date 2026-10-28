@@ -1,15 +1,19 @@
 import { useEffect, useRef } from "react";
 import { prefersReducedMotion } from "@/components/motion/motion.hooks";
+import { subscribeToScroll } from "@/components/motion/scroll-driver";
+import { pointAt, samplePath, type Sample } from "@/lib/thread/geometry";
 
 /** The swoop between two folds happens in this window around the boundary (px). */
 const SWOOP_ABOVE = 40;
 const SWOOP_BELOW = 72;
 /** Share of the viewport height at which the drawn line's head sits while scrolling. */
-const HEAD_AT = 0.72;
-const SAMPLE_STEP = 10;
+const HEAD_AT = 0.68;
+/** Most the line may advance in one frame while it catches up with the scroll (px). */
+const MAX_GLIDE = 110;
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 type Stop = { x: number; y: number; section: number };
+
 type Ring = { element: SVGCircleElement; at: number };
 
 /**
@@ -24,6 +28,7 @@ export function PageThread() {
     const svgRef = useRef<SVGSVGElement>(null);
     const pathRef = useRef<SVGPathElement>(null);
     const headRef = useRef<SVGCircleElement>(null);
+    const haloRef = useRef<SVGCircleElement>(null);
     const endRef = useRef<SVGGElement>(null);
     const ringsRef = useRef<SVGGElement>(null);
 
@@ -31,15 +36,17 @@ export function PageThread() {
         const svg = svgRef.current;
         const path = pathRef.current;
         const head = headRef.current;
+        const halo = haloRef.current;
         const end = endRef.current;
         const rings = ringsRef.current;
         const wrapper = svg?.parentElement;
-        if (!svg || !path || !head || !end || !rings || !wrapper) {
+        if (!svg || !path || !head || !halo || !end || !rings || !wrapper) {
             return;
         }
 
         const reduced = prefersReducedMotion();
-        let samples: { length: number; y: number }[] = [];
+        let samples: Sample[] = [];
+        let lastSignature = "";
         let ringList: Ring[] = [];
         /**
          * The tangle packs a lot of line into very little height, so mapping the head's y to a
@@ -48,21 +55,67 @@ export function PageThread() {
          */
         let tangleInfo: { startLength: number; top: number; span: number } | null = null;
         let total = 0;
-        let frame = 0;
 
-        const update = () => {
-            frame = 0;
+        /** Layout read: where the head of the line should be, in wrapper coordinates. */
+        const readHead = () => {
+            const top = wrapper.getBoundingClientRect().top + window.scrollY;
+            return window.scrollY + window.innerHeight * HEAD_AT - top;
+        };
+
+        /** Style write: draws `drawn` units of the line and lights the rings it has reached. */
+        const render = (drawn: number) => {
+            path.style.strokeDashoffset = String(total - drawn);
+            if (drawn <= 0 || drawn >= total) {
+                head.style.opacity = "0";
+                halo.style.opacity = "0";
+            } else {
+                const point = pointAt(samples, drawn);
+                const cx = point.x.toFixed(1);
+                const cy = point.y.toFixed(1);
+                head.setAttribute("cx", cx);
+                head.setAttribute("cy", cy);
+                halo.setAttribute("cx", cx);
+                halo.setAttribute("cy", cy);
+                head.style.opacity = "1";
+                halo.style.opacity = "1";
+            }
+            ringList.forEach((ring) => {
+                ring.element.style.opacity = drawn >= ring.at - 2 ? "1" : "0";
+            });
+            end.style.opacity = drawn >= total - 2 ? "1" : "0";
+        };
+
+        /**
+         * The length the scroll position asks for. The line does not jump to it: each frame it
+         * moves a fraction of the way there, so a wheel notch becomes a glide and the tip is
+         * always seen travelling.
+         */
+        let target = 0;
+        let shown = 0;
+        let gliding = false;
+        let glideFrame = 0;
+        const glide = () => {
+            const gap = target - shown;
+            if (Math.abs(gap) < 0.6) {
+                shown = target;
+                gliding = false;
+                render(shown);
+                return;
+            }
+            shown += Math.max(-MAX_GLIDE, Math.min(MAX_GLIDE, gap * 0.14));
+            render(shown);
+            glideFrame = requestAnimationFrame(glide);
+        };
+
+        const apply = (headY: number) => {
             if (total === 0) {
                 return;
             }
             if (reduced) {
-                path.style.strokeDashoffset = "0";
-                end.style.opacity = "1";
-                ringList.forEach((ring) => (ring.element.style.opacity = "1"));
+                shown = total;
+                render(total);
                 return;
             }
-            const top = wrapper.getBoundingClientRect().top + window.scrollY;
-            const headY = window.scrollY + window.innerHeight * HEAD_AT - top;
             const reached = samples.find((sample) => sample.y > headY);
             let drawn = reached ? reached.length : total;
             if (tangleInfo) {
@@ -73,27 +126,14 @@ export function PageThread() {
                     drawn = tangleInfo.startLength + progress * (total - tangleInfo.startLength);
                 }
             }
-
-            path.style.strokeDashoffset = String(total - drawn);
-            if (drawn <= 0 || drawn >= total) {
-                head.style.opacity = "0";
-            } else {
-                const point = path.getPointAtLength(drawn);
-                head.setAttribute("cx", point.x.toFixed(1));
-                head.setAttribute("cy", point.y.toFixed(1));
-                head.style.opacity = "1";
-            }
-            ringList.forEach((ring) => {
-                ring.element.style.opacity = drawn >= ring.at - 2 ? "1" : "0";
-            });
-            end.style.opacity = drawn >= total - 2 ? "1" : "0";
-        };
-
-        const schedule = () => {
-            if (frame === 0) {
-                frame = requestAnimationFrame(update);
+            target = drawn;
+            if (!gliding) {
+                gliding = true;
+                glideFrame = requestAnimationFrame(glide);
             }
         };
+
+        const update = () => apply(readHead());
 
         const build = () => {
             const box = wrapper.getBoundingClientRect();
@@ -164,27 +204,70 @@ export function PageThread() {
             let current = { x: stops[0]!.x, y: stops[0]!.y, section: 0 };
             let waveSign = 1;
 
+            /**
+             * A small loop in the margin, travelling downward from (x, centre - 50) to
+             * (x, centre + 50). It is the boundary curl turned on its side and scaled to fit
+             * the gutter, so long runs read as a thread being drawn rather than a ruled line.
+             */
+            const curlDown = (x: number, centre: number, scale: number) => {
+                const p = (along: number, across: number) =>
+                    `${n(x + across * scale)} ${n(centre + along)}`;
+                return (
+                    ` C${n(x)} ${n(centre - 42)} ${p(-40, -7)} ${p(-35, -7)}` +
+                    ` C${p(-10, -17)} ${p(5, -15)} ${p(7, -2)}` +
+                    ` C${p(8, 11)} ${p(-12, 13)} ${p(-11, 1)}` +
+                    ` C${p(-10, -11)} ${p(15, -8)} ${p(35, 7)}` +
+                    ` C${p(42, 5)} ${n(x)} ${n(centre + 42)} ${n(x)} ${n(centre + 50)}`
+                );
+            };
+
+            /**
+             * A run straight down one lane from y0 to y1. Long ones alternate flowing S-waves
+             * with a curl, when the gutter is wide enough; returns where it stopped.
+             */
+            const wander = (x: number, y0: number, y1: number) => {
+                let y = y0;
+                const curlScale = Math.min(1, (lane - 4) / 21);
+                if (lane >= 16 && y1 - y0 > 460) {
+                    const step = 300;
+                    while (y1 - y > step + 180) {
+                        const amplitude = Math.min(lane - 6, 16) * waveSign;
+                        waveSign = -waveSign;
+                        d +=
+                            ` C${n(x + amplitude)} ${n(y + step * 0.33)}` +
+                            ` ${n(x - amplitude)} ${n(y + step * 0.66)} ${n(x)} ${n(y + step)}`;
+                        y += step;
+                        d += curlDown(x, y + 50, curlScale);
+                        y += 100;
+                    }
+                }
+                return y;
+            };
+
             const vertical = (to: { x: number; y: number }) => {
-                const run = to.y - current.y;
-                if (run < 4) {
+                if (to.y - current.y < 4) {
                     d += ` L${n(to.x)} ${n(to.y)}`;
                     return;
                 }
                 const sway = 6 * waveSign;
                 waveSign = -waveSign;
-                if (Math.abs(to.x - current.x) > 8 && run > 140) {
+                if (Math.abs(to.x - current.x) > 8 && to.y - current.y > 140) {
+                    // Hold the lane, then ease over to the node just above it.
                     const hold = to.y - 70;
-                    const span = hold - current.y;
+                    const y = wander(current.x, current.y, hold);
+                    const span = hold - y;
                     d +=
-                        ` C${n(current.x + sway)} ${n(current.y + span / 3)}` +
-                        ` ${n(current.x - sway)} ${n(current.y + (2 * span) / 3)}` +
+                        ` C${n(current.x + sway)} ${n(y + span / 3)}` +
+                        ` ${n(current.x - sway)} ${n(y + (2 * span) / 3)}` +
                         ` ${n(current.x)} ${n(hold)}` +
                         ` C${n(current.x)} ${n(hold + 35)} ${n(to.x)} ${n(hold + 35)} ${n(to.x)} ${n(to.y)}`;
                     return;
                 }
+                const y = wander(current.x, current.y, to.y);
+                const run = to.y - y;
                 d +=
-                    ` C${n(current.x + sway)} ${n(current.y + run / 3)}` +
-                    ` ${n(to.x - sway)} ${n(current.y + (2 * run) / 3)} ${n(to.x)} ${n(to.y)}`;
+                    ` C${n(current.x + sway)} ${n(y + run / 3)}` +
+                    ` ${n(to.x - sway)} ${n(y + (2 * run) / 3)} ${n(to.x)} ${n(to.y)}`;
             };
 
             /** Swoop across a fold boundary, curling in the middle when there is room. */
@@ -292,18 +375,28 @@ export function PageThread() {
                 endPoint = { x: finalStop.x, y: finalStop.y };
             }
 
+            // Resize and image-load observers fire often; rebuilding is only worth it when the
+            // measured geometry actually changed.
+            const signature = `${n(width)}x${n(height)}|${d}`;
+            if (signature === lastSignature) {
+                return;
+            }
+            lastSignature = signature;
+
             svg.setAttribute("viewBox", `0 0 ${n(width)} ${n(height)}`);
             svg.setAttribute("width", n(width));
             svg.setAttribute("height", n(height));
             path.setAttribute("d", d);
+            // One native measurement per rebuild; our polyline is scaled to match it.
             total = path.getTotalLength();
+            shown = Math.min(shown, total);
             path.style.strokeDasharray = String(total);
             end.setAttribute("transform", `translate(${n(endPoint.x)} ${n(endPoint.y)})`);
 
-            samples = [];
-            for (let length = 0; length <= total; length += SAMPLE_STEP) {
-                samples.push({ length, y: path.getPointAtLength(length).y });
-            }
+            const polyline = samplePath(d);
+            const polylineTotal = polyline[polyline.length - 1]?.length ?? 0;
+            const scale = polylineTotal > 0 ? total / polylineTotal : 1;
+            samples = polyline.map((sample) => ({ ...sample, length: sample.length * scale }));
 
             // A ring appears on each node as the line reaches it.
             rings.replaceChildren();
@@ -322,7 +415,7 @@ export function PageThread() {
                 let best = cursor;
                 let bestDistance = Infinity;
                 for (let index = cursor; index < samples.length; index += 1) {
-                    const point = path.getPointAtLength(samples[index]!.length);
+                    const point = samples[index]!;
                     const distance = Math.hypot(point.x - stop.x, point.y - stop.y);
                     if (distance < bestDistance) {
                         bestDistance = distance;
@@ -345,7 +438,7 @@ export function PageThread() {
                 let best = cursor;
                 let bestDistance = Infinity;
                 for (let index = cursor; index < samples.length; index += 1) {
-                    const point = path.getPointAtLength(samples[index]!.length);
+                    const point = samples[index]!;
                     const distance = Math.hypot(point.x - tangleEntry.x, point.y - tangleEntry.y);
                     if (distance < bestDistance) {
                         bestDistance = distance;
@@ -364,23 +457,25 @@ export function PageThread() {
             update();
         };
 
+        let buildFrame = 0;
         const rebuild = () => {
-            cancelAnimationFrame(frame);
-            frame = requestAnimationFrame(build);
+            cancelAnimationFrame(buildFrame);
+            buildFrame = requestAnimationFrame(build);
         };
 
         build();
         const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(rebuild);
         observer?.observe(wrapper);
         window.addEventListener("resize", rebuild, { passive: true });
-        window.addEventListener("scroll", schedule, { passive: true });
+        const unsubscribe = subscribeToScroll(readHead, apply);
         void document.fonts?.ready.then(rebuild);
 
         return () => {
             observer?.disconnect();
             window.removeEventListener("resize", rebuild);
-            window.removeEventListener("scroll", schedule);
-            cancelAnimationFrame(frame);
+            unsubscribe();
+            cancelAnimationFrame(buildFrame);
+            cancelAnimationFrame(glideFrame);
         };
     }, []);
 
@@ -393,6 +488,7 @@ export function PageThread() {
         >
             <path ref={pathRef} className="page-thread-line" />
             <g ref={ringsRef} />
+            <circle ref={haloRef} className="page-thread-halo" r="15" style={{ opacity: 0 }} />
             <circle ref={headRef} className="page-thread-head" r="5" style={{ opacity: 0 }} />
             <g ref={endRef} style={{ opacity: 0 }} className="page-thread-end">
                 <circle r="13" className="page-thread-ring" />

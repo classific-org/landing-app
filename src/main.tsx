@@ -8,8 +8,10 @@ import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { App } from "@/app/App";
+import { AppErrorBoundary } from "@/components/errors/AppErrorBoundary";
 import { routes } from "@/app/routes";
 import { createSiteHeadController } from "@/app/head-controller";
+import { releaseIntro } from "@/lib/intro";
 import { applyClassificTheme } from "@/theme/classific";
 
 async function waitForRouter(router: ReturnType<typeof createBrowserRouter>): Promise<void> {
@@ -40,9 +42,11 @@ async function bootstrap(): Promise<void> {
     const headController = createSiteHeadController();
     const tree = (
         <StrictMode>
-            <App headController={headController}>
-                <RouterProvider router={router} />
-            </App>
+            <AppErrorBoundary>
+                <App headController={headController}>
+                    <RouterProvider router={router} />
+                </App>
+            </AppErrorBoundary>
         </StrictMode>
     );
 
@@ -51,6 +55,8 @@ async function bootstrap(): Promise<void> {
     } else {
         createRoot(container).render(tree);
     }
+
+    releaseIntro();
 }
 
 void bootstrap();

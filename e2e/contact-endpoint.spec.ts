@@ -3,7 +3,8 @@ import { expect, test } from "@playwright/test";
 async function fillValidEnquiry(page: import("@playwright/test").Page) {
     await page.getByLabel(/^name/i).fill("Alex Rivera");
     await page.getByLabel(/business email/i).fill("alex@company.com");
-    await page.getByLabel(/service interest/i).selectOption("web-applications");
+    await page.getByRole("combobox", { name: /service interest/i }).click();
+    await page.getByRole("option", { name: "Web Applications" }).click();
     await page
         .getByLabel(/project description/i)
         .fill("We need a customer portal that replaces a set of shared spreadsheets.");

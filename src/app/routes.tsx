@@ -1,4 +1,5 @@
 import type { RouteObject } from "react-router";
+import { RouteError } from "@/components/errors/RouteError";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { HomePage } from "@/pages/home/HomePage";
 import { NotFoundPage } from "@/pages/not-found/NotFoundPage";
@@ -12,6 +13,7 @@ export const routes: RouteObject[] = [
         id: "root",
         path: "/",
         Component: SiteLayout,
+        ErrorBoundary: RouteError,
         children: [
             { index: true, Component: HomePage },
             {

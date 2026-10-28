@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { renderWithRouter } from "@/test/render";
@@ -17,10 +17,11 @@ function mockClient(result: Awaited<ReturnType<EnquiryClient["submit"]>>): Enqui
 async function fillValidEnquiry(user: ReturnType<typeof userEvent.setup>) {
     await user.type(screen.getByLabelText(/^name/i), "Alex Rivera");
     await user.type(screen.getByLabelText(/business email/i), "alex@company.com");
-    fireEvent.change(screen.getByLabelText(/service interest/i), {
-        target: { value: "web-applications" },
-    });
-    await user.type(screen.getByLabelText(/project description/i), validMessage);
+    await user.click(screen.getByRole("combobox", { name: /service interest/i }));
+    await user.click(screen.getByRole("option", { name: "Web Applications" }));
+    // Pasting keeps the test quick; typing 70 characters one by one is slow in jsdom.
+    await user.click(screen.getByLabelText(/project description/i));
+    await user.paste(validMessage);
     await user.click(screen.getByLabelText(/privacy policy/i));
 }
 
