@@ -11,6 +11,7 @@ import { App } from "@/app/App";
 import { AppErrorBoundary } from "@/components/errors/AppErrorBoundary";
 import { routes } from "@/app/routes";
 import { createSiteHeadController } from "@/app/head-controller";
+import { env } from "@/config/env";
 import { releaseIntro } from "@/lib/intro";
 import { applyClassificTheme } from "@/theme/classific";
 
@@ -36,7 +37,7 @@ async function bootstrap(): Promise<void> {
         throw new Error("Missing #root element");
     }
 
-    const router = createBrowserRouter(routes);
+    const router = createBrowserRouter(routes, { basename: env.basePath || undefined });
     await waitForRouter(router);
 
     const headController = createSiteHeadController();
@@ -50,7 +51,7 @@ async function bootstrap(): Promise<void> {
         </StrictMode>
     );
 
-    if (container.firstElementChild !== null) {
+    if (container.firstElementChild !== null && container.dataset.notFound === undefined) {
         hydrateRoot(container, tree);
     } else {
         createRoot(container).render(tree);

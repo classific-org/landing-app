@@ -25,6 +25,15 @@ export function normalizeOrigin(origin) {
     return origin.replace(/\/+$/, "");
 }
 
+/**
+ * Normalises the path the site is served from: "" for a domain root, otherwise "/segment" with a
+ * leading and no trailing slash (a GitHub Pages project site lives at "/repository").
+ */
+export function normalizeBasePath(raw) {
+    const trimmed = (raw ?? "").trim().replace(/^\/+|\/+$/g, "");
+    return trimmed.length > 0 ? `/${trimmed}` : "";
+}
+
 export function requireProductionOrigin(raw) {
     const origin = normalizeOrigin((raw ?? "").trim());
     if (!isValidProductionOrigin(origin)) {

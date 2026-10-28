@@ -47,7 +47,8 @@ export function BlogPage() {
                             Filter by topic
                         </h2>
                         <p className="mt-1 text-small text-body">
-                            Showing {filteredPosts.length} {filteredPosts.length === 1 ? "article" : "articles"}
+                            Showing {filteredPosts.length}{" "}
+                            {filteredPosts.length === 1 ? "article" : "articles"}
                         </p>
                     </div>
 
@@ -101,7 +102,10 @@ export function BlogPage() {
                                     </div>
 
                                     <h3 className="mt-4 text-h2 font-medium text-ink transition-colors group-hover:text-accent">
-                                        <Link to={`/blog/${featuredPost.slug}`} className="after:absolute after:inset-0">
+                                        <Link
+                                            to={`/blog/${featuredPost.slug}`}
+                                            className="after:absolute after:inset-0"
+                                        >
                                             {featuredPost.title}
                                         </Link>
                                     </h3>
@@ -154,9 +158,7 @@ export function BlogPage() {
                                         </div>
 
                                         <h4 className="mt-3 text-h3 font-medium text-ink transition-colors group-hover:text-accent">
-                                            <Link to={`/blog/${post.slug}`}>
-                                                {post.title}
-                                            </Link>
+                                            <Link to={`/blog/${post.slug}`}>{post.title}</Link>
                                         </h4>
 
                                         <p className="mt-3 text-body-lg text-body line-clamp-3">

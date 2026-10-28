@@ -269,9 +269,10 @@ export function HomePage() {
                         </div>
                     </div>
 
-                    <dl className="grid gap-x-10 sm:grid-cols-2 lg:col-span-8">
+                    <ul className="grid gap-x-10 sm:grid-cols-2 lg:col-span-8">
                         {principles.map((principle, index) => (
                             <Reveal
+                                as="li"
                                 key={principle.title}
                                 delay={(index % 2) * 90}
                                 className="group border-t border-paper/40 py-8 lg:py-10"
@@ -285,15 +286,15 @@ export function HomePage() {
                                         className="h-5 w-5 text-paper transition-colors duration-300 group-hover:text-accent"
                                     />
                                 </div>
-                                <dt className="mt-10 text-h3 font-medium text-paper lg:mt-16">
+                                <h3 className="mt-10 text-h3 font-medium text-paper lg:mt-16">
                                     {principle.title}
-                                </dt>
-                                <dd className="mt-3 max-w-sm text-body text-paper/75">
+                                </h3>
+                                <p className="mt-3 max-w-sm text-body text-paper/75">
                                     {principle.description}
-                                </dd>
+                                </p>
                             </Reveal>
                         ))}
-                    </dl>
+                    </ul>
                 </div>
             </Fold>
 

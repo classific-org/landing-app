@@ -17,6 +17,9 @@ export function resolveHeadPatchForPath(pathname: string, origin: string): HeadP
  */
 export function useDocumentHead(): void {
     const { pathname } = useLocation();
-    const patch = useMemo(() => resolveHeadPatchForPath(pathname, env.siteOrigin), [pathname]);
+    const patch = useMemo(
+        () => resolveHeadPatchForPath(pathname, `${env.siteOrigin}${env.basePath}`),
+        [pathname],
+    );
     useHead(patch);
 }

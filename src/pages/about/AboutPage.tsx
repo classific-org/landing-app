@@ -108,9 +108,10 @@ export function AboutPage() {
                 intro="We structure engagements so the relationship, the documentation and the codebase all survive launch."
                 node
             >
-                <dl className="mt-14 grid gap-x-10 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4">
+                <ul className="mt-14 grid gap-x-10 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4">
                     {principles.map((principle, index) => (
                         <Reveal
+                            as="li"
                             key={principle.title}
                             delay={index * 90}
                             className="group border-t border-ink py-8 lg:py-10"
@@ -119,13 +120,13 @@ export function AboutPage() {
                                 name={principle.icon}
                                 className="h-5 w-5 text-ink transition-colors duration-300 group-hover:text-accent"
                             />
-                            <dt className="mt-10 text-h3 lg:mt-14">{principle.title}</dt>
-                            <dd className="mt-3 max-w-sm text-body text-body">
+                            <h3 className="mt-10 text-h3 lg:mt-14">{principle.title}</h3>
+                            <p className="mt-3 max-w-sm text-body text-body">
                                 {principle.description}
-                            </dd>
+                            </p>
                         </Reveal>
                     ))}
-                </dl>
+                </ul>
             </Fold>
 
             <Fold

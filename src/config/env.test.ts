@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
     isLocalOrigin,
     isValidProductionOrigin,
+    normalizeBasePath,
     normalizeOrigin,
     requireProductionOrigin,
     resolveSiteEnv,
+    withBasePath,
 } from "@/config/env";
 
 describe("site environment", () => {
@@ -52,5 +54,25 @@ describe("site environment", () => {
         expect(env.siteOrigin).toBe("https://www.classific.example");
         expect(env.contactEndpoint).toBe("https://forms.example/enquiry");
         expect(env.hasConfiguredOrigin).toBe(true);
+    });
+});
+
+describe("base path", () => {
+    it("normalises the path the site is served from", () => {
+        expect(normalizeBasePath(undefined)).toBe("");
+        expect(normalizeBasePath("/")).toBe("");
+        expect(normalizeBasePath("/landing-app/")).toBe("/landing-app");
+        expect(
+            resolveSiteEnv({
+                siteOrigin: undefined,
+                contactEndpoint: undefined,
+                siteBase: "landing-app",
+            }).basePath,
+        ).toBe("/landing-app");
+    });
+
+    it("prefixes app paths for links that bypass the router", () => {
+        expect(withBasePath("/landing-app", "/contact")).toBe("/landing-app/contact");
+        expect(withBasePath("", "/")).toBe("/");
     });
 });

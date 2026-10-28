@@ -1,4 +1,5 @@
 import { useEffect, useRef, type CSSProperties } from "react";
+import { env, withBasePath } from "@/config/env";
 import { Container } from "@/components/layout/Container";
 import { TextReveal } from "@/components/motion/Reveal";
 import { Icon } from "@/components/ui/Icon";
@@ -63,7 +64,11 @@ export function ErrorScreen({ error }: ErrorScreenProps) {
         >
             <header>
                 <Container className="flex h-[4.5rem] items-center justify-between">
-                    <a href="/" className="inline-flex items-center" aria-label="Classific home">
+                    <a
+                        href={withBasePath(env.basePath, "/")}
+                        className="inline-flex items-center"
+                        aria-label="Classific home"
+                    >
                         <Wordmark className="h-8 w-auto object-contain sm:h-9" variant="chrome" />
                     </a>
                     <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">
@@ -127,12 +132,15 @@ export function ErrorScreen({ error }: ErrorScreenProps) {
                         </button>
                     ) : null}
                     <a
-                        href="/"
+                        href={withBasePath(env.basePath, "/")}
                         className={`btn ${description.reloadHelps ? "btn-ghost-inverse" : "btn-inverse"}`}
                     >
                         Back to home
                     </a>
-                    <a href="/contact" className="btn btn-ghost-inverse">
+                    <a
+                        href={withBasePath(env.basePath, "/contact")}
+                        className="btn btn-ghost-inverse"
+                    >
                         Contact Classific
                     </a>
                 </div>

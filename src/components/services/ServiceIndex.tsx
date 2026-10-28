@@ -218,9 +218,7 @@ export function ServiceIndex({
                         <div className="grid items-center gap-8 p-8 sm:p-10 lg:grid-cols-12 lg:gap-12 lg:p-12">
                             {/* Image Showcase Column */}
                             <div
-                                className={`lg:col-span-6 ${
-                                    isEven ? "lg:order-2" : "lg:order-1"
-                                }`}
+                                className={`lg:col-span-6 ${isEven ? "lg:order-2" : "lg:order-1"}`}
                             >
                                 <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-rule/60 bg-paper shadow-sm">
                                     {imageSrc ? (

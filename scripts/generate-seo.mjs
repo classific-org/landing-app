@@ -1,15 +1,18 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { requireProductionOrigin } from "./lib/origin.mjs";
+import { normalizeBasePath, requireProductionOrigin } from "./lib/origin.mjs";
 import { withViteSsr } from "./vite-ssr.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export async function generateSeoFiles({
     origin = requireProductionOrigin(process.env.SITE_ORIGIN),
+    basePath = normalizeBasePath(process.env.SITE_BASE),
     directories = [path.join(root, "public")],
 } = {}) {
+    // Every absolute URL in these files carries the path the site is served from.
+    const siteUrl = `${origin}${basePath}`;
     const files = await withViteSsr(root, async (vite) => {
         const [{ buildRobotsTxt }, { buildSitemapXml }, { buildLlmsTxt, buildLlmsFullTxt }] =
             await Promise.all([
@@ -19,10 +22,10 @@ export async function generateSeoFiles({
             ]);
 
         return {
-            "robots.txt": buildRobotsTxt(origin),
-            "sitemap.xml": buildSitemapXml(origin),
-            "llms.txt": buildLlmsTxt(origin),
-            "llms-full.txt": buildLlmsFullTxt(origin),
+            "robots.txt": buildRobotsTxt(siteUrl),
+            "sitemap.xml": buildSitemapXml(siteUrl),
+            "llms.txt": buildLlmsTxt(siteUrl),
+            "llms-full.txt": buildLlmsFullTxt(siteUrl),
         };
     });
 

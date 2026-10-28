@@ -79,3 +79,13 @@ Contact details and social profiles live in `src/data/site.ts`. Empty values are
 ## Design and conventions
 
 Four-space indentation is enforced by Prettier. Presentation stays in `.tsx` files; behaviour lives in sibling `.hooks.ts` files. Sometic provides the form, overlay, accordion, breadcrumb, and HTTP primitives. Tokens come from `src/styles/tokens.css` and `src/styles/global.css`.
+
+## Deploying to GitHub Pages
+
+The site is published at `https://<owner>.github.io/<repository>/`, a sub-path rather than a domain root, so the build needs a base path. `scripts/deploy-pages.mjs` derives the origin and base from `GITHUB_REPOSITORY`, builds with them, adds `.nojekyll`, and verifies that every asset, route and `404.html` exists under that path.
+
+```bash
+bun run deploy:pages   # builds and verifies dist/ for GitHub Pages
+```
+
+Set the repository's **Settings → Pages → Source** to **GitHub Actions**. The `deploy` job in `.github/workflows/ci.yml` then publishes on every push to `main` once the checks pass. `SITE_BASE` sets the base path (default `/`, used by local development and the e2e suite); `SITE_ORIGIN` and `SITE_BASE` override the derived values, for example for a custom domain.

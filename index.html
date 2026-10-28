@@ -99,7 +99,7 @@
                 try {
                     var root = document.documentElement;
                     var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-                    if (location.pathname === "/" && !reduced) {
+                    if (location.pathname === "%BASE_URL%" && !reduced) {
                         root.classList.add("intro-pending");
                         setTimeout(function () {
                             root.classList.remove("intro-pending");

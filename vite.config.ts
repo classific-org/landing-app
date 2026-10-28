@@ -4,12 +4,20 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
+function normalizeBase(raw: string | undefined): string {
+    const trimmed = (raw ?? "").trim().replace(/^\/+|\/+$/g, "");
+    return trimmed.length > 0 ? `/${trimmed}/` : "/";
+}
+
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), "");
     const siteOrigin = env.SITE_ORIGIN ?? process.env.SITE_ORIGIN ?? "";
+    // The path the site is served from: "/" at a domain root, "/landing-app/" on GitHub Pages.
+    const siteBase = normalizeBase(env.SITE_BASE ?? process.env.SITE_BASE);
     const contactEndpoint = env.CONTACT_ENDPOINT ?? process.env.CONTACT_ENDPOINT ?? "";
 
     return {
+        base: siteBase,
         plugins: [react(), tailwindcss()],
         resolve: {
             alias: {
@@ -55,11 +63,17 @@ export default defineConfig(({ mode }) => {
         },
         define: {
             __SITE_ORIGIN__: JSON.stringify(siteOrigin),
+            __SITE_BASE__: JSON.stringify(siteBase.replace(/\/+$/, "")),
             __CONTACT_ENDPOINT__: JSON.stringify(contactEndpoint),
         },
         build: {
             target: "es2022",
             sourcemap: false,
+            // Prerendering maps the source asset URLs it renders to the built, hashed files.
+            manifest: true,
+            // Small images would otherwise be inlined into the JS, leaving the prerendered HTML
+            // with no file to point at.
+            assetsInlineLimit: 0,
         },
         test: {
             environment: "jsdom",

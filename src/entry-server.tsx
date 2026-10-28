@@ -20,9 +20,13 @@ export type RenderResult = {
  * Renders a single pathname to static HTML with the serialized document head.
  * Used by scripts/prerender.mjs after the client build.
  */
-export async function render(pathname: string, origin: string): Promise<RenderResult> {
-    const handler = createStaticHandler(routes);
-    const request = new Request(new URL(pathname, origin));
+export async function render(
+    pathname: string,
+    origin: string,
+    basePath = "",
+): Promise<RenderResult> {
+    const handler = createStaticHandler(routes, { basename: basePath || undefined });
+    const request = new Request(new URL(`${basePath}${pathname}`, origin));
     const context = await handler.query(request);
 
     if (context instanceof Response) {
@@ -42,7 +46,7 @@ export async function render(pathname: string, origin: string): Promise<RenderRe
 
     const snapshot = mergePatches([
         buildBaseHeadPatch(),
-        resolveHeadPatchForPath(pathname, origin),
+        resolveHeadPatchForPath(pathname, `${origin}${basePath}`),
     ]);
     const statusCode =
         context.statusCode === 200 && !isKnownPath(pathname) ? 404 : context.statusCode;

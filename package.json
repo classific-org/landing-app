@@ -6,6 +6,7 @@
     "scripts": {
         "dev": "vite",
         "build": "node scripts/build.mjs",
+        "deploy:pages": "node scripts/deploy-pages.mjs",
         "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
         "lint": "eslint .",
         "format": "prettier --check .",

@@ -8,6 +8,10 @@ const pages = [
     { name: "article", path: "/insights/what-discovery-actually-decides" },
 ];
 
+// Axe samples colours at the moment it runs. Reduced motion shows the settled page rather than a
+// frame from the middle of a fade-in, which would report contrast the visitor never sees.
+test.use({ reducedMotion: "reduce" });
+
 for (const pageInfo of pages) {
     test(`has no serious axe violations on ${pageInfo.name}`, async ({ page }) => {
         await page.goto(pageInfo.path);

@@ -73,7 +73,10 @@ export function BlogPostPage() {
                             {post.body.map((block, index) => {
                                 if (block.type === "paragraph") {
                                     return (
-                                        <p key={index} className="text-body-lg leading-relaxed text-body">
+                                        <p
+                                            key={index}
+                                            className="text-body-lg leading-relaxed text-body"
+                                        >
                                             {block.text}
                                         </p>
                                     );
@@ -128,7 +131,9 @@ export function BlogPostPage() {
                                 </div>
                             </div>
                             <p className="mt-4 text-small text-body leading-relaxed">
-                                Classific is a software engineering studio that designs and builds web, mobile, desktop and enterprise systems for businesses with complex workflows.
+                                Classific is a software engineering studio that designs and builds
+                                web, mobile, desktop and enterprise systems for businesses with
+                                complex workflows.
                             </p>
                         </div>
                     </div>
@@ -169,13 +174,12 @@ export function BlogPostPage() {
                                 </div>
 
                                 <div className="mt-4 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
-                                    <span>{related.publishedAt}</span> • <span>{related.readingTime}</span>
+                                    <span>{related.publishedAt}</span> •{" "}
+                                    <span>{related.readingTime}</span>
                                 </div>
 
                                 <h3 className="mt-2 text-h3 font-medium text-ink transition-colors group-hover:text-accent">
-                                    <Link to={`/blog/${related.slug}`}>
-                                        {related.title}
-                                    </Link>
+                                    <Link to={`/blog/${related.slug}`}>{related.title}</Link>
                                 </h3>
 
                                 <p className="mt-3 text-body-lg text-body line-clamp-2">

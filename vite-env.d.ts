@@ -2,6 +2,7 @@
 
 declare const __SITE_ORIGIN__: string;
 declare const __CONTACT_ENDPOINT__: string;
+declare const __SITE_BASE__: string;
 
 declare module "*.svg?raw" {
     const content: string;

@@ -54,9 +54,10 @@ export function ProcessPage() {
                 intro="Good software is built with the people who will use it. These expectations keep that collaboration productive."
                 node
             >
-                <dl className="mt-14 grid gap-x-10 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
+                <ul className="mt-14 grid gap-x-10 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
                     {expectations.map((expectation, index) => (
                         <Reveal
+                            as="li"
                             key={expectation.title}
                             delay={(index % 3) * 90}
                             className="border-t border-paper/40 py-8 lg:py-10"
@@ -67,13 +68,13 @@ export function ProcessPage() {
                             >
                                 0{index + 1}
                             </span>
-                            <dt className="mt-8 text-h3 text-paper">{expectation.title}</dt>
-                            <dd className="mt-3 max-w-sm text-body text-paper/75">
+                            <h3 className="mt-8 text-h3 text-paper">{expectation.title}</h3>
+                            <p className="mt-3 max-w-sm text-body text-paper/75">
                                 {expectation.description}
-                            </dd>
+                            </p>
                         </Reveal>
                     ))}
-                </dl>
+                </ul>
             </Fold>
 
             <Fold
