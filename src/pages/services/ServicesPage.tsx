@@ -1,7 +1,8 @@
 import { PageHero } from "@/components/layout/PageHero";
-import { Section } from "@/components/layout/Section";
-import { SectionHeading } from "@/components/layout/SectionHeading";
+import { Fold } from "@/components/layout/Fold";
 import { ClosingCta } from "@/components/layout/ClosingCta";
+import { ThreadedPage } from "@/components/layout/ThreadedPage";
+import { ParallaxImage, Reveal } from "@/components/motion/Reveal";
 import { ServiceIndex } from "@/components/services/ServiceIndex";
 import { FaqList } from "@/components/services/FaqList";
 import { ProcessSteps } from "@/components/process/ProcessSteps";
@@ -16,126 +17,120 @@ export function ServicesPage() {
     const { services, stages, faqs, breadcrumbs, problems, deliverables } = useServicesPage();
 
     return (
-        <>
+        <ThreadedPage>
             <PageHero
                 eyebrow="Services"
                 title="Software engineering across every surface your business runs on."
                 copy="Web, mobile, desktop, business systems and custom software, delivered by one team with one standard for discovery, design, testing and support."
                 breadcrumbs={breadcrumbs}
+                thread
             />
 
-            <Section labelledBy="service-list-title" tone="white">
-                <SectionHeading
-                    id="service-list-title"
-                    eyebrow="What we build"
-                    title="Five service areas."
-                    intro="Most engagements combine more than one. Each area below links to a detailed page with problems solved, capabilities, use cases and frequently asked questions."
-                    align="split"
-                />
-                <div className="mt-12 lg:mt-16">
-                    <ServiceIndex services={services} layout="list" headingLevel="h3" />
+            <Fold
+                tone="paper"
+                id="service-list-title"
+                index="01"
+                label="What we build"
+                word={["Five service", "areas."]}
+                wordSize={12}
+                intro="Most engagements combine more than one. Each area below links to a detailed page with problems solved, capabilities, use cases and frequently asked questions."
+            >
+                <div className="mt-14 lg:mt-20">
+                    <ServiceIndex services={services} layout="list" headingLevel="h3" thread />
                 </div>
-            </Section>
+            </Fold>
 
-            {/* Business Problems with Visual Companion */}
-            <Section labelledBy="problems-title" tone="paper">
-                <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-10">
-                    <div className="lg:col-span-5">
-                        <SectionHeading
-                            id="problems-title"
-                            eyebrow="Business problems we address"
-                            title="Projects start with a problem, not a technology."
-                            intro="The requests we hear most often share a pattern: a process that has outgrown its tools, or a system that holds the business back."
+            <Fold
+                tone="ink"
+                id="problems-title"
+                index="02"
+                label="Business problems we address"
+                word={["Projects start", "with a problem,", "not a technology."]}
+                wordSize={8.2}
+                intro="The requests we hear most often share a pattern: a process that has outgrown its tools, or a system that holds the business back."
+                node
+            >
+                <div className="mt-14 grid gap-12 lg:mt-20 lg:grid-cols-12 lg:gap-10">
+                    <Reveal variant="clip" className="lg:col-span-5">
+                        <ParallaxImage
+                            src={connectedSystemsImg}
+                            alt="Connected systems architecture"
+                            className="aspect-[16/10] border border-paper/20"
                         />
-                        <div className="mt-8 overflow-hidden rounded-md border border-rule bg-white shadow-xs">
-                            <div className="aspect-[16/10] overflow-hidden">
-                                <img
-                                    src={connectedSystemsImg}
-                                    alt="Connected systems architecture"
-                                    className="h-full w-full object-cover"
-                                    loading="lazy"
-                                />
-                            </div>
-                            <div className="border-t border-rule bg-paper px-4 py-2.5 font-mono text-[11px] text-muted">
-                                DISTRIBUTED ARCHITECTURE &amp; DATA FLOW
-                            </div>
-                        </div>
-                    </div>
-                    <div className="lg:col-span-7">
-                        <div className="rounded-md border border-rule bg-white p-8 shadow-xs">
-                            <BulletList items={problems} numbered />
-                        </div>
+                        <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.1em] text-paper/55">
+                            Distributed architecture &amp; data flow
+                        </p>
+                    </Reveal>
+                    <div className="lg:col-span-6 lg:col-start-7">
+                        <BulletList items={problems} numbered tone="dark" />
                     </div>
                 </div>
-            </Section>
+            </Fold>
 
-            {/* Deliverables with Layered Architecture Asset */}
-            <Section labelledBy="deliverables-title" tone="white">
-                <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-10">
-                    <div className="lg:col-span-5">
-                        <SectionHeading
-                            id="deliverables-title"
-                            eyebrow="Typical deliverables"
-                            title="What you receive."
-                            intro="Deliverables vary by project, but working software is always accompanied by the documentation and tooling needed to run it."
+            <Fold
+                tone="paper"
+                id="deliverables-title"
+                index="03"
+                label="Typical deliverables"
+                word={["What you", "receive."]}
+                wordSize={14}
+                intro="Deliverables vary by project, but working software is always accompanied by the documentation and tooling needed to run it."
+                node
+            >
+                <div className="mt-14 grid gap-12 lg:mt-20 lg:grid-cols-12 lg:gap-10">
+                    <div className="order-2 lg:order-1 lg:col-span-6">
+                        <BulletList items={deliverables} columns={1} />
+                    </div>
+                    <Reveal
+                        variant="clip"
+                        className="order-1 lg:order-2 lg:col-span-5 lg:col-start-8"
+                    >
+                        <ParallaxImage
+                            src={layeredArchitectureImg}
+                            alt="Layered software architecture on volcanic pedestal"
+                            className="aspect-[16/10] border border-rule"
                         />
-                        <div className="mt-8 overflow-hidden rounded-md border border-rule bg-paper shadow-xs">
-                            <div className="aspect-[16/10] overflow-hidden">
-                                <img
-                                    src={layeredArchitectureImg}
-                                    alt="Layered software architecture on volcanic pedestal"
-                                    className="h-full w-full object-cover"
-                                    loading="lazy"
-                                />
-                            </div>
-                            <div className="border-t border-rule bg-white px-4 py-2.5 font-mono text-[11px] text-muted">
-                                FULL-STACK DELIVERABLE STACK
-                            </div>
-                        </div>
-                    </div>
-                    <div className="lg:col-span-7">
-                        <div className="rounded-md border border-rule bg-paper/60 p-8 shadow-xs">
-                            <BulletList items={deliverables} columns={1} />
-                        </div>
-                    </div>
+                        <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
+                            Full-stack deliverable stack
+                        </p>
+                    </Reveal>
                 </div>
-            </Section>
+            </Fold>
 
-            <Section labelledBy="approach-title" tone="paper">
-                <SectionHeading
-                    id="approach-title"
-                    eyebrow="Development approach"
-                    title="The same five stages, every time."
-                    intro="Discovery before commitments, planning before design, and automated testing throughout development."
-                    align="split"
-                >
-                    <div className="mt-6">
-                        <TextLink to="/process" variant="arrow">
-                            Full process
-                        </TextLink>
-                    </div>
-                </SectionHeading>
-                <div className="mt-12 lg:mt-16">
-                    <ProcessSteps stages={stages} variant="compact" />
+            <Fold
+                tone="ink"
+                id="approach-title"
+                index="04"
+                label="Development approach"
+                word={["The same five", "stages,", "every time."]}
+                wordSize={10.5}
+                intro="Discovery before commitments, planning before design, and automated testing throughout development."
+            >
+                <div className="mt-14 lg:mt-20">
+                    <ProcessSteps stages={stages} variant="compact" tone="dark" thread />
                 </div>
-            </Section>
+                <Reveal className="mt-12 text-paper">
+                    <TextLink to="/process" variant="arrow">
+                        Full process
+                    </TextLink>
+                </Reveal>
+            </Fold>
 
-            <Section labelledBy="faq-title" tone="white">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
-                    <div className="lg:col-span-4">
-                        <SectionHeading
-                            id="faq-title"
-                            eyebrow="Questions"
-                            title="Frequently asked."
-                        />
-                    </div>
-                    <div className="lg:col-span-8">
-                        <FaqList faqs={faqs} idPrefix="services-faq" />
-                    </div>
+            <Fold
+                tone="paper"
+                id="faq-title"
+                index="05"
+                label="Questions"
+                word={["Frequently", "asked."]}
+                wordSize={13}
+                node
+            >
+                <div className="mt-14 lg:mt-20 lg:max-w-4xl">
+                    <FaqList faqs={faqs} idPrefix="services-faq" />
                 </div>
-            </Section>
+            </Fold>
 
-            <ClosingCta />
-        </>
+            <ClosingCta tangle />
+        </ThreadedPage>
     );
 }

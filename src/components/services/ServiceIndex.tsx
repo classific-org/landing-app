@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { Reveal } from "@/components/motion/Reveal";
 import { Icon } from "@/components/ui/Icon";
 import { padStep } from "@/lib/formatting/text";
 import type { Service } from "@/types/content";
@@ -27,164 +28,124 @@ const serviceTags: Record<string, string[]> = {
 
 type ServiceIndexProps = {
     services: Service[];
-    /** "grid" for the homepage, "list" for the services overview. */
+    /** "grid" is the compact homepage index; "list" adds descriptions and tags. */
     layout?: "grid" | "list";
     headingLevel?: "h2" | "h3";
+    /** "dark" for ink folds. */
+    tone?: "light" | "dark";
+    /** Adds a thread node to every row, for the home page's thread to pass through. */
+    thread?: boolean;
 };
 
+/**
+ * Editorial service index: one ruled row per service with a large title, the summary, a
+ * preview image and an arrow. Hover draws the rule, nudges the title and fills the arrow.
+ */
 export function ServiceIndex({
     services,
     layout = "grid",
     headingLevel = "h3",
+    tone = "light",
+    thread = false,
 }: ServiceIndexProps) {
     const Heading = headingLevel;
-
-    if (layout === "list") {
-        return (
-            <ul className="divide-y divide-rule border-y border-rule">
-                {services.map((service, index) => {
-                    const imageSrc = serviceImages[service.slug];
-                    const tags = serviceTags[service.slug] ?? [];
-
-                    return (
-                        <li
-                            key={service.slug}
-                            className="group grid gap-6 py-10 transition-colors duration-200 hover:bg-white/40 lg:grid-cols-12 lg:items-center lg:gap-8"
-                        >
-                            <div className="flex items-start gap-5 lg:col-span-4">
-                                <span className="font-mono text-small tabular-nums text-muted">
-                                    {padStep(index + 1)}
-                                </span>
-                                <div>
-                                    <Heading className="text-h3 font-medium">
-                                        <Link
-                                            to={`/services/${service.slug}`}
-                                            className="transition-colors hover:text-accent"
-                                        >
-                                            {service.title}
-                                        </Link>
-                                    </Heading>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                        {tags.map((tag) => (
-                                            <span
-                                                key={tag}
-                                                className="rounded bg-paper px-2 py-0.5 font-mono text-[11px] text-muted border border-rule/80"
-                                            >
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <p className="text-body text-body leading-relaxed lg:col-span-5">
-                                {service.description}
-                            </p>
-
-                            <div className="flex items-center justify-between gap-4 lg:col-span-3 lg:justify-end">
-                                {imageSrc ? (
-                                    <div className="h-16 w-16 overflow-hidden rounded border border-rule bg-paper shadow-xs sm:h-20 sm:w-20">
-                                        <img
-                                            src={imageSrc}
-                                            alt=""
-                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                ) : null}
-                                <Link
-                                    to={`/services/${service.slug}`}
-                                    className="arrow-link text-small font-medium text-ink group-hover:text-accent"
-                                >
-                                    <span>Explore {service.navLabel}</span>
-                                    <Icon
-                                        name="arrow-right"
-                                        className="transition-transform duration-200 group-hover:translate-x-1"
-                                    />
-                                </Link>
-                            </div>
-                        </li>
-                    );
-                })}
-            </ul>
-        );
-    }
+    const detailed = layout === "list";
+    const dark = tone === "dark";
 
     return (
-        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <ul
+            className={dark ? "border-t border-paper/40" : "border-t border-ink"}
+            style={
+                dark
+                    ? ({
+                          "--row-ink": "var(--color-paper)",
+                          "--row-paper": "var(--color-ink)",
+                      } as React.CSSProperties)
+                    : undefined
+            }
+        >
             {services.map((service, index) => {
                 const imageSrc = serviceImages[service.slug];
                 const tags = serviceTags[service.slug] ?? [];
+                const href = `/services/${service.slug}`;
 
                 return (
-                    <li
+                    <Reveal
+                        as="li"
                         key={service.slug}
-                        className="group relative flex flex-col overflow-hidden rounded-md border border-rule bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-ink-soft/40 hover:shadow-xl"
+                        delay={index * 40}
+                        className={dark ? "border-b border-paper/15" : "border-b border-rule"}
                     >
-                        {/* Image Header with Badge */}
-                        <div className="relative aspect-[16/11] w-full overflow-hidden border-b border-rule bg-paper">
-                            {imageSrc ? (
-                                <img
-                                    src={imageSrc}
-                                    alt={service.title}
-                                    className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                                    loading="lazy"
+                        <div
+                            className={`row-link zoom-trigger group relative grid items-center gap-x-8 gap-y-5 py-8 lg:grid-cols-12 lg:py-10 ${
+                                dark ? "hover:bg-paper/5" : "hover:bg-white/60"
+                            } ${thread ? "lg:pl-9" : ""}`}
+                        >
+                            {thread ? (
+                                <span
+                                    data-thread-node
+                                    className="absolute -left-[19px] top-1/2 h-[18px] w-[18px] -translate-y-1/2 lg:left-0"
+                                    aria-hidden="true"
                                 />
-                            ) : (
-                                <div className="h-full w-full bg-paper" />
-                            )}
-                            <div
-                                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent opacity-80"
+                            ) : null}
+                            <span
+                                className={`font-mono text-small tabular-nums lg:col-span-1 ${dark ? "text-paper/50" : "text-muted"}`}
                                 aria-hidden="true"
-                            />
-                            {/* Floating Step Badge & Icon */}
-                            <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-rule/80 bg-white/90 px-2.5 py-1 text-[11px] font-mono shadow-xs backdrop-blur-sm">
-                                <span className="text-muted">{padStep(index + 1)}</span>
-                                <span className="h-2 w-px bg-rule" />
-                                <Icon name={service.icon} className="h-3.5 w-3.5 text-ink" />
-                            </div>
-                        </div>
+                            >
+                                {padStep(index + 1)}
+                            </span>
 
-                        {/* Card Content */}
-                        <div className="flex flex-1 flex-col p-6">
-                            <Heading className="text-h3 font-medium transition-colors group-hover:text-accent">
-                                <Link
-                                    to={`/services/${service.slug}`}
-                                    className="focus-visible:outline-offset-2"
+                            <div className="lg:col-span-5">
+                                <Heading
+                                    className={`row-shift text-row ${dark ? "text-paper" : ""}`}
                                 >
-                                    {service.title}
-                                </Link>
-                            </Heading>
-                            <p className="mt-3 flex-1 text-body text-body leading-relaxed">
-                                {service.summary}
+                                    <Link
+                                        to={href}
+                                        className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-offset-4"
+                                    >
+                                        {service.title}
+                                    </Link>
+                                </Heading>
+                                {detailed ? (
+                                    <ul
+                                        className={`row-shift mt-4 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] uppercase tracking-[0.08em] ${dark ? "text-paper/55" : "text-muted"}`}
+                                    >
+                                        {tags.map((tag) => (
+                                            <li key={tag}>{tag}</li>
+                                        ))}
+                                    </ul>
+                                ) : null}
+                            </div>
+
+                            <p
+                                className={`max-w-md text-body lg:col-span-3 ${dark ? "text-paper/75" : "text-body"}`}
+                            >
+                                {detailed ? service.description : service.summary}
                             </p>
 
-                            {/* Tags */}
-                            <div className="mt-5 flex flex-wrap gap-1.5">
-                                {tags.map((tag) => (
-                                    <span
-                                        key={tag}
-                                        className="rounded bg-paper px-2 py-0.5 font-mono text-[10px] text-muted border border-rule/60"
-                                    >
-                                        {tag}
-                                    </span>
-                                ))}
+                            <div className="flex items-center justify-between gap-5 lg:col-span-3 lg:justify-end">
+                                {imageSrc ? (
+                                    <div className="zoom-frame hidden aspect-[4/3] w-28 sm:block lg:w-32">
+                                        <img
+                                            src={imageSrc}
+                                            alt=""
+                                            width={128}
+                                            height={96}
+                                            className="h-full w-full object-cover"
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                    </div>
+                                ) : null}
+                                <span
+                                    className="row-arrow ml-auto flex h-11 w-11 flex-none items-center justify-center border lg:ml-0"
+                                    aria-hidden="true"
+                                >
+                                    <Icon name="arrow-right" className="h-4 w-4" />
+                                </span>
                             </div>
-
-                            {/* Action Link */}
-                            <Link
-                                to={`/services/${service.slug}`}
-                                className="arrow-link mt-6 text-small font-medium text-ink transition-colors group-hover:text-accent"
-                                aria-label={`Learn more about ${service.title}`}
-                            >
-                                <span>Learn more</span>
-                                <Icon
-                                    name="arrow-right"
-                                    className="transition-transform duration-200 group-hover:translate-x-1"
-                                />
-                            </Link>
                         </div>
-                    </li>
+                    </Reveal>
                 );
             })}
         </ul>

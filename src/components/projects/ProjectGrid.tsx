@@ -1,8 +1,8 @@
-import { Link } from "react-router";
+import { Eyebrow } from "@/components/layout/Eyebrow";
+import { Reveal } from "@/components/motion/Reveal";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import type { Project } from "@/types/content";
-
-import analyticsDashboard from "@/assets/work/analytics_dashboard.jpg";
 
 type ProjectGridProps = {
     projects: Project[];
@@ -10,6 +10,9 @@ type ProjectGridProps = {
     emptyCopy?: string;
     headingLevel?: "h2" | "h3";
 };
+
+/** What every published case study will contain, in the order it is written. */
+const caseStudySections = ["Challenge", "Approach", "Solution", "Verified outcomes"];
 
 export function ProjectGrid({
     projects,
@@ -20,97 +23,108 @@ export function ProjectGrid({
     if (projects.length === 0) {
         return (
             <div
-                className="overflow-hidden rounded-md border border-rule bg-white shadow-xs"
+                className="grid gap-12 border-t border-ink pt-10 lg:grid-cols-12 lg:gap-10 lg:pt-14"
                 role="status"
                 data-testid="projects-empty"
             >
-                <div className="grid gap-8 p-8 lg:grid-cols-12 lg:items-center lg:gap-12 lg:p-12">
-                    <div className="lg:col-span-6">
-                        <div className="flex items-center gap-2">
-                            <span className="relative flex h-2 w-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-                            </span>
-                            <span className="text-eyebrow font-medium uppercase tracking-wider text-accent">
-                                Case Study Verification Protocol
-                            </span>
-                        </div>
+                <div className="lg:col-span-6">
+                    <Reveal>
+                        <Eyebrow className="text-accent">Case study verification</Eyebrow>
+                        <h3 className="mt-6 text-h2">{emptyTitle}</h3>
+                        <p className="mt-5 max-w-lg text-body-lg text-body">{emptyCopy}</p>
+                    </Reveal>
 
-                        <h3 className="mt-4 text-h2 font-medium text-ink">{emptyTitle}</h3>
-                        <p className="mt-4 text-body-lg text-body leading-relaxed">{emptyCopy}</p>
-
-                        <div className="mt-8 grid grid-cols-2 gap-4 border-t border-rule/80 pt-6">
+                    <Reveal delay={120}>
+                        <dl className="mt-10 grid gap-8 border-t border-rule pt-8 sm:grid-cols-2">
                             <div>
-                                <span className="text-small font-medium text-ink">
-                                    NDA Compliant
-                                </span>
-                                <p className="mt-1 text-small text-muted">
+                                <dt className="text-small font-medium text-ink">NDA Compliant</dt>
+                                <dd className="mt-1.5 text-small text-muted">
                                     Client confidentiality is strictly preserved until formal
                                     release.
-                                </p>
+                                </dd>
                             </div>
                             <div>
-                                <span className="text-small font-medium text-ink">
+                                <dt className="text-small font-medium text-ink">
                                     Private Walkthroughs
-                                </span>
-                                <p className="mt-1 text-small text-muted">
+                                </dt>
+                                <dd className="mt-1.5 text-small text-muted">
                                     Direct code and architectural walkthroughs available during
                                     discovery.
-                                </p>
+                                </dd>
                             </div>
-                        </div>
-
-                        <div className="mt-8">
-                            <Link to="/contact" className="btn btn-primary">
+                        </dl>
+                        <div className="mt-10">
+                            <ButtonLink
+                                to="/contact"
+                                variant="primary"
+                                withArrow
+                                className="max-w-full whitespace-normal py-3 text-center"
+                            >
                                 Request Private Portfolio Walkthrough
-                            </Link>
+                            </ButtonLink>
                         </div>
-                    </div>
-
-                    <div className="lg:col-span-6">
-                        <div className="relative mx-auto max-w-md overflow-hidden rounded-md border border-rule bg-paper p-3 shadow-md lg:max-w-none">
-                            <div className="relative aspect-[16/10] overflow-hidden rounded bg-ink">
-                                <img
-                                    src={analyticsDashboard}
-                                    alt="Classific engineering case study preview"
-                                    className="h-full w-full object-cover opacity-85"
-                                    loading="lazy"
-                                />
-                                <div
-                                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/30 to-transparent"
-                                    aria-hidden="true"
-                                />
-                                <div className="absolute inset-x-4 bottom-4 flex items-center justify-between">
-                                    <div>
-                                        <span className="rounded bg-accent/90 px-2 py-0.5 text-[10px] font-mono font-medium text-white shadow-xs">
-                                            ACTIVE VERIFICATION
-                                        </span>
-                                        <p className="mt-1.5 text-small font-medium text-white">
-                                            Enterprise Logistics &amp; Data Pipeline
-                                        </p>
-                                    </div>
-                                    <span className="hidden font-mono text-xs text-white/80 sm:block">
-                                        Q2 Review
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="mt-3 flex items-center justify-between px-2 text-[11px] font-mono text-muted">
-                                <span>CLIENT DOMAIN: LOGISTICS &amp; FINTECH</span>
-                                <span>STACK: TS • REACT • GO • POSTGRES</span>
-                            </div>
-                        </div>
-                    </div>
+                    </Reveal>
                 </div>
+
+                <Reveal className="lg:col-span-5 lg:col-start-8" delay={160}>
+                    <div className="grid-blueprint relative border border-rule bg-white p-6 sm:p-8">
+                        <span
+                            className="absolute left-2 top-2 font-mono text-[10px] text-muted"
+                            aria-hidden="true"
+                        >
+                            +
+                        </span>
+                        <span
+                            className="absolute right-2 top-2 font-mono text-[10px] text-muted"
+                            aria-hidden="true"
+                        >
+                            +
+                        </span>
+                        <span
+                            className="absolute bottom-2 left-2 font-mono text-[10px] text-muted"
+                            aria-hidden="true"
+                        >
+                            +
+                        </span>
+                        <span
+                            className="absolute bottom-2 right-2 font-mono text-[10px] text-muted"
+                            aria-hidden="true"
+                        >
+                            +
+                        </span>
+                        <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
+                            Case study template
+                        </p>
+                        <ol className="mt-6 border-t border-ink bg-white/80">
+                            {caseStudySections.map((section, index) => (
+                                <li
+                                    key={section}
+                                    className="flex items-baseline justify-between gap-4 border-b border-rule py-4"
+                                >
+                                    <span className="text-h3">{section}</span>
+                                    <span
+                                        className="font-mono text-[11px] tabular-nums text-muted"
+                                        aria-hidden="true"
+                                    >
+                                        0{index + 1}
+                                    </span>
+                                </li>
+                            ))}
+                        </ol>
+                        <p className="mt-6 font-mono text-[11px] text-muted">
+                            Published only after client approval.
+                        </p>
+                    </div>
+                </Reveal>
             </div>
         );
     }
 
     return (
-        <ul className="grid gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
-                <li key={project.slug}>
-                    <ProjectCard project={project} headingLevel={headingLevel} />
+        <ul className="grid gap-x-10 gap-y-16 md:grid-cols-2 lg:gap-x-14 lg:gap-y-24">
+            {projects.map((project, index) => (
+                <li key={project.slug} className={index % 2 === 1 ? "md:mt-20" : ""}>
+                    <ProjectCard project={project} headingLevel={headingLevel} index={index} />
                 </li>
             ))}
         </ul>

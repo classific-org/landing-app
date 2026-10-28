@@ -1,61 +1,72 @@
-import { Link, NavLink } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router";
 import { Dialog } from "@sometic/react/overlay";
 import { Container } from "@/components/layout/Container";
+import { useScrolled } from "@/components/motion/motion.hooks";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { useSiteHeader } from "@/components/layout/SiteHeader.hooks";
 
+/** Scroll distance after which the home hero no longer sits behind the header. */
+const heroEdge = () => window.innerHeight * 0.7;
+
 export function SiteHeader() {
     const { navigation, cta, isMenuOpen, menuId, menuTitleId, openMenu, closeMenu, setMenuOpen } =
         useSiteHeader();
+    const [scrolled, setScrolled] = useState(false);
+    const [pastHero, setPastHero] = useState(false);
+    useScrolled(8, setScrolled);
+    useScrolled(heroEdge, setPastHero);
+
+    // Pages that open on a dark hero get a matching dark header until the hero scrolls away.
+    // The initial guess keeps the server-rendered header right; the effect confirms it on the
+    // client for every route change.
+    const { pathname } = useLocation();
+    const [overHero, setOverHero] = useState(!/^\/insights\/./.test(pathname));
+    useEffect(() => {
+        setOverHero(Boolean(document.querySelector("main .hero, main [data-dark-hero]")));
+    }, [pathname]);
+    const dark = overHero && !pastHero;
 
     return (
-        <header className="sticky top-0 z-50 border-b border-rule/80 glass-header shadow-xs transition-all duration-300">
-            <Container className="flex h-[72px] items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                    <Link to="/" className="inline-flex items-center" aria-label="Classific home">
-                        <Wordmark className="h-7 w-auto" />
-                    </Link>
-                    <span className="hidden items-center gap-2 rounded-full border border-rule bg-white/80 px-2.5 py-0.5 text-[11px] font-medium text-body shadow-xs xl:inline-flex">
-                        <span className="relative flex h-2 w-2">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
-                        </span>
-                        <span>Available for Q2/Q3 projects</span>
-                    </span>
-                </div>
+        <header
+            className="site-header sticky top-0 z-50"
+            data-scrolled={scrolled}
+            data-tone={dark ? "dark" : "light"}
+        >
+            <Container className="flex h-[4.5rem] items-center justify-between gap-6">
+                <Link
+                    to="/"
+                    className="inline-flex items-center transition-opacity duration-200 hover:opacity-75"
+                    aria-label="Classific home"
+                >
+                    <Wordmark
+                        className="h-8 w-auto object-contain sm:h-9"
+                        variant={dark ? "chrome" : "dark"}
+                    />
+                </Link>
 
-                <nav aria-label="Primary" className="hidden lg:block">
-                    <ul className="flex items-center gap-1 xl:gap-2">
-                        {navigation.map((item) => (
-                            <li key={item.href}>
-                                <NavLink
-                                    to={item.href}
-                                    className={({ isActive }) =>
-                                        [
-                                            "rounded-md px-3.5 py-1.5 text-small font-medium transition-all duration-150",
-                                            isActive
-                                                ? "bg-white text-ink shadow-xs border border-rule/80"
-                                                : "text-body hover:bg-white/60 hover:text-ink",
-                                        ].join(" ")
-                                    }
-                                >
-                                    {item.label}
-                                </NavLink>
-                            </li>
-                        ))}
-                    </ul>
+                <nav aria-label="Primary" className="hidden items-center gap-9 lg:flex">
+                    {navigation.map((item) => (
+                        <NavLink key={item.href} to={item.href} className="nav-link">
+                            {item.label}
+                        </NavLink>
+                    ))}
                 </nav>
 
-                <div className="hidden lg:block">
-                    <ButtonLink to={cta.href} variant="primary" withArrow>
+                <div className="hidden items-center gap-6 lg:flex">
+                    <ButtonLink to={cta.href} variant={dark ? "inverse" : "primary"} withArrow>
                         {cta.label}
                     </ButtonLink>
                 </div>
 
                 <button
                     type="button"
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-rule text-ink lg:hidden"
+                    className={`inline-flex h-11 w-11 items-center justify-center border transition-colors lg:hidden ${
+                        dark
+                            ? "border-paper/30 text-paper hover:border-paper"
+                            : "border-rule text-ink hover:border-ink"
+                    }`}
                     aria-expanded={isMenuOpen}
                     aria-controls={menuId}
                     aria-label="Open menu"
@@ -71,7 +82,7 @@ export function SiteHeader() {
                         aria-hidden="true"
                         focusable="false"
                     >
-                        <path d="M4 7h16M4 12h16M4 17h16" />
+                        <path d="M4 8h16M4 16h16" />
                     </svg>
                 </button>
             </Container>
@@ -81,19 +92,24 @@ export function SiteHeader() {
                 onOpenChange={setMenuOpen}
                 titleId={menuTitleId}
                 id={menuId}
-                className="mobile-menu-panel"
+                className="mobile-menu-panel text-ink"
                 data-testid="mobile-menu"
             >
-                <Container className="flex h-[72px] items-center justify-between">
+                <Container className="flex h-[4.5rem] flex-none items-center justify-between">
                     <h2 id={menuTitleId} className="sr-only">
                         Site navigation
                     </h2>
-                    <Link to="/" className="inline-flex items-center" aria-label="Classific home">
-                        <Wordmark className="h-7 w-auto" />
+                    <Link
+                        to="/"
+                        className="inline-flex items-center"
+                        aria-label="Classific home"
+                        onClick={closeMenu}
+                    >
+                        <Wordmark className="h-8 w-auto object-contain" variant="dark" />
                     </Link>
                     <button
                         type="button"
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-rule text-ink"
+                        className="inline-flex h-11 w-11 items-center justify-center border border-rule text-ink transition-colors hover:border-ink"
                         aria-label="Close menu"
                         onClick={closeMenu}
                     >
@@ -111,30 +127,47 @@ export function SiteHeader() {
                         </svg>
                     </button>
                 </Container>
-                <nav aria-label="Mobile" className="border-t border-rule">
-                    <Container>
+                <nav aria-label="Mobile" className="flex flex-1 flex-col border-t border-rule">
+                    <Container className="flex flex-1 flex-col">
                         <ul className="divide-y divide-rule">
-                            {navigation.map((item) => (
-                                <li key={item.href}>
+                            {navigation.map((item, index) => (
+                                <li
+                                    key={item.href}
+                                    data-menu-item
+                                    style={{ "--menu-i": index } as React.CSSProperties}
+                                >
                                     <NavLink
                                         to={item.href}
                                         onClick={closeMenu}
                                         className={({ isActive }) =>
                                             [
-                                                "block py-5 text-h3",
-                                                isActive ? "text-ink" : "text-body",
+                                                "flex items-baseline justify-between py-5 text-h1 tracking-tight transition-colors",
+                                                isActive
+                                                    ? "text-accent"
+                                                    : "text-ink hover:text-accent",
                                             ].join(" ")
                                         }
                                     >
                                         {item.label}
+                                        <span
+                                            className="font-mono text-small tabular-nums text-muted"
+                                            aria-hidden="true"
+                                        >
+                                            0{index + 1}
+                                        </span>
                                     </NavLink>
                                 </li>
                             ))}
                         </ul>
-                        <div className="py-8">
+                        <div
+                            className="mt-auto py-8"
+                            data-menu-item
+                            style={{ "--menu-i": navigation.length } as React.CSSProperties}
+                        >
                             <ButtonLink
                                 to={cta.href}
                                 variant="primary"
+                                withArrow
                                 className="w-full"
                                 onClick={closeMenu}
                             >

@@ -1,6 +1,8 @@
 import { PageHero } from "@/components/layout/PageHero";
-import { Section } from "@/components/layout/Section";
+import { Fold } from "@/components/layout/Fold";
 import { ClosingCta } from "@/components/layout/ClosingCta";
+import { ThreadedPage } from "@/components/layout/ThreadedPage";
+import { Reveal } from "@/components/motion/Reveal";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
 import { ProjectFilter } from "@/components/projects/ProjectFilter";
 import { TextLink } from "@/components/ui/TextLink";
@@ -18,7 +20,7 @@ export function WorkPage() {
     } = useWorkPage();
 
     return (
-        <>
+        <ThreadedPage>
             <PageHero
                 eyebrow="Work"
                 title="Selected projects."
@@ -28,22 +30,28 @@ export function WorkPage() {
                         : "Case studies are published only with verified outcomes and client approval. Until the first is approved, this page explains what you can expect to see here."
                 }
                 breadcrumbs={breadcrumbs}
+                thread
             />
 
-            <Section labelledBy="work-grid-title" tone="white">
-                <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-                    <h2 id="work-grid-title" className="text-h2">
-                        {hasProjects ? "Case studies" : "Published work"}
-                    </h2>
-                    {showFilters ? (
+            <Fold
+                tone="paper"
+                id="work-grid-title"
+                index="01"
+                label={hasProjects ? "Case studies" : "Published work"}
+                word={hasProjects ? ["Case", "studies"] : ["Published", "work"]}
+                wordSize={hasProjects ? 17 : 14}
+                node
+            >
+                {showFilters ? (
+                    <Reveal className="mt-10">
                         <ProjectFilter
                             categories={categories}
                             activeCategory={activeCategory}
                             onChange={setCategory}
                         />
-                    ) : null}
-                </div>
-                <div className="mt-12">
+                    </Reveal>
+                ) : null}
+                <div className="mt-14 lg:mt-20">
                     <ProjectGrid
                         projects={projects}
                         emptyTitle={
@@ -59,21 +67,22 @@ export function WorkPage() {
                     />
                 </div>
                 {!hasProjects ? (
-                    <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3">
+                    <Reveal className="mt-14 flex flex-wrap gap-x-8 gap-y-3">
                         <TextLink to="/services" variant="arrow">
                             Explore what we build
                         </TextLink>
                         <TextLink to="/process" variant="arrow">
                             How a project runs
                         </TextLink>
-                    </div>
+                    </Reveal>
                 ) : null}
-            </Section>
+            </Fold>
 
             <ClosingCta
                 headline="Have a project in mind?"
                 copy="Describe the challenge and we will respond with questions and a proposed way forward."
+                tangle
             />
-        </>
+        </ThreadedPage>
     );
 }

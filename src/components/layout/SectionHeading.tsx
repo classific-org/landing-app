@@ -1,4 +1,5 @@
 import { Eyebrow } from "@/components/layout/Eyebrow";
+import { Reveal, TextReveal } from "@/components/motion/Reveal";
 
 type SectionHeadingProps = {
     id: string;
@@ -7,6 +8,9 @@ type SectionHeadingProps = {
     intro?: string;
     level?: "h1" | "h2";
     align?: "start" | "split";
+    /** Optional section number shown in the eyebrow. */
+    index?: string;
+    tone?: "ink" | "paper";
     children?: React.ReactNode;
 };
 
@@ -21,25 +25,36 @@ export function SectionHeading({
     intro,
     level = "h2",
     align = "start",
+    index,
+    tone = "ink",
     children,
 }: SectionHeadingProps) {
     const Heading = level;
     const headingClass = level === "h1" ? "text-h1" : "text-h2";
+    const onDark = tone === "paper";
+    const headingTone = onDark ? "text-paper" : "";
+    const introTone = onDark ? "text-rule" : "text-body";
 
     if (align === "split") {
         return (
-            <div className="grid gap-6 lg:grid-cols-12 lg:gap-8">
+            <div className="grid gap-8 lg:grid-cols-12 lg:gap-8">
                 <div className="lg:col-span-7">
-                    <Eyebrow className="mb-4">{eyebrow}</Eyebrow>
-                    <Heading id={id} className={headingClass}>
-                        {title}
+                    <Reveal>
+                        <Eyebrow className="mb-6" index={index} tone={onDark ? "paper" : "muted"}>
+                            {eyebrow}
+                        </Eyebrow>
+                    </Reveal>
+                    <Heading id={id} className={`${headingClass} ${headingTone}`}>
+                        <TextReveal text={title} />
                     </Heading>
                 </div>
                 {intro || children ? (
-                    <div className="lg:col-span-4 lg:col-start-9 lg:self-end">
-                        {intro ? <p className="text-body-lg text-body">{intro}</p> : null}
+                    <Reveal className="lg:col-span-4 lg:col-start-9 lg:self-end" delay={160}>
+                        {intro ? (
+                            <p className={`text-body-lg ${introTone} max-w-md`}>{intro}</p>
+                        ) : null}
                         {children}
-                    </div>
+                    </Reveal>
                 ) : null}
             </div>
         );
@@ -47,11 +62,19 @@ export function SectionHeading({
 
     return (
         <div className="max-w-3xl">
-            <Eyebrow className="mb-4">{eyebrow}</Eyebrow>
-            <Heading id={id} className={headingClass}>
-                {title}
+            <Reveal>
+                <Eyebrow className="mb-6" index={index} tone={onDark ? "paper" : "muted"}>
+                    {eyebrow}
+                </Eyebrow>
+            </Reveal>
+            <Heading id={id} className={`${headingClass} ${headingTone}`}>
+                <TextReveal text={title} />
             </Heading>
-            {intro ? <p className="mt-6 text-body-lg text-body">{intro}</p> : null}
+            {intro ? (
+                <Reveal delay={160}>
+                    <p className={`mt-6 text-body-lg ${introTone} max-w-xl`}>{intro}</p>
+                </Reveal>
+            ) : null}
             {children}
         </div>
     );

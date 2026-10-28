@@ -21,18 +21,19 @@ export function SiteFooter() {
                 <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
                     <div className="lg:col-span-4">
                         <Link to="/" className="inline-flex" aria-label="Classific home">
-                            <Wordmark className="h-7 w-auto" />
+                            <Wordmark className="h-7 w-auto" variant="dark" />
                         </Link>
                         <p className="mt-5 max-w-sm text-body text-body leading-relaxed">
                             {description}
                         </p>
 
                         <div className="mt-6">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-rule bg-white/90 px-3 py-1 font-mono text-[11px] text-body shadow-xs">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
-                                </span>
+                            <span className="inline-flex items-center gap-2 font-mono text-[11px] text-body">
+                                <span
+                                    className="h-1.5 w-1.5 rounded-full bg-accent"
+                                    style={{ animation: "statusPulse 2.4s ease-in-out infinite" }}
+                                    aria-hidden="true"
+                                />
                                 <span>Global studio • Open for inquiries</span>
                             </span>
                         </div>
@@ -47,7 +48,7 @@ export function SiteFooter() {
                                 <li key={item.href}>
                                     <Link
                                         to={item.href}
-                                        className="text-small text-body transition-colors hover:text-accent"
+                                        className="u-link text-small text-body hover:text-ink"
                                     >
                                         {item.label}
                                     </Link>
@@ -65,7 +66,7 @@ export function SiteFooter() {
                                 <li key={item.href}>
                                     <Link
                                         to={item.href}
-                                        className="text-small text-body transition-colors hover:text-accent"
+                                        className="u-link text-small text-body hover:text-ink"
                                     >
                                         {item.label}
                                     </Link>
@@ -112,7 +113,7 @@ export function SiteFooter() {
                                     <li key={entry.href}>
                                         <a
                                             href={entry.href}
-                                            className="text-small text-body hover:text-ink"
+                                            className="u-link text-small text-body hover:text-ink"
                                             rel="noopener noreferrer"
                                             target="_blank"
                                         >
@@ -132,7 +133,7 @@ export function SiteFooter() {
                             <li key={item.href}>
                                 <Link
                                     to={item.href}
-                                    className="transition-colors hover:text-ink font-mono text-xs"
+                                    className="u-link font-mono text-xs hover:text-ink"
                                 >
                                     {item.label}
                                 </Link>

@@ -1,12 +1,14 @@
 import { Link } from "react-router";
 import { Container } from "@/components/layout/Container";
-import { Section } from "@/components/layout/Section";
-import { SectionHeading } from "@/components/layout/SectionHeading";
+import { Fold } from "@/components/layout/Fold";
 import { ClosingCta } from "@/components/layout/ClosingCta";
+import { Reveal, TextReveal } from "@/components/motion/Reveal";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { TextLink } from "@/components/ui/TextLink";
 import { Icon } from "@/components/ui/Icon";
-import { HeroComposition } from "@/components/home/HeroComposition";
+import { HeroThread } from "@/components/home/HeroThread";
+import { PageThread } from "@/components/home/PageThread";
+import { useLineDrift, useScrollProgress } from "@/components/motion/motion.hooks";
 import { ServiceIndex } from "@/components/services/ServiceIndex";
 import { ProcessSteps } from "@/components/process/ProcessSteps";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
@@ -45,247 +47,277 @@ const capabilityItems = [
     },
 ];
 
+const commitments = [
+    { icon: "shield-check" as const, label: "100% Code & IP Ownership" },
+    { icon: "workflow" as const, label: "WCAG 2.2 AA Accessibility" },
+    { icon: "code" as const, label: "Automated CI/CD Testing" },
+];
+
+const standards = [
+    "Direct contact with senior engineers throughout",
+    "Zero third-party vendor lock-in",
+    "Comprehensive architectural documentation",
+];
+
+/** Lowers the outer capabilities so the five nodes sit on a gentle arch. */
+const arcOffsets = ["sm:mt-10", "sm:mt-4", "sm:mt-0", "sm:mt-4", "sm:mt-10"];
+
+const delay = (ms: number) => ({ "--enter-delay": `${ms}ms` }) as React.CSSProperties;
+
 export function HomePage() {
     const { hero, services, stages, principles, featuredProjects, hasFeaturedWork } = useHomePage();
+    const heroRef = useScrollProgress<HTMLElement>();
+    const statementRef = useLineDrift<HTMLHeadingElement>();
 
     return (
-        <>
-            {/* Hero Section */}
+        <div className="relative overflow-x-clip">
+            <PageThread />
             <section
+                ref={heroRef}
                 aria-labelledby="hero-title"
-                className="relative overflow-hidden border-b border-rule bg-paper"
+                className="hero relative overflow-hidden"
             >
-                {/* Subtle blueprint grid overlay */}
-                <div
-                    className="pointer-events-none absolute inset-0 grid-blueprint opacity-60"
-                    aria-hidden="true"
-                />
-
-                <Container className="relative grid gap-12 py-16 lg:grid-cols-12 lg:items-center lg:gap-10 lg:py-28">
-                    <div className="lg:col-span-7">
-                        {/* Live Studio Status Badge */}
-                        <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-rule/90 bg-white/90 px-3.5 py-1.5 shadow-xs backdrop-blur-sm">
-                            <span className="relative flex h-2 w-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-                            </span>
-                            <span className="text-eyebrow font-medium uppercase tracking-wider text-ink">
-                                Digital Product Engineering Studio
-                            </span>
-                            <span className="h-2.5 w-px bg-rule" />
-                            <span className="font-mono text-[11px] text-muted">Classific v2.0</span>
-                        </div>
-
-                        <h1 id="hero-title" className="text-display leading-[0.98] tracking-tight">
-                            Software for
-                            <br />
-                            what&rsquo;s next.
-                        </h1>
-
-                        <p className="mt-8 max-w-xl text-body-lg text-body leading-relaxed">
-                            {hero.copy}
+                <Container className="relative flex min-h-[calc(100svh-4.5rem)] flex-col justify-between pb-8 pt-6 lg:pb-10 lg:pt-8">
+                    <div>
+                        <p
+                            className="enter font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60"
+                            style={delay(60)}
+                        >
+                            Digital Product Engineering Studio
                         </p>
 
-                        <div className="mt-10 flex flex-wrap items-center gap-4">
-                            <ButtonLink to={hero.primary.to} variant="primary" withArrow>
-                                {hero.primary.label}
-                            </ButtonLink>
-                            <ButtonLink to={hero.secondary.to} variant="secondary">
-                                {hero.secondary.label}
-                            </ButtonLink>
-                        </div>
-
-                        {/* Engineering Commitments Bar */}
-                        <div className="mt-12 flex flex-wrap items-center gap-6 border-t border-rule/80 pt-8 text-[12px] font-mono text-muted">
-                            <div className="flex items-center gap-2">
-                                <Icon name="shield-check" className="h-4 w-4 text-accent" />
-                                <span>100% Code &amp; IP Ownership</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Icon name="workflow" className="h-4 w-4 text-accent" />
-                                <span>WCAG 2.2 AA Accessibility</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Icon name="code" className="h-4 w-4 text-accent" />
-                                <span>Automated CI/CD Testing</span>
-                            </div>
+                        <div className="relative mt-5 lg:mt-7">
+                            <h1 id="hero-title" className="hero-title">
+                                <TextReveal
+                                    lines={["Software", "for what’s", "next."]}
+                                    trigger="load"
+                                />
+                            </h1>
+                            <HeroThread />
                         </div>
                     </div>
 
-                    <div className="lg:col-span-5">
-                        <HeroComposition />
+                    <div className="mt-14 grid items-end gap-10 lg:mt-10 lg:grid-cols-12">
+                        <div className="enter lg:col-span-5" style={delay(900)}>
+                            <p className="max-w-md font-mono text-[13px] leading-relaxed text-paper/80 lg:text-[15px]">
+                                {hero.copy}
+                            </p>
+                            <div className="mt-8 flex flex-wrap items-center gap-4">
+                                <ButtonLink to={hero.primary.to} variant="inverse" withArrow>
+                                    {hero.primary.label}
+                                </ButtonLink>
+                                <ButtonLink to={hero.secondary.to} variant="ghost-inverse">
+                                    {hero.secondary.label}
+                                </ButtonLink>
+                            </div>
+                        </div>
+
+                        <p
+                            className="enter-fade hidden items-center gap-3 justify-self-end font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60 lg:col-span-4 lg:col-start-9 lg:flex"
+                            style={delay(1400)}
+                        >
+                            <span>Scroll to follow the thread</span>
+                            <Icon
+                                name="arrow-right"
+                                className="hero-scroll-arrow h-3.5 w-3.5 rotate-90 text-accent"
+                            />
+                        </p>
                     </div>
                 </Container>
-            </section>
 
-            {/* Interactive Capabilities Ribbon */}
-            <section aria-label="Capabilities" className="border-b border-rule bg-white">
-                <Container>
-                    <ul className="grid divide-y divide-rule sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-5">
-                        {capabilityItems.map((item, index) => (
-                            <li
-                                key={item.name}
-                                className="group sm:border-r sm:border-rule sm:pr-6 sm:[&:nth-child(2n)]:border-r-0 lg:[&:nth-child(2n)]:border-r lg:[&:nth-child(5n)]:border-r-0 lg:[&:not(:first-child)]:pl-6"
-                            >
-                                <Link
-                                    to={item.href}
-                                    className="flex items-center justify-between py-5 text-small text-body transition-colors group-hover:text-ink"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className="font-mono tabular-nums text-muted group-hover:text-accent">
-                                            0{index + 1}
-                                        </span>
-                                        <div>
-                                            <p className="font-medium text-ink transition-colors group-hover:text-accent">
-                                                {item.name}
-                                            </p>
-                                            <p className="text-[11px] text-muted">{item.detail}</p>
-                                        </div>
-                                    </div>
+                <div className="relative border-t border-paper/15">
+                    <Container>
+                        <ul className="grid gap-x-8 gap-y-3 py-5 font-mono text-[12px] text-paper/70 sm:grid-cols-3">
+                            {commitments.map((item) => (
+                                <li key={item.label} className="flex items-center gap-2.5">
                                     <Icon
                                         name={item.icon}
-                                        className="h-4 w-4 text-muted transition-transform duration-200 group-hover:scale-110 group-hover:text-ink"
+                                        className="h-4 w-4 flex-none text-accent"
                                     />
+                                    <span>{item.label}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </Container>
+                </div>
+            </section>
+
+            <section aria-labelledby="statement-title" className="fold bg-paper text-ink">
+                <Container className="section-y">
+                    <Reveal className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.14em] text-body">
+                        <span className="tabular-nums">01</span>
+                        <span aria-hidden="true">/</span>
+                        <span>Capabilities</span>
+                    </Reveal>
+
+                    <h2
+                        ref={statementRef}
+                        id="statement-title"
+                        className="fold-word drift mt-8 lg:mt-12"
+                        style={{ "--fold-size": "8.8vw" } as React.CSSProperties}
+                    >
+                        <TextReveal lines={["Five disciplines,", "one engineering", "standard."]} />
+                    </h2>
+
+                    <ul className="mt-14 flex flex-col gap-2 sm:grid sm:grid-cols-5 sm:gap-6 lg:mt-24">
+                        {capabilityItems.map((item, index) => (
+                            <Reveal
+                                as="li"
+                                key={item.name}
+                                delay={index * 70}
+                                className={arcOffsets[index]}
+                            >
+                                <Link to={item.href} className="row-link group block py-4 sm:py-0">
+                                    <span
+                                        data-thread-node
+                                        className="absolute -left-[19px] top-6 block h-[18px] w-[18px] sm:static sm:mb-7"
+                                        aria-hidden="true"
+                                    />
+                                    <span className="block">
+                                        <span className="block font-mono text-[11px] tabular-nums text-muted">
+                                            0{index + 1}
+                                        </span>
+                                        <span className="mt-1 block text-h3 transition-colors group-hover:text-accent">
+                                            {item.name}
+                                        </span>
+                                        <span className="mt-1 block text-small text-muted">
+                                            {item.detail}
+                                        </span>
+                                    </span>
                                 </Link>
-                            </li>
+                            </Reveal>
                         ))}
                     </ul>
                 </Container>
             </section>
 
-            {/* Services Section */}
-            <Section labelledBy="services-title" tone="paper">
-                <SectionHeading
-                    id="services-title"
-                    eyebrow="Services"
-                    title="Five disciplines, one engineering standard."
-                    intro="Each service is delivered by the same team with the same approach to discovery, design, testing and support."
-                    align="split"
-                />
-                <div className="mt-12 lg:mt-16">
-                    <ServiceIndex services={services} layout="grid" />
+            <Fold
+                tone="ink"
+                id="services-title"
+                index="02"
+                label="Services"
+                word="Services"
+                wordSize={17}
+                intro="Each service is delivered by the same team with the same approach to discovery, design, testing and support."
+            >
+                <div className="mt-14 lg:mt-20">
+                    <ServiceIndex services={services} layout="grid" tone="dark" thread />
                 </div>
-                <div className="mt-10">
+                <Reveal className="mt-10 text-paper">
                     <TextLink to="/services" variant="arrow">
                         See all services
                     </TextLink>
-                </div>
-            </Section>
+                </Reveal>
+            </Fold>
 
-            {/* Process Section */}
-            <Section labelledBy="process-title" tone="white">
-                <SectionHeading
-                    id="process-title"
-                    eyebrow="Process"
-                    title="A sequence you can follow, from first conversation to launch."
-                    intro="Five stages, each with clear activities and deliverables. The sequence is the same for every project; the depth of each stage depends on the work."
-                    align="split"
-                />
-                <div className="mt-12 lg:mt-16">
-                    <ProcessSteps stages={stages} variant="compact" />
+            <Fold
+                tone="paper"
+                id="process-title"
+                index="03"
+                label="Process"
+                word="Process"
+                wordSize={19}
+                lead="A sequence you can follow, from first conversation to launch."
+                intro="Five stages, each with clear activities and deliverables. The sequence is the same for every project; the depth of each stage depends on the work."
+            >
+                <div className="mt-14 lg:mt-20">
+                    <ProcessSteps stages={stages} variant="compact" thread />
                 </div>
-                <div className="mt-10">
+                <Reveal className="mt-12">
                     <TextLink to="/process" variant="arrow">
                         Read about how we work
                     </TextLink>
-                </div>
-            </Section>
+                </Reveal>
+            </Fold>
 
-            {/* Why Classific Section */}
-            <Section labelledBy="why-title" tone="paper">
-                <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
-                    <div className="lg:col-span-4">
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                            <span className="eyebrow text-ink">Why Classific</span>
-                        </div>
-                        <h2 id="why-title" className="text-h2 leading-tight">
-                            Engineering in service of the business.
-                        </h2>
-                        <p className="mt-6 text-body-lg text-body leading-relaxed">
-                            We measure our work by what changes for the people who use it. These
-                            four principles shape every engagement.
-                        </p>
-
-                        {/* Engineering Standards Matrix Box */}
-                        <div className="mt-8 rounded-md border border-rule bg-white p-6 shadow-xs">
-                            <p className="eyebrow text-[10px] text-accent">Engineering Standards</p>
-                            <ul className="mt-4 space-y-3 text-small text-body">
-                                <li className="flex items-start gap-2.5">
-                                    <span className="text-accent mt-0.5 font-bold">✓</span>
-                                    <span>Direct contact with senior engineers throughout</span>
+            <Fold
+                tone="ink"
+                id="why-title"
+                index="04"
+                label="Why Classific"
+                word={["Why", "Classific"]}
+                wordSize={16}
+                lead="Engineering in service of the business."
+                intro="We measure our work by what changes for the people who use it. These four principles shape every engagement."
+                node
+            >
+                <div className="mt-14 grid gap-14 lg:mt-20 lg:grid-cols-12 lg:gap-10">
+                    <Reveal className="lg:col-span-4">
+                        <p className="eyebrow text-paper">Engineering standards</p>
+                        <ul className="mt-4 border-t border-paper/30">
+                            {standards.map((item) => (
+                                <li
+                                    key={item}
+                                    className="flex items-start gap-3 border-b border-paper/15 py-3.5 text-small text-paper/75"
+                                >
+                                    <span className="mt-0.5 text-accent" aria-hidden="true">
+                                        ✓
+                                    </span>
+                                    <span>{item}</span>
                                 </li>
-                                <li className="flex items-start gap-2.5">
-                                    <span className="text-accent mt-0.5 font-bold">✓</span>
-                                    <span>Zero third-party vendor lock-in</span>
-                                </li>
-                                <li className="flex items-start gap-2.5">
-                                    <span className="text-accent mt-0.5 font-bold">✓</span>
-                                    <span>Comprehensive architectural documentation</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="mt-8">
+                            ))}
+                        </ul>
+                        <div className="mt-8 text-paper">
                             <TextLink to="/about" variant="arrow">
                                 About Classific
                             </TextLink>
                         </div>
-                    </div>
+                    </Reveal>
 
-                    <dl className="grid gap-6 sm:grid-cols-2 lg:col-span-8">
-                        {principles.map((principle) => (
-                            <div
+                    <dl className="grid gap-x-10 sm:grid-cols-2 lg:col-span-8">
+                        {principles.map((principle, index) => (
+                            <Reveal
                                 key={principle.title}
-                                className="group flex flex-col justify-between rounded-md border border-rule bg-white p-8 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-ink-soft/40 hover:shadow-lg"
+                                delay={(index % 2) * 90}
+                                className="group border-t border-paper/40 py-8 lg:py-10"
                             >
-                                <div>
-                                    <div className="flex h-11 w-11 items-center justify-center rounded border border-rule bg-paper text-ink transition-colors duration-200 group-hover:border-accent group-hover:bg-accent group-hover:text-white">
-                                        <Icon name={principle.icon} className="h-5 w-5" />
-                                    </div>
-                                    <dt className="mt-6 text-h3 font-medium transition-colors group-hover:text-accent">
-                                        {principle.title}
-                                    </dt>
-                                    <dd className="mt-3 text-body text-body leading-relaxed">
-                                        {principle.description}
-                                    </dd>
-                                </div>
-                                <div className="mt-6 border-t border-rule/60 pt-4">
-                                    <span className="font-mono text-[10px] uppercase tracking-wider text-muted">
-                                        Verified Standard
+                                <div className="flex items-start justify-between gap-4">
+                                    <span className="font-mono text-[11px] tabular-nums text-paper/50">
+                                        0{index + 1}
                                     </span>
+                                    <Icon
+                                        name={principle.icon}
+                                        className="h-5 w-5 text-paper transition-colors duration-300 group-hover:text-accent"
+                                    />
                                 </div>
-                            </div>
+                                <dt className="mt-10 text-h3 font-medium text-paper lg:mt-16">
+                                    {principle.title}
+                                </dt>
+                                <dd className="mt-3 max-w-sm text-body text-paper/75">
+                                    {principle.description}
+                                </dd>
+                            </Reveal>
                         ))}
                     </dl>
                 </div>
-            </Section>
+            </Fold>
 
-            {/* Selected Work Section */}
-            <Section labelledBy="work-title" tone="white">
-                <SectionHeading
-                    id="work-title"
-                    eyebrow="Selected work"
-                    title="Real projects, published with verified details."
-                    intro={
-                        hasFeaturedWork
-                            ? "A selection of recent work across web, mobile, desktop and business systems."
-                            : "We publish case studies only once outcomes are verified and clients have approved them."
-                    }
-                    align="split"
-                />
-                <div className="mt-12 lg:mt-16">
+            <Fold
+                tone="paper"
+                id="work-title"
+                index="05"
+                label="Selected work"
+                word="Work"
+                wordSize={26}
+                lead="Real projects, published with verified details."
+                intro={
+                    hasFeaturedWork
+                        ? "A selection of recent work across web, mobile, desktop and business systems."
+                        : "We publish case studies only once outcomes are verified and clients have approved them."
+                }
+                node
+            >
+                <div className="mt-14 lg:mt-20">
                     <ProjectGrid projects={featuredProjects} />
                 </div>
-                <div className="mt-10">
+                <Reveal className="mt-12">
                     <TextLink to="/work" variant="arrow">
                         {hasFeaturedWork ? "View all work" : "Visit the work page"}
                     </TextLink>
-                </div>
-            </Section>
+                </Reveal>
+            </Fold>
 
-            {/* Closing CTA */}
-            <ClosingCta secondaryLabel="Explore services" secondaryTo="/services" />
-        </>
+            <ClosingCta secondaryLabel="Explore services" secondaryTo="/services" tangle />
+        </div>
     );
 }
