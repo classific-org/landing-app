@@ -11,6 +11,7 @@
  * Output:  dist/, ready for actions/upload-pages-artifact.
  */
 import { spawn } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,8 +21,22 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
 const FALLBACK_REPOSITORY = "classific-org/landing-app";
 
-/** Resolves where the site will be served: the origin, the base path and the full URL. */
-export function resolvePagesTarget(env = process.env) {
+/** The custom domain named in public/CNAME, or "" when the site uses the github.io address. */
+export function readCustomDomain(file = path.join(root, "public", "CNAME")) {
+    return existsSync(file) ? (readFileSync(file, "utf8").trim().split(/\s+/)[0] ?? "") : "";
+}
+
+/**
+ * Resolves where the site will be served: the origin, the base path and the full URL. A custom
+ * domain serves the site from its root, so it has no base path; the github.io project address
+ * serves it from /<repository>.
+ */
+export function resolvePagesTarget(env = process.env, customDomain = readCustomDomain()) {
+    if (customDomain) {
+        const origin = requireProductionOrigin(env.SITE_ORIGIN || `https://${customDomain}`);
+        const basePath = normalizeBasePath(env.SITE_BASE ?? "");
+        return { origin, basePath, siteUrl: `${origin}${basePath}` };
+    }
     const [owner, repository] = (env.GITHUB_REPOSITORY || FALLBACK_REPOSITORY).split("/");
     const origin = requireProductionOrigin(
         env.SITE_ORIGIN || `https://${owner.toLowerCase()}.github.io`,

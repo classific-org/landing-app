@@ -17,7 +17,7 @@ describe("normalizeBasePath", () => {
 
 describe("resolvePagesTarget", () => {
     it("serves a project site from /repository on the owner's github.io origin", () => {
-        expect(resolvePagesTarget({ GITHUB_REPOSITORY: "Classific-Org/landing-app" })).toEqual({
+        expect(resolvePagesTarget({ GITHUB_REPOSITORY: "Classific-Org/landing-app" }, "")).toEqual({
             origin: "https://classific-org.github.io",
             basePath: "/landing-app",
             siteUrl: "https://classific-org.github.io/landing-app",
@@ -25,17 +25,30 @@ describe("resolvePagesTarget", () => {
     });
 
     it("serves a user site from the domain root", () => {
-        const target = resolvePagesTarget({ GITHUB_REPOSITORY: "acme/acme.github.io" });
+        const target = resolvePagesTarget({ GITHUB_REPOSITORY: "acme/acme.github.io" }, "");
         expect(target.basePath).toBe("");
         expect(target.siteUrl).toBe("https://acme.github.io");
     });
 
     it("lets SITE_ORIGIN and SITE_BASE override the derived values", () => {
-        const target = resolvePagesTarget({
-            GITHUB_REPOSITORY: "acme/site",
-            SITE_ORIGIN: "https://www.example.com",
-            SITE_BASE: "/",
-        });
+        const target = resolvePagesTarget(
+            {
+                GITHUB_REPOSITORY: "acme/site",
+                SITE_ORIGIN: "https://www.example.com",
+                SITE_BASE: "/",
+            },
+            "",
+        );
         expect(target.siteUrl).toBe("https://www.example.com");
+    });
+
+    it("serves a custom domain from its root", () => {
+        expect(
+            resolvePagesTarget({ GITHUB_REPOSITORY: "classific-org/landing-app" }, "classific.org"),
+        ).toEqual({
+            origin: "https://classific.org",
+            basePath: "",
+            siteUrl: "https://classific.org",
+        });
     });
 });
