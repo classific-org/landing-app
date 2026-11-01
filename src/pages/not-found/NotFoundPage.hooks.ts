@@ -7,6 +7,8 @@ export type NotFoundViewModel = {
     suggestions: NavItem[];
 };
 
+
+
 export function useNotFoundPage(): NotFoundViewModel {
     const { pathname } = useLocation();
     return { pathname, suggestions: primaryNavigation };
