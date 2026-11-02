@@ -12,7 +12,7 @@ type ClosingCtaProps = {
     primaryTo?: string;
     secondaryLabel?: string;
     secondaryTo?: string;
-    /** Leaves room beside the headline for the home page thread to end in a tangle. */
+    /** Leaves room beside the headline for the page thread to wind through before it ends. */
     tangle?: boolean;
 };
 
@@ -51,6 +51,7 @@ export function ClosingCta({
     return (
         <section
             aria-labelledby="closing-cta-title"
+            data-thread-route="closing"
             className="relative overflow-hidden bg-ink text-paper"
         >
             <ParallaxImage
@@ -83,7 +84,7 @@ export function ClosingCta({
                     </h2>
                     {tangle ? (
                         <div
-                            data-thread-tangle
+                            data-thread-anchor="thread-space"
                             className="hidden aspect-[5/4] lg:col-span-4 lg:col-start-9 lg:block"
                             aria-hidden="true"
                         />
@@ -94,9 +95,11 @@ export function ClosingCta({
                     <Reveal className="lg:col-span-5">
                         <p className="max-w-md text-body-lg text-rule">{copy}</p>
                         <div className="mt-10 flex flex-wrap gap-4">
-                            <ButtonLink to={primaryTo} variant="inverse" withArrow>
-                                {primaryLabel}
-                            </ButtonLink>
+                            <span data-thread-anchor="cta" className="inline-flex">
+                                <ButtonLink to={primaryTo} variant="inverse" withArrow>
+                                    {primaryLabel}
+                                </ButtonLink>
+                            </span>
                             {secondaryLabel && secondaryTo ? (
                                 <ButtonLink to={secondaryTo} variant="ghost-inverse">
                                     {secondaryLabel}

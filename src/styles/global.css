@@ -3,8 +3,8 @@
 
 @theme {
     --color-*: initial;
-    --color-ink: #111315;
-    --color-ink-soft: #25282b;
+    --color-ink: #070707;
+    --color-ink-soft: #1c1c1c;
     --color-body: #62666b;
     --color-muted: #686c71;
     --color-rule: #e5e5e2;
@@ -12,6 +12,8 @@
     --color-white: #ffffff;
     --color-accent: #245bdb;
     --color-accent-tint: #eaf0ff;
+    /* The thread: a brighter, signal version of the accent that reads on ink and on paper. */
+    --color-thread: #2f63ff;
     --color-danger: #b3261e;
     --color-transparent: transparent;
     --color-current: currentColor;
@@ -41,6 +43,9 @@
     --text-body-lg--line-height: 1.55;
     --text-body: clamp(0.9375rem, 1vw, 1rem);
     --text-body--line-height: 1.6;
+    /* Mono lead copy (the hero's and a scene's short intro): 12px on phones to 15px wide. */
+    --text-lede-mono: clamp(0.75rem, 0.55rem + 0.6vw, 0.9375rem);
+    --text-lede-mono--line-height: 1.7;
     --text-small: 0.8125rem;
     --text-small--line-height: 1.45;
     --text-eyebrow: clamp(0.625rem, 0.7vw, 0.6875rem);
@@ -165,12 +170,13 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.75rem;
-        min-height: 48px;
-        padding-inline: 1.4rem;
+        gap: 0.625rem;
+        /* 44px is the smallest comfortable touch target; wide screens get a roomier 48px. */
+        min-height: 44px;
+        padding-inline: 1.1rem;
         border: 1px solid var(--color-ink);
         border-radius: var(--radius-sm);
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         font-weight: 500;
         letter-spacing: -0.005em;
         line-height: 1;
@@ -192,6 +198,32 @@
         background: var(--btn-fill);
         transform: translateY(101%);
         transition: transform var(--motion-base) var(--ease-physical);
+    }
+
+    @media (min-width: 64rem) {
+        .btn {
+            gap: 0.75rem;
+            min-height: 48px;
+            padding-inline: 1.4rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    /* A quiet, compact button for chrome (the header), in the same mono capitals as the nav. */
+    .btn.btn-sm {
+        gap: 0.5rem;
+        min-height: 38px;
+        padding-inline: 0.95rem;
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        font-weight: 400;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .btn.btn-sm svg {
+        width: 0.875rem;
+        height: 0.875rem;
     }
 
     .btn svg {
@@ -800,11 +832,14 @@
         border-bottom-color: var(--color-rule);
     }
 
+    /* Navigation is set like the site's other meta text: small mono capitals. */
     .nav-link {
         position: relative;
         padding-block: 0.4rem;
-        font-size: var(--text-small);
-        font-weight: 500;
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
         color: var(--color-body);
         transition: color var(--motion-fast) var(--ease-interface);
     }
@@ -870,9 +905,24 @@
         color: var(--color-paper);
     }
 
+    /*
+     * Giant type is set so tight that neighbouring glyphs meet edge to edge (the bars of F and
+     * T), and anti-aliasing leaves a hairline seam between them; a hairline stroke closes it.
+     */
+    .hero-title,
+    .fold-word,
+    .world-title {
+        -webkit-text-stroke: 0.012em currentColor;
+    }
+
     .hero-title {
         color: var(--color-paper);
-        font-size: max(2.75rem, min(15vw, 22svh));
+        /* Scales with the width, the height, and on short screens (a phone on its side) with
+           the room left once the header, copy and spacing are taken out, so the hero fits. */
+        /* 15rem caps it on very large screens, where the page column stops growing at 90rem,
+           so the widest line ("THAT SHIPS.", about six times the font size) always fits. */
+        font-size: max(2.75rem, min(15vw, 21svh, calc((100svh - 18rem) / 2.6), 15rem));
+        white-space: nowrap;
         font-weight: 800;
         line-height: 0.84;
         letter-spacing: -0.065em;
@@ -926,11 +976,19 @@
     /* The page thread joins the hero thread once the hero's own line has finished drawing. */
     /* ---------- Folds: giant words and the thread's node rings ---------- */
     .fold-word {
-        font-size: min(var(--fold-size, 15vw), 42svh);
+        /* Below the large breakpoint scene headlines sized in vw would shrink to nothing on a
+           phone, so they keep a floor there. */
+        font-size: max(2.6rem, min(var(--fold-size, 15vw), 42svh));
         font-weight: 800;
         line-height: 0.84;
         letter-spacing: -0.065em;
         text-transform: uppercase;
+    }
+
+    @media (min-width: 1024px) {
+        .fold-word {
+            font-size: min(var(--fold-size, 15vw), 42svh);
+        }
     }
 
     .fold-word .split-line {
@@ -940,35 +998,144 @@
 
     .page-thread-node {
         fill: none;
-        stroke: var(--color-accent);
+        stroke: var(--color-thread);
         stroke-width: 2.2;
         transition: opacity var(--motion-reveal) var(--ease-interface);
     }
 
-    .page-thread {
-        animation: fadeIn 700ms var(--ease-interface) 4.2s both;
+    /* A small filled pad where the thread turns, like a via on a circuit board. */
+    .page-thread-via {
+        fill: var(--color-thread);
+        transition: opacity var(--motion-reveal) var(--ease-interface);
     }
 
-    .page-thread-line {
+    .page-thread {
+        transition: opacity 500ms var(--ease-interface);
+    }
+
+    /* While the hero plays the page is held at the top and the page thread waits its turn. */
+    html.hero-playing {
+        overflow: hidden;
+    }
+
+    html.hero-playing .page-thread {
+        opacity: 0;
+    }
+
+    /* The hero thread weaves through the headline: one layer behind it, one in front. */
+    .hero-layer-back {
+        z-index: 14;
+    }
+
+    .hero-layer-front {
+        z-index: 16;
+    }
+
+    .hero-line {
         fill: none;
-        stroke: var(--color-accent);
+        stroke: var(--color-thread);
         stroke-width: 2.2;
         stroke-linecap: round;
         stroke-linejoin: round;
     }
 
-    .page-thread-halo {
-        fill: var(--color-accent);
-        fill-opacity: 0.16;
+    .hero-pen {
+        fill: var(--color-thread);
+    }
+
+    .hero-node {
+        opacity: 0;
+        transition: opacity 500ms var(--ease-interface);
+    }
+
+    .hero-node.is-on.is-waiting {
+        opacity: 1;
+    }
+
+    .hero-node-ring,
+    .hero-node-pulse {
+        fill: none;
+        stroke: var(--color-thread);
+        stroke-width: 2;
+    }
+
+    .hero-node-pulse {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+
+    .hero-node.is-waiting .hero-node-pulse {
+        animation: nodePulse 1800ms cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+    }
+
+    /* The hero headline sharpens out of a blur once the intro curtain has gone. */
+    .hero-title [data-split="load"] .split-inner {
+        animation: heroFocus 1000ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        animation-delay: calc(80ms + var(--split-delay, 0ms) * 1.4);
+    }
+
+    /* The page thread draws the hero line; the headline sits above it, so the line weaves behind. */
+    .hero-title {
+        position: relative;
+        z-index: 15;
+    }
+
+    .hero-origin {
+        display: block;
+        flex: none;
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--color-thread);
+        /* Hidden until the hero has loaded and the thread is about to set off from it. */
+        opacity: 0;
+        transition: opacity 400ms var(--ease-interface);
+    }
+
+    .hero-origin[data-shown="true"] {
+        opacity: 1;
+    }
+
+    .page-thread-line {
+        fill: none;
+        stroke: var(--color-thread);
+        stroke-width: 2.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    /* The idle ring: it settles round the tip of the line whenever the page stops moving. */
+    .page-thread-idle {
+        opacity: 0;
+        transition: opacity 260ms var(--ease-interface);
+    }
+
+    .page-thread.is-idle .page-thread-idle[data-on="true"] {
+        opacity: 1;
+        transition-duration: 500ms;
+    }
+
+    .page-thread-pulse {
+        fill: none;
+        stroke: var(--color-thread);
+        stroke-width: 2;
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+
+    .page-thread.is-idle .page-thread-pulse {
+        animation: nodePulse 1800ms cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
     }
 
     .page-thread-head {
-        fill: var(--color-accent);
+        fill: var(--color-thread);
     }
 
     .page-thread-ring {
         fill: none;
-        stroke: var(--color-accent);
+        stroke: var(--color-thread);
         stroke-width: 2.2;
     }
 
@@ -1180,13 +1347,18 @@
     }
 }
 
+/*
+ * Animates `translate`, not `transform`: the arrow is turned to point down with `rotate`, and
+ * a transform would move it inside that turned frame (sideways). `translate` moves it on the
+ * page, so it bobs straight down and back up.
+ */
 @keyframes scrollNudge {
     0%,
     100% {
-        transform: translateY(0);
+        translate: 0 -2px;
     }
     50% {
-        transform: translateY(4px);
+        translate: 0 4px;
     }
 }
 
@@ -1271,6 +1443,8 @@
     .hero-thread-ring,
     .hero-thread-node,
     .hero-scroll-arrow,
+    .hero-node-pulse,
+    .page-thread-pulse,
     .page-thread {
         animation: none;
     }
@@ -1292,5 +1466,920 @@
         transform: none;
         height: 100%;
         margin-top: 0;
+    }
+}
+
+@layer components {
+    /*
+     * ---------- Service worlds ----------
+     * One full-screen scene per service (see World.tsx). The page thread sits at z-index 10:
+     * flat drawings lie under it (5), paper cards and the giant title over it (20, 15), so the
+     * line passes behind them and comes back out.
+     */
+    .world-title {
+        position: relative;
+        z-index: 15;
+        margin-top: 2.5rem;
+        padding-inline: 1rem;
+        font-size: clamp(4.5rem, 23vw, 21rem);
+        font-weight: 800;
+        line-height: 0.8;
+        letter-spacing: -0.07em;
+        text-align: center;
+        text-transform: uppercase;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+
+    .world-object {
+        position: relative;
+        width: min(100%, 26rem);
+    }
+
+    .world-flat {
+        z-index: 5;
+    }
+
+    .world-card {
+        z-index: 20;
+    }
+
+    .world-port {
+        position: absolute;
+        width: 0;
+        height: 0;
+    }
+
+    .world-paper-card {
+        border: 1px solid rgb(17 19 21 / 0.78);
+        background: #f3f1ea;
+        color: var(--color-ink);
+        padding: 1.05rem 1.15rem;
+        box-shadow: 0 26px 50px -30px rgb(0 0 0 / 0.6);
+    }
+
+    .world-paper .world-paper-card {
+        background: #fff;
+        box-shadow: 0 26px 46px -32px rgb(17 19 21 / 0.35);
+    }
+
+    .world-field {
+        border: 1px solid rgb(17 19 21 / 0.28);
+        padding: 0.4rem 0.6rem;
+        font-family: var(--font-mono);
+        font-size: 11px;
+    }
+
+    .world-art {
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.25;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .world-art * {
+        vector-effect: non-scaling-stroke;
+    }
+
+    .world-art text {
+        fill: currentColor;
+        stroke: none;
+        font-family: var(--font-mono);
+    }
+
+    .world-art :is(.story-in, .story-sweep, .story-move) {
+        transform-box: fill-box;
+    }
+
+    .world-art .tint {
+        fill: currentColor;
+        stroke: none;
+        opacity: 0.18;
+    }
+
+    .world-art .fill {
+        fill: currentColor;
+        stroke: none;
+    }
+
+    .world-art .faint {
+        opacity: 0.4;
+    }
+
+    .world-art .accent,
+    .world-accent {
+        color: var(--color-accent);
+    }
+
+    .world-swap {
+        display: inline-grid;
+    }
+
+    .world-swap > * {
+        grid-area: 1 / 1;
+    }
+
+    /* Everything shows its finished state unless the thread is running to bring it there. */
+    .world-object .when-off {
+        opacity: 0;
+    }
+
+    .world-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin-right: 6px;
+        border-radius: 999px;
+        background: currentColor;
+        vertical-align: 1px;
+    }
+
+    .world-gauge {
+        stroke-dashoffset: var(--gauge-off);
+    }
+
+    .world-progress {
+        position: relative;
+        height: 4px;
+        overflow: hidden;
+        background: rgb(17 19 21 / 0.1);
+    }
+
+    .world-progress > span {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 100%;
+        background: var(--color-accent);
+    }
+
+    @media (min-width: 1024px) {
+        .world {
+            height: var(--world-h, max(54rem, 100svh));
+        }
+
+        .world-title {
+            position: absolute;
+            /* The same width as the stage, which stops growing past 108rem (see World). */
+            inset-inline: max(0px, calc((100% - 108rem) / 2));
+            top: var(--title-y, 41%);
+            margin: 0;
+        }
+
+        .world-object {
+            position: absolute;
+            left: var(--x);
+            top: var(--y);
+            width: var(--w);
+            transform: rotate(var(--r));
+        }
+    }
+
+    /* Scenes size their stage contents in stage-width units (cqw) so circles stay round. */
+    .world-stage {
+        container-type: inline-size;
+    }
+
+    .dial-dot {
+        position: absolute;
+        left: -7px;
+        top: -7px;
+        width: 14px;
+        height: 14px;
+        border: 1.5px solid var(--color-ink);
+        border-radius: 999px;
+        background: var(--color-paper);
+    }
+
+    /*
+     * A discipline's label, placed by CapabilitiesScene on a ring just outside the bezel and
+     * aligned to read away from the dial on whichever side it sits.
+     */
+    .dial-label {
+        position: absolute;
+        display: block;
+        white-space: nowrap;
+    }
+
+    /* Phones and tablets: a number beside each dot instead of the full label. */
+    .dial-small {
+        container-type: inline-size;
+    }
+
+    /* Why: the dots that carry work across the bridge once its road is lit (hidden otherwise). */
+    .why-traffic {
+        position: absolute;
+        left: 1%;
+        right: 1%;
+        height: 0;
+        pointer-events: none;
+    }
+
+    .why-car {
+        position: absolute;
+        left: 0;
+        top: -3px;
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--color-accent);
+        box-shadow: 0 0 12px 2px color-mix(in srgb, var(--color-accent) 55%, transparent);
+        opacity: 0;
+    }
+
+    .compact-car {
+        opacity: 0;
+    }
+
+    /* Process: one segment per stage, filling as the line reaches each stage card. */
+    .stage-segment {
+        display: block;
+        width: 1.5rem;
+        height: 3px;
+        background: rgb(17 19 21 / 0.14);
+        transition: background-color 500ms var(--ease-interface);
+    }
+
+    .stage-segment-on {
+        background: var(--color-accent);
+    }
+
+    .dial-number {
+        position: absolute;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        color: var(--color-muted);
+        transform: translate(-50%, -50%);
+    }
+
+    .dial-name {
+        font-size: clamp(1.15rem, 1.65vw, 1.6rem);
+        line-height: 1.15;
+        letter-spacing: -0.025em;
+    }
+
+    .dial-label-left {
+        text-align: right;
+        transform: translate(-100%, -50%);
+    }
+
+    .dial-label-right {
+        transform: translateY(-50%);
+    }
+
+    .dial-label-top {
+        transform: translate(-0.75rem, -100%);
+        padding-left: 1.5rem;
+    }
+
+    /* Closing: the socket meets the plug on the end of the thread. Finished state by default. */
+    .socket .world-paper-card {
+        position: relative;
+        z-index: 1;
+        transform: translateX(-71px);
+    }
+
+    .socket .plug {
+        z-index: 0;
+    }
+
+    .socket-pulse {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        border-radius: 14px;
+        pointer-events: none;
+        opacity: 0;
+    }
+
+    .world-art .socket-connected {
+        fill: #2fbf71;
+    }
+
+    .socket-led {
+        fill: #2fbf71;
+        stroke: none;
+    }
+
+    /*
+     * Service worlds stack back to front: the giant title, the thread (z 10), the main
+     * drawing (filled with the stage colour, so it hides the title behind it and the thread
+     * passes under it), then the paper cards. Nothing is ever drawn across the text inside a
+     * drawing or a card.
+     */
+    .service-world {
+        --stage: var(--color-paper);
+    }
+
+    .service-world.world-ink {
+        --stage: var(--color-ink);
+    }
+
+    .service-world .world-title {
+        z-index: 2;
+    }
+
+    @media (min-width: 1024px) {
+        .world-title-right {
+            text-align: right;
+            padding-right: var(--page-gutter);
+        }
+
+        .world-title-left {
+            text-align: left;
+            padding-left: var(--page-gutter);
+        }
+    }
+
+    /*
+     * Phones and tablets: the cards sit off-centre, slightly turned, with clear margin on the
+     * right where the thread runs down and swings in behind each one (see worldRoute).
+     */
+    @media (max-width: 1023.98px) {
+        .world-stitch .world-card:not(.world-still) {
+            width: min(84%, 22rem);
+            align-self: flex-start;
+            transform: rotate(calc(var(--r) * 0.6));
+        }
+    }
+
+    @media (min-width: 640px) and (max-width: 1023.98px) {
+        .world-stitch .world-card:not(.world-still) {
+            align-self: center;
+        }
+    }
+
+    /*
+     * Below the large breakpoint every title shares one size, set so the longest (SYSTEMS)
+     * fits across the screen without reaching the thread's margin.
+     */
+    @media (max-width: 1023.98px) {
+        .service-world .world-title {
+            font-size: min(23vw, calc((100vw - 6rem) / 4.5), 8.5rem);
+        }
+    }
+
+    /* Phones: centred over the drawing, which keeps clear of the thread's margin (World). */
+    @media (max-width: 639.98px) {
+        .service-world .world-title {
+            padding-inline: 1.25rem 2.75rem;
+        }
+    }
+
+    .service-world .world-flat {
+        z-index: 12;
+    }
+
+    .service-world .world-flat .world-art > rect:first-child {
+        fill: var(--stage);
+    }
+
+    /* Line art that sits on top of the thread hides the line behind it. */
+    .world-art .paper-fill {
+        fill: var(--color-paper);
+    }
+
+    .envelope-body,
+    .envelope-letter {
+        fill: #fff;
+    }
+
+    /* Work: the case file. A kraft folder, a white sheet, and the stamp phones show. */
+    .world-art .case-folder {
+        fill: #ebe6d9;
+    }
+
+    .world-art .case-sheet {
+        fill: #fff;
+    }
+
+    .case-tick {
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+
+    @media (min-width: 1024px) {
+        .case-stamp {
+            display: none;
+        }
+    }
+
+    .seal-art {
+        transform-origin: center;
+    }
+
+    .world-ink .fold-word {
+        color: var(--color-paper);
+    }
+
+    .world-ink .world-title {
+        color: var(--color-paper);
+    }
+
+    .world-paper .world-title {
+        color: var(--color-ink);
+    }
+}
+
+/*
+ * ---------- Thread reactions ----------
+ * While the page thread runs (PageThread adds .thread-live), content it is heading for waits
+ * dimmed and comes up as the line reaches it (data-threaded). Only from the large breakpoint,
+ * where the designed routes run; narrow screens and reduced motion always show everything.
+ * Children are styled rather than the anchors themselves, which the reveal system animates.
+ */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    .thread-live [data-thread-anchor="cta"] > * {
+        transition: box-shadow 700ms var(--ease-interface);
+    }
+
+    .thread-live [data-thread-anchor="cta"][data-threaded="true"] > * {
+        box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 22%, transparent);
+    }
+    /* Worlds: cards settle into place, states flip and the title sharpens as the line passes. */
+    .thread-live .world-object .when-off,
+    .thread-live .world-object .when-on,
+    .thread-live .world-progress > span {
+        transition:
+            opacity 500ms var(--ease-interface),
+            transform 500ms var(--ease-interface),
+            width 1200ms var(--ease-interface);
+    }
+
+    .thread-live .world-object:not([data-threaded="true"]) .when-off {
+        opacity: 1;
+    }
+
+    .thread-live .world-object:not([data-threaded="true"]) .when-on {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    .thread-live .world-object:not([data-threaded="true"]) .world-progress > span {
+        width: 38%;
+    }
+
+    .thread-live .world-gauge {
+        transition: stroke-dashoffset 1400ms var(--ease-interface);
+    }
+
+    .thread-live .world-object:not([data-threaded="true"]) .world-gauge {
+        stroke-dashoffset: var(--gauge-len);
+    }
+
+    .thread-live .world-card {
+        transition: transform 1100ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .thread-live
+        .world-card:not(.world-still):not(.dial-node):not(.socket):not([data-threaded="true"]) {
+        transform: translateY(18px) rotate(calc(var(--r) * 2.4));
+    }
+
+    /* The giant title stays crisp and comes up from a soft tint as the thread reaches it. */
+    .thread-live [data-thread-anchor="world-title"] {
+        transition: opacity 1100ms var(--ease-interface);
+    }
+
+    .thread-live [data-thread-anchor="world-title"]:not([data-threaded="true"]) {
+        opacity: 0.22;
+    }
+
+    /* Scenes. */
+    .thread-live .dial-dot,
+    .thread-live .dial-name,
+    .thread-live .dial-seal-check,
+    .thread-live .principle-icon {
+        transition:
+            background-color 500ms var(--ease-interface),
+            border-color 500ms var(--ease-interface),
+            box-shadow 500ms var(--ease-interface),
+            color 500ms var(--ease-interface),
+            opacity 500ms var(--ease-interface);
+    }
+
+    .thread-live .dial-node:not([data-threaded="true"]) .dial-name {
+        color: var(--color-muted);
+    }
+
+    .thread-live .world-object:not([data-threaded="true"]) .dial-seal-check {
+        opacity: 0;
+    }
+
+    .thread-live .plane-art {
+        transition: transform 1100ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .thread-live .plane:not([data-threaded="true"]) .plane-art {
+        transform: translate(-6%, 8%) rotate(4deg);
+    }
+
+    .thread-live .seal-art {
+        transition:
+            transform 520ms cubic-bezier(0.3, 1.6, 0.5, 1),
+            opacity 300ms var(--ease-interface);
+    }
+
+    .thread-live .seal:not([data-played="true"]) .seal-art {
+        opacity: 0.14;
+        transform: scale(1.25);
+    }
+
+    .thread-live [data-threaded="true"] .principle-icon {
+        color: var(--color-accent);
+    }
+
+    .thread-live .socket .world-paper-card {
+        transition: transform 900ms cubic-bezier(0.3, 1.3, 0.5, 1);
+    }
+
+    .thread-live .socket:not([data-played="true"]) .world-paper-card {
+        transform: none;
+    }
+
+    .thread-live .socket[data-played="true"] .socket-pulse {
+        animation: socketPulse 1200ms var(--ease-interface) 700ms both;
+    }
+
+    /* Once connected it stays connected: the socket's states follow data-played. */
+    .thread-live .socket.socket[data-played="true"] .when-off {
+        opacity: 0;
+    }
+
+    .thread-live .socket.socket[data-played="true"] .when-on {
+        opacity: 1;
+        transform: none;
+    }
+
+    .thread-live .socket-led {
+        transition:
+            fill 400ms var(--ease-interface) 500ms,
+            filter 400ms var(--ease-interface) 500ms;
+    }
+
+    .thread-live .socket[data-played="true"] .socket-led {
+        filter: drop-shadow(0 0 4px #2fbf71);
+    }
+
+    .thread-live .socket:not([data-played="true"]) .socket-led {
+        fill: rgb(17 19 21 / 0.2);
+    }
+
+    .thread-live .next-steps {
+        transition:
+            opacity 700ms var(--ease-interface) 700ms,
+            transform 700ms var(--ease-interface) 700ms;
+    }
+
+    .thread-live .world:not(:has(.socket[data-played="true"])) .next-steps {
+        opacity: 0.2;
+        transform: translateY(14px) rotate(var(--r));
+    }
+}
+
+/*
+ * Drawings come alive as the line passes, at every width (the narrow route stitches through
+ * the cards too). A service world's main drawing waits dimmed, then brightens; any object's
+ * drawing (a world's, or a card's) plays its short story once: `data-played` is never taken back, so scrolling up does not rewind it.
+ * `story-wipe` draws left to right, `story-drop` renders top to bottom, `story-in` fades up,
+ * `story-type` types out (`--n` characters), `story-sweep` and `story-move` slide in from
+ * `--from`. `--d` delays a step and `--t` sets its length.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    .thread-live .service-world .world-flat .world-art > :not(:first-child) {
+        transition: opacity 900ms var(--ease-interface);
+    }
+
+    .thread-live
+        .service-world
+        .world-flat:not([data-played="true"])
+        .world-art
+        > :not(:first-child) {
+        opacity: 0.38;
+    }
+
+    .thread-live .world-object:not([data-played="true"]) :is(.story-wipe, .story-type) {
+        clip-path: inset(0 100% 0 0);
+    }
+
+    .thread-live .world-object:not([data-played="true"]) .story-drop {
+        clip-path: inset(0 0 100% 0);
+    }
+
+    .thread-live .world-object:not([data-played="true"]) .story-in {
+        opacity: 0;
+    }
+
+    .thread-live .world-object:not([data-played="true"]) :is(.story-sweep, .story-move) {
+        transform: translateX(var(--from));
+    }
+
+    .thread-live .world-object[data-played="true"] .story-wipe {
+        animation: storyWipe var(--t, 1400ms) var(--ease-interface) var(--d, 0ms) both;
+    }
+
+    .thread-live .world-object[data-played="true"] .story-drop {
+        animation: storyDrop var(--t, 1400ms) var(--ease-interface) var(--d, 0ms) both;
+    }
+
+    .thread-live .world-object[data-played="true"] .story-type {
+        animation: storyWipe calc(var(--n) * 15ms) steps(var(--n)) var(--d, 0ms) both;
+    }
+
+    .thread-live .world-object[data-played="true"] .story-in {
+        animation: storyIn var(--t, 400ms) var(--ease-interface) var(--d, 0ms) both;
+    }
+
+    .thread-live .world-object[data-played="true"] :is(.story-sweep, .story-move) {
+        animation: storySlide var(--t, 1400ms) cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms) both;
+    }
+
+    /*
+     * The case file's sections tick as the line runs down its check column (each row lights
+     * on its own); on phones the whole file plays at once, the ticks in turn, then the stamp.
+     */
+    .thread-live .case-file .case-tick,
+    .thread-live .case-file .case-label {
+        transition:
+            opacity 350ms var(--ease-interface),
+            transform 500ms cubic-bezier(0.3, 1.6, 0.5, 1);
+    }
+
+    .thread-live .case-file[data-played="true"] :is(.case-tick, .case-label) {
+        transition-delay: var(--d, 0ms);
+    }
+
+    .thread-live
+        .case-file:not([data-played="true"])
+        .case-row:not([data-played="true"])
+        .case-tick {
+        opacity: 0;
+        transform: scale(0.4);
+    }
+
+    .thread-live
+        .case-file:not([data-played="true"])
+        .case-row:not([data-played="true"])
+        .case-label {
+        opacity: 0.4;
+    }
+
+    .thread-live .case-file:not([data-played="true"]) .case-stamp {
+        opacity: 0;
+    }
+
+    .thread-live .case-file[data-played="true"] .case-stamp {
+        animation: storyIn 400ms var(--ease-interface) 1600ms both;
+    }
+
+    .thread-live .world-object[data-played="true"] .compact-car {
+        animation: compactTraffic 6s linear calc(2.6s + var(--i) * 2s) infinite;
+    }
+
+    .thread-live .world-object[data-played="true"] .story-blink {
+        animation: storyBlink 1s steps(1) var(--d, 0ms) infinite;
+    }
+
+    /* Below the large breakpoint, the cards settle and flip as the line stitches through. */
+    @media (max-width: 1023.98px) {
+        .thread-live .world-stitch .world-object :is(.when-off, .when-on),
+        .thread-live .world-stitch .world-progress > span {
+            transition:
+                opacity 500ms var(--ease-interface),
+                transform 500ms var(--ease-interface),
+                width 1200ms var(--ease-interface);
+        }
+
+        .thread-live .world-stitch .world-object:not([data-threaded="true"]) .when-off {
+            opacity: 1;
+        }
+
+        .thread-live .world-stitch .world-object:not([data-threaded="true"]) .when-on {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+
+        .thread-live
+            .world-stitch
+            .world-object:not([data-threaded="true"])
+            .world-progress
+            > span {
+            width: 38%;
+        }
+
+        .thread-live .world-stitch .world-gauge {
+            transition: stroke-dashoffset 1400ms var(--ease-interface);
+        }
+
+        .thread-live .world-stitch .world-object:not([data-threaded="true"]) .world-gauge {
+            stroke-dashoffset: var(--gauge-len);
+        }
+
+        .thread-live .world-stitch .world-card {
+            transition: transform 1100ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .thread-live .world-stitch .world-card:not(.world-still):not([data-threaded="true"]) {
+            transform: translateY(14px) rotate(calc(var(--r) * 1.8));
+        }
+
+        .thread-live .world-stitch [data-thread-anchor="world-title"] {
+            transition: opacity 1100ms var(--ease-interface);
+        }
+
+        .thread-live .service-world [data-thread-anchor="world-title"]:not([data-threaded="true"]) {
+            opacity: 0.22;
+        }
+    }
+}
+
+@keyframes storyWipe {
+    from {
+        clip-path: inset(0 100% 0 0);
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes storyDrop {
+    from {
+        clip-path: inset(0 0 100% 0);
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes storyIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes storySlide {
+    from {
+        transform: translateX(var(--from));
+    }
+    to {
+        transform: none;
+    }
+}
+
+@keyframes whyTraffic {
+    0% {
+        left: 0;
+        opacity: 0;
+    }
+    6%,
+    94% {
+        opacity: 1;
+    }
+    100% {
+        left: 100%;
+        opacity: 0;
+    }
+}
+
+@keyframes compactTraffic {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+    8%,
+    92% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(288px);
+        opacity: 0;
+    }
+}
+
+@keyframes socketPulse {
+    from {
+        opacity: 0.7;
+        box-shadow: 0 0 0 0 color-mix(in srgb, #2fbf71 55%, transparent);
+    }
+    to {
+        opacity: 0;
+        box-shadow: 0 0 0 28px color-mix(in srgb, #2fbf71 0%, transparent);
+    }
+}
+
+@keyframes storyBlink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/*
+ * Why: the line lays the bridge's cable. Each principle's label comes up as the cable reaches
+ * its ring; once the cable is anchored at the BUSINESS end the road lights from TECHNOLOGY to
+ * BUSINESS and work starts flowing across it. Nothing rewinds on the way back up.
+ */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    .thread-live .why-label {
+        transition: opacity 700ms var(--ease-interface);
+    }
+
+    .thread-live .why-label:not([data-played="true"]) {
+        opacity: 0.25;
+    }
+
+    .thread-live .why-deck:not([data-played="true"]) .deck-glow {
+        clip-path: inset(0 100% 0 0);
+    }
+
+    .thread-live .why-deck[data-played="true"] .deck-glow {
+        animation: storyWipe 1800ms var(--ease-interface) both;
+    }
+
+    .thread-live .world:has(.why-deck[data-played="true"]) .why-car {
+        animation: whyTraffic 9s linear calc(1.8s + var(--i) * 2.25s) infinite;
+    }
+
+    .thread-live .why-bank {
+        transition: color 600ms var(--ease-interface) 1600ms;
+    }
+
+    .thread-live .world:has(.why-deck[data-played="true"]) .why-bank {
+        color: var(--color-paper);
+    }
+}
+
+@keyframes heroFocus {
+    from {
+        opacity: 0;
+        filter: blur(18px);
+        transform: translate3d(0, 0.04em, 0);
+    }
+    to {
+        opacity: 1;
+        filter: none;
+        transform: none;
+    }
+}
+
+/* Lenis smooth scrolling (see src/lib/smooth-scroll.ts). */
+html.lenis,
+html.lenis body {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+    overflow: clip;
+}
+
+@keyframes nodePulse {
+    from {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(2.6);
+    }
+}
+
+/*
+ * The capabilities dial lights on every screen size, including phones and tablets, where the
+ * dial sits above a list of the disciplines.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    .thread-live .dial-node[data-threaded="true"] .dial-dot {
+        border-color: var(--color-accent);
+        background: var(--color-accent);
+        box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-accent) 18%, transparent);
+    }
+
+    .thread-live .dial-node[data-threaded="true"] .dial-number {
+        color: var(--color-accent);
+    }
+
+    .thread-live .dial-item {
+        transition: opacity 500ms var(--ease-interface);
+    }
+
+    .thread-live .dial-item:not([data-threaded="true"]) {
+        opacity: 0.35;
     }
 }

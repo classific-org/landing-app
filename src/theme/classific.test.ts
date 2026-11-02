@@ -12,9 +12,9 @@ describe("Classific theme", () => {
         const audit = auditThemeContrast(classificTokens, "AA");
         expect(audit.ok).toBe(true);
         expect(audit.violations).toEqual([]);
-        expect(meetsWcagContrast("#111315", "#F7F7F4", "AA")).toBe(true);
+        expect(meetsWcagContrast("#070707", "#F7F7F4", "AA")).toBe(true);
         expect(meetsWcagContrast("#62666B", "#F7F7F4", "AA")).toBe(true);
-        expect(meetsWcagContrast("#FFFFFF", "#111315", "AA")).toBe(true);
+        expect(meetsWcagContrast("#FFFFFF", "#070707", "AA")).toBe(true);
         expect(meetsWcagContrast("#245BDB", "#F7F7F4", "AA")).toBe(true);
     });
 

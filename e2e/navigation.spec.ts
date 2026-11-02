@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("header links reach inner pages", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Software for");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("We build");
     await page
         .getByRole("navigation", { name: "Primary" })
         .getByRole("link", { name: "Process" })

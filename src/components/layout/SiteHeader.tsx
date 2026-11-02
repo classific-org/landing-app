@@ -7,26 +7,49 @@ import { Wordmark } from "@/components/ui/Wordmark";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { useSiteHeader } from "@/components/layout/SiteHeader.hooks";
 
-/** Scroll distance after which the home hero no longer sits behind the header. */
-const heroEdge = () => window.innerHeight * 0.7;
+/** Sections the header turns dark over: the dark heroes and any section on the ink ground. */
+const DARK_GROUND = ".hero, [data-dark-hero], section.bg-ink";
 
 export function SiteHeader() {
     const { navigation, cta, isMenuOpen, menuId, menuTitleId, openMenu, closeMenu, setMenuOpen } =
         useSiteHeader();
     const [scrolled, setScrolled] = useState(false);
-    const [pastHero, setPastHero] = useState(false);
     useScrolled(8, setScrolled);
-    useScrolled(heroEdge, setPastHero);
 
-    // Pages that open on a dark hero get a matching dark header until the hero scrolls away.
-    // The initial guess keeps the server-rendered header right; the effect confirms it on the
-    // client for every route change.
+    // The header takes the tone of whatever section is passing under it, so it stays dark over
+    // the hero and every dark section after it. The initial guess keeps the server-rendered
+    // header right; the effect confirms it on the client, on every route change and scroll.
     const { pathname } = useLocation();
-    const [overHero, setOverHero] = useState(!/^\/insights\/./.test(pathname));
+    const [dark, setDark] = useState(!/^\/insights\/./.test(pathname));
     useEffect(() => {
-        setOverHero(Boolean(document.querySelector("main .hero, main [data-dark-hero]")));
+        let frame = 0;
+        const check = () => {
+            frame = 0;
+            if (typeof document.elementsFromPoint !== "function") {
+                return;
+            }
+            const header = document.querySelector<HTMLElement>(".site-header");
+            const below = (header?.getBoundingClientRect().bottom ?? 72) + 1;
+            const under = document
+                .elementsFromPoint(window.innerWidth / 2, below)
+                .find((element) => element.closest("main section"));
+            const section = under?.closest<HTMLElement>("main section");
+            setDark(Boolean(section?.matches(DARK_GROUND)));
+        };
+        const queue = () => {
+            if (!frame) {
+                frame = requestAnimationFrame(check);
+            }
+        };
+        check();
+        window.addEventListener("scroll", queue, { passive: true });
+        window.addEventListener("resize", queue, { passive: true });
+        return () => {
+            cancelAnimationFrame(frame);
+            window.removeEventListener("scroll", queue);
+            window.removeEventListener("resize", queue);
+        };
     }, [pathname]);
-    const dark = overHero && !pastHero;
 
     return (
         <header
@@ -55,7 +78,12 @@ export function SiteHeader() {
                 </nav>
 
                 <div className="hidden items-center gap-6 lg:flex">
-                    <ButtonLink to={cta.href} variant={dark ? "inverse" : "primary"} withArrow>
+                    <ButtonLink
+                        to={cta.href}
+                        variant={dark ? "ghost-inverse" : "secondary"}
+                        withArrow
+                        className="btn-sm"
+                    >
                         {cta.label}
                     </ButtonLink>
                 </div>

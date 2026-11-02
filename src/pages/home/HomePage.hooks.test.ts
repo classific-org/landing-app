@@ -10,7 +10,7 @@ describe("home page model", () => {
         const { result } = renderHook(() => useHomePage());
         expect(result.current.hasFeaturedWork).toBe(false);
         expect(result.current.featuredProjects).toEqual([]);
-        expect(result.current.hero.primary.to).toBe("/contact");
+        expect(result.current.hero.copy).toMatch(/digital product studio/i);
         expect(result.current.services).toHaveLength(5);
         expect(result.current.capabilities).toHaveLength(5);
     });

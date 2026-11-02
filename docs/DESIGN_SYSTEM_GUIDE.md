@@ -5,7 +5,7 @@ Version 1.0 | Minimal editorial, architectural, typography-led
 Digital products. Real business impact. Use clarity, precise grids, confident typography, real product evidence, and whitespace. Avoid decorative gradients, generic 3D blobs, excessive cards, and artificial-looking imagery.
 
 ## Color palette
-- Ink: `#111315` — primary text and primary buttons
+- Ink: `#070707` — primary text and primary buttons
 - Ink Soft: `#25282B` — secondary dark surfaces
 - Body: `#62666B` — paragraph text
 - Muted: `#85898D` — metadata and captions
@@ -49,7 +49,7 @@ Align headings, body copy, imagery, and dividers to a shared grid.
 **Forms:** visible labels, clear focus states, useful errors, server-side validation.
 
 ## Homepage story
-1. Hero: “Software for what’s next.” Short outcome-led copy and Start a Project / See Our Work actions.
+1. Hero: “We build software that ships.” One giant three-line headline the thread weaves through, two lines of mono copy and the scroll hint; the header carries the Start a Project action.
 2. Proof strip: publish only verified metrics.
 3. Services: Web Applications, Mobile Applications, Desktop Applications, CRM/CMS/ERP, Custom Solutions.
 4. Process: Discover, Plan, Design, Develop, Launch.

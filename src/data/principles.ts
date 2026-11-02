@@ -3,24 +3,28 @@ import type { Principle } from "@/types/content";
 export const principles: Principle[] = [
     {
         title: "Business-focused engineering",
+        summary: "Every decision traces back to a business outcome.",
         description:
             "Every technical decision is traced back to a business outcome. We ask what a feature changes for the people using it before deciding how to build it.",
         icon: "workflow",
     },
     {
         title: "Modern technology, chosen carefully",
+        summary: "Current, well-supported tools, picked to last.",
         description:
             "We use current, well-supported platforms and avoid novelty for its own sake. The stack is chosen to fit the problem, the team that will maintain it and the time horizon of the product.",
         icon: "code",
     },
     {
         title: "Long-term partnership",
+        summary: "The relationship outlives the first release.",
         description:
             "Software keeps changing after launch. We structure engagements so the relationship, the documentation and the codebase all survive the first release.",
         icon: "layers",
     },
     {
         title: "Dependable support",
+        summary: "Monitoring and support agreed before go-live.",
         description:
             "Clear ownership, monitoring and response arrangements are agreed before go-live, so issues are handled by people who know the system.",
         icon: "shield-check",

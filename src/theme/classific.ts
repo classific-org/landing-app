@@ -15,11 +15,11 @@ export const classificTokens: ThemeTokens = defineSemanticTokens(
     {
         color: {
             bg: "#F7F7F4",
-            fg: "#111315",
+            fg: "#070707",
             brand: "#245BDB",
             danger: "#B3261E",
-            ink: "#111315",
-            "ink-soft": "#25282B",
+            ink: "#070707",
+            "ink-soft": "#1C1C1C",
             body: "#62666B",
             muted: "#85898D",
             rule: "#E5E5E2",
