@@ -5,8 +5,20 @@ import { SectionHeading } from "@/components/layout/SectionHeading";
 import { ClosingCta } from "@/components/layout/ClosingCta";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
 import { TextLink } from "@/components/ui/TextLink";
+import { splitParagraphs } from "@/lib/formatting/text";
 import { NotFoundPage } from "@/pages/not-found/NotFoundPage";
 import { useProjectPage } from "@/pages/work/ProjectPage.hooks";
+
+/** Plain text from the CMS, one paragraph per blank-line-separated block. */
+function Paragraphs({ text }: { text?: string }) {
+    return (
+        <>
+            {splitParagraphs(text).map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+            ))}
+        </>
+    );
+}
 
 export function ProjectPage() {
     const model = useProjectPage();
@@ -26,6 +38,12 @@ export function ProjectPage() {
                 breadcrumbs={breadcrumbs}
                 aside={
                     <dl className="space-y-4 text-small">
+                        {project.clientName ? (
+                            <div>
+                                <dt className="eyebrow mb-2">Client</dt>
+                                <dd>{project.clientName}</dd>
+                            </div>
+                        ) : null}
                         {services.length > 0 ? (
                             <div>
                                 <dt className="eyebrow mb-2">Services</dt>
@@ -81,13 +99,31 @@ export function ProjectPage() {
                         />
                     </div>
                     <div className="prose-editorial lg:col-span-7 lg:col-start-6">
-                        <p>{project.description}</p>
-                        <h2>Business challenge</h2>
-                        <p>{project.challenge}</p>
-                        <h2>Approach</h2>
-                        <p>{project.approach}</p>
-                        <h2>Solution</h2>
-                        <p>{project.solution}</p>
+                        <Paragraphs text={project.description} />
+                        {project.challenge ? (
+                            <>
+                                <h2>Business challenge</h2>
+                                <Paragraphs text={project.challenge} />
+                            </>
+                        ) : null}
+                        {project.approach ? (
+                            <>
+                                <h2>Approach</h2>
+                                <Paragraphs text={project.approach} />
+                            </>
+                        ) : null}
+                        {project.solution ? (
+                            <>
+                                <h2>Solution</h2>
+                                <Paragraphs text={project.solution} />
+                            </>
+                        ) : null}
+                        {project.results ? (
+                            <>
+                                <h2>Results</h2>
+                                <Paragraphs text={project.results} />
+                            </>
+                        ) : null}
                     </div>
                 </div>
             </Section>
@@ -135,26 +171,29 @@ export function ProjectPage() {
                                 ))}
                             </ul>
                         </div>
-                        <div>
-                            <h3 className="eyebrow mb-4">Verified outcomes</h3>
-                            {hasOutcomes ? (
-                                <dl className="divide-y divide-rule border-y border-rule">
-                                    {project.outcomes?.map((outcome) => (
-                                        <div key={outcome.label} className="py-3">
-                                            <dt className="text-small text-body">
-                                                {outcome.label}
-                                            </dt>
-                                            <dd className="text-h3">{outcome.value}</dd>
-                                        </div>
-                                    ))}
-                                </dl>
-                            ) : (
-                                <p className="text-body text-body">
-                                    Outcomes are published once they have been verified with the
-                                    client.
-                                </p>
-                            )}
-                        </div>
+                        {/* Results written in the CMS appear in the case study above instead. */}
+                        {hasOutcomes || !project.results ? (
+                            <div>
+                                <h3 className="eyebrow mb-4">Verified outcomes</h3>
+                                {hasOutcomes ? (
+                                    <dl className="divide-y divide-rule border-y border-rule">
+                                        {project.outcomes?.map((outcome) => (
+                                            <div key={outcome.label} className="py-3">
+                                                <dt className="text-small text-body">
+                                                    {outcome.label}
+                                                </dt>
+                                                <dd className="text-h3">{outcome.value}</dd>
+                                            </div>
+                                        ))}
+                                    </dl>
+                                ) : (
+                                    <p className="text-body text-body">
+                                        Outcomes are published once they have been verified with the
+                                        client.
+                                    </p>
+                                )}
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             </Section>

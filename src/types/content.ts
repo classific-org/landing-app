@@ -79,11 +79,15 @@ export type Project = {
     title: string;
     category: string;
     status: PublicationStatus;
+    /** The client the work was done for, when it may be named. */
+    clientName?: string;
     summary: string;
     description: string;
     challenge: string;
     approach: string;
     solution: string;
+    /** What changed for the client, as plain text with blank-line paragraphs. */
+    results?: string;
     image?: ImageAsset;
     gallery?: ImageAsset[];
     technologies: string[];
@@ -111,10 +115,25 @@ export type Principle = {
     icon: IconName;
 };
 
+/** A stretch of text with its own formatting; links are only ever web, mail, phone or site paths. */
+export type InlineRun = { text: string; bold?: boolean; italic?: boolean; href?: string };
+
+/**
+ * Article body blocks. `text` and `items` always hold the plain text; `inline` and
+ * `itemsInline` carry the same text with formatting when the content comes from the CMS.
+ */
 export type ArticleBlock =
-    | { type: "paragraph"; text: string }
+    | { type: "paragraph"; text: string; inline?: InlineRun[] }
     | { type: "heading"; level: 2 | 3; text: string }
-    | { type: "list"; items: string[] };
+    | { type: "list"; items: string[]; ordered?: boolean; itemsInline?: InlineRun[][] }
+    | {
+          type: "image";
+          src: string;
+          alt: string;
+          caption?: string;
+          width?: number;
+          height?: number;
+      };
 
 export type Article = {
     slug: string;

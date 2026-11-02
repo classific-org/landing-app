@@ -89,3 +89,38 @@ bun run deploy:pages   # builds and verifies dist/ for GitHub Pages
 ```
 
 Set the repository's **Settings → Pages → Source** to **GitHub Actions**. The `deploy` job in `.github/workflows/ci.yml` then publishes on every push to `main` once the checks pass. `SITE_BASE` sets the base path (default `/`, used by local development and the e2e suite); `SITE_ORIGIN` and `SITE_BASE` override the derived values, for example for a custom domain.
+
+## Content from the CMS (blogs and projects)
+
+Blog posts (`/blog`) and projects (`/work`) are written in the admin panel and stored by the Classific API. The website reads the **published** ones **at build time** and prerenders each into static HTML, so pages are fast and fully indexable, and the sitemap, canonical URLs and social images include them.
+
+```
+admin-panel → api-services (MongoDB) → [build] → static site on GitHub Pages
+```
+
+How a change reaches the site:
+
+1. Someone publishes, edits, unpublishes or deletes a blog or project in the admin panel.
+2. The API sends a `repository_dispatch` event (`cms-content-updated`) to this repository.
+3. The workflow in `.github/workflows/ci.yml` rebuilds and redeploys the site (usually two to three minutes).
+
+### Setup
+
+- Set the repository variable `CMS_API_URL` to the public address of the API, e.g. `https://api.classific.org` (Settings, Secrets and variables, Actions, Variables). Without it the site is built from the bundled content and nothing is fetched.
+- On the API side, set `GITHUB_DISPATCH_TOKEN` and `GITHUB_DISPATCH_REPO` (see the api-services README).
+- If the API cannot be read during a build, the build fails and the previous version of the site stays live. It never publishes a site with its content missing.
+
+### Working locally
+
+```bash
+CMS_API_URL=http://127.0.0.1:4000 bun run cms:pull   # writes src/data/generated/cms.json (git-ignored)
+bun run dev                                           # shows that content
+```
+
+Run `bun run cms:pull` without `CMS_API_URL` to go back to the bundled content. `bun run build` pulls the content itself.
+
+Notes:
+
+- When a build uses the CMS, the CMS is the only source of blog posts and projects. The posts bundled in `src/data/blog.ts` are used only when `CMS_API_URL` is not set.
+- A page for a newly published item exists only after the rebuild finishes; opening its link a moment earlier shows the not-found page.
+- Mapping from the API to the site's data shapes lives in `scripts/lib/cms.mjs`, with tests.

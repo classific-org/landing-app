@@ -1,11 +1,12 @@
 import type { Project } from "@/types/content";
+import { cmsContent } from "@/data/cms";
 
 /**
  * Portfolio records. Only entries with status "published" are rendered, routed,
- * listed in the sitemap or included in llms files. No published projects exist yet;
- * add a record with verified details and set status to "published" to make it live.
+ * listed in the sitemap or included in llms files. They come from the CMS: publish a project in
+ * the admin panel and the next build of the site includes it (see scripts/fetch-cms.mjs).
  */
-export const projects: Project[] = [];
+export const projects: Project[] = cmsContent ? cmsContent.projects : [];
 
 export function getPublishedProjects(): Project[] {
     return projects.filter((project) => project.status === "published");

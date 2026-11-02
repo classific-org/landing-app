@@ -26,6 +26,10 @@ export function ArticleBody({ blocks }: ArticleBodyProps) {
                         </ul>
                     );
                 }
+                if (block.type === "image") {
+                    // Pictures only appear in CMS blog posts, which use the blog body renderer.
+                    return null;
+                }
                 return <p key={key}>{block.text}</p>;
             })}
         </div>

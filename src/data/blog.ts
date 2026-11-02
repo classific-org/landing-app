@@ -1,19 +1,23 @@
-import type { Article } from "@/types/content";
+import type { Article, ImageAsset } from "@/types/content";
+import { cmsContent } from "@/data/cms";
 import blogDiscoveryImg from "@/assets/blog/blog_discovery.jpg";
 import blogPlatformsImg from "@/assets/blog/blog_platforms.jpg";
 import blogLaunchImg from "@/assets/blog/blog_launch.jpg";
 import blogArchitectureImg from "@/assets/blog/blog_architecture.jpg";
 
 export type BlogPost = Omit<Article, "coverImage"> & {
+    /** Empty when a post has no featured image. */
     coverImage: string;
     readingTime: string;
     featured?: boolean;
-    category: "Architecture" | "Engineering" | "Process" | "Strategy";
+    category: string;
+    /** Extra pictures shown with the post. */
+    gallery?: ImageAsset[];
 };
 
 const author = { name: "Classific Engineering Team" };
 
-export const blogPosts: BlogPost[] = [
+const bundledBlogPosts: BlogPost[] = [
     {
         slug: "what-discovery-actually-decides",
         title: "What discovery actually decides in software delivery",
@@ -161,6 +165,12 @@ export const blogPosts: BlogPost[] = [
         ],
     },
 ];
+
+/**
+ * The posts the site shows. When the site was built against the CMS, those are the only posts;
+ * the bundled ones above are used only when no CMS was configured.
+ */
+export const blogPosts: BlogPost[] = cmsContent ? cmsContent.blogs : bundledBlogPosts;
 
 export function getPublishedBlogPosts(): BlogPost[] {
     return blogPosts.filter((post) => post.status === "published");

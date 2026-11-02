@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { Section } from "@/components/layout/Section";
 import { ClosingCta } from "@/components/layout/ClosingCta";
+import { ArticleBody } from "@/components/blog/ArticleBody";
 import { NotFoundPage } from "@/pages/not-found/NotFoundPage";
 import { findBlogPostBySlug, getPublishedBlogPosts } from "@/data/blog";
 
@@ -52,14 +53,16 @@ export function BlogPostPage() {
                         </p>
                     </div>
 
-                    <div className="mt-10 overflow-hidden rounded-md border border-rule bg-white shadow-sm">
-                        <img
-                            src={post.coverImage}
-                            alt={post.title}
-                            className="aspect-[21/9] w-full object-cover"
-                            loading="eager"
-                        />
-                    </div>
+                    {post.coverImage ? (
+                        <div className="mt-10 overflow-hidden rounded-md border border-rule bg-white shadow-sm">
+                            <img
+                                src={post.coverImage}
+                                alt={post.title}
+                                className="aspect-[21/9] w-full object-cover"
+                                loading="eager"
+                            />
+                        </div>
+                    ) : null}
                 </div>
             </header>
 
@@ -69,51 +72,28 @@ export function BlogPostPage() {
                 </h2>
                 <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
                     <div className="lg:col-span-8 lg:col-start-3">
-                        <div className="prose-editorial max-w-none space-y-6">
-                            {post.body.map((block, index) => {
-                                if (block.type === "paragraph") {
-                                    return (
-                                        <p
-                                            key={index}
-                                            className="text-body-lg leading-relaxed text-body"
-                                        >
-                                            {block.text}
-                                        </p>
-                                    );
-                                }
-                                if (block.type === "heading") {
-                                    return (
-                                        <h2
-                                            key={index}
-                                            className="mt-10 text-h2 font-medium text-ink first:mt-0"
-                                        >
-                                            {block.text}
-                                        </h2>
-                                    );
-                                }
-                                if (block.type === "list") {
-                                    return (
-                                        <ul
-                                            key={index}
-                                            className="my-6 space-y-3 rounded-md border border-rule bg-paper/60 p-6"
-                                        >
-                                            {block.items.map((item, itemIdx) => (
-                                                <li
-                                                    key={itemIdx}
-                                                    className="flex items-start gap-3 text-body-lg text-ink"
-                                                >
-                                                    <span className="mt-1 text-accent font-mono text-[12px]">
-                                                        →
-                                                    </span>
-                                                    <span>{item}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    );
-                                }
-                                return null;
-                            })}
-                        </div>
+                        <ArticleBody blocks={post.body} />
+
+                        {post.gallery && post.gallery.length > 0 ? (
+                            <ul
+                                className="mt-12 grid gap-4 sm:grid-cols-2"
+                                aria-label="Article images"
+                            >
+                                {post.gallery.map((image) => (
+                                    <li key={image.src}>
+                                        <img
+                                            src={image.src}
+                                            alt={image.alt}
+                                            width={image.width}
+                                            height={image.height}
+                                            loading="lazy"
+                                            decoding="async"
+                                            className="aspect-[4/3] w-full rounded-md border border-rule object-cover"
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : null}
 
                         {/* Author info box */}
                         <div className="mt-14 rounded-md border border-rule bg-paper p-6 sm:p-8">
@@ -162,12 +142,14 @@ export function BlogPostPage() {
                                 className="group overflow-hidden rounded-md border border-rule bg-white p-6 shadow-xs transition-all duration-300 hover:border-ink-soft/40 hover:shadow-lg"
                             >
                                 <div className="relative aspect-[16/10] overflow-hidden rounded border border-rule bg-paper">
-                                    <img
-                                        src={related.coverImage}
-                                        alt={related.title}
-                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                        loading="lazy"
-                                    />
+                                    {related.coverImage ? (
+                                        <img
+                                            src={related.coverImage}
+                                            alt={related.title}
+                                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            loading="lazy"
+                                        />
+                                    ) : null}
                                     <span className="absolute left-3 top-3 rounded-full bg-paper/90 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-ink backdrop-blur-xs">
                                         {related.category}
                                     </span>

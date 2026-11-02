@@ -3,9 +3,15 @@ name: CI
 on:
     push:
     pull_request:
+    # Sent by the Classific API when published blogs or projects change, so the site is rebuilt.
+    repository_dispatch:
+        types: [cms-content-updated]
+    workflow_dispatch:
 
 jobs:
     check:
+        # Content changes do not alter the code, so they skip straight to the deploy.
+        if: github.event_name != 'repository_dispatch'
         runs-on: ubuntu-latest
         timeout-minutes: 30
         env:
@@ -43,7 +49,13 @@ jobs:
     deploy:
         # Publishes to GitHub Pages only from main, and only once every check has passed.
         needs: check
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # Runs after the checks pass on main, or on its own when the CMS reports new content
+        # (the check job is skipped then, which counts as satisfied).
+        if: >-
+            !cancelled() && (needs.check.result == 'success' || needs.check.result == 'skipped') &&
+            (github.event_name == 'repository_dispatch' ||
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/main'))
         runs-on: ubuntu-latest
         timeout-minutes: 20
         permissions:
@@ -69,8 +81,12 @@ jobs:
             - name: Configure Pages
               uses: actions/configure-pages@v5
             - name: Build for GitHub Pages
-              # Derives the origin and /repository base path, builds, and verifies the output.
+              # Reads published blogs and projects from the CMS (when CMS_API_URL is set), derives
+              # the origin and base path, builds, and verifies the output.
               run: bun run deploy:pages
+              env:
+                  # Repository variable (Settings > Secrets and variables > Actions > Variables).
+                  CMS_API_URL: ${{ vars.CMS_API_URL }}
             - name: Upload site
               uses: actions/upload-pages-artifact@v3
               with:

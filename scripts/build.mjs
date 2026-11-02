@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizeBasePath, requireProductionOrigin } from "./lib/origin.mjs";
 import { generateSeoFiles } from "./generate-seo.mjs";
+import { fetchCms } from "./fetch-cms.mjs";
 import { renderOgImages } from "./render-og.mjs";
 import { prerenderRoutes } from "./prerender.mjs";
 
@@ -46,6 +47,8 @@ const basePath = normalizeBasePath(process.env.SITE_BASE);
 const siteUrl = `${origin}${basePath}`;
 
 console.log(`Building Classific landing site for ${siteUrl}`);
+// Blogs and projects come from the CMS, so they must be read before anything is generated from them.
+await fetchCms();
 await renderOgImages();
 await generateSeoFiles({ origin, basePath, directories: [path.join(root, "public")] });
 await run("bun", ["x", "vite", "build"]);

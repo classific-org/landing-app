@@ -16,6 +16,9 @@ export function articleBlocksToText(blocks: ArticleBlock[]): string {
             if (block.type === "list") {
                 return block.items.join(" ");
             }
+            if (block.type === "image") {
+                return "";
+            }
             return block.text;
         })
         .join(" ");
@@ -46,4 +49,12 @@ export function formatDate(isoDate: string, locale = "en-GB"): string {
 
 export function padStep(step: number): string {
     return step.toString().padStart(2, "0");
+}
+
+/** Splits plain text on blank lines into paragraphs, dropping empty ones. */
+export function splitParagraphs(text: string | undefined): string[] {
+    return (text ?? "")
+        .split(/\n\s*\n/)
+        .map((part) => part.trim())
+        .filter(Boolean);
 }

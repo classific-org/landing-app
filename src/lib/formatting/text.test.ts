@@ -6,6 +6,7 @@ import {
     formatDate,
     formatReadingTime,
     padStep,
+    splitParagraphs,
 } from "@/lib/formatting/text";
 
 describe("formatting helpers", () => {
@@ -28,5 +29,13 @@ describe("formatting helpers", () => {
         expect(formatDate("not-a-date")).toBe("not-a-date");
         expect(padStep(1)).toBe("01");
         expect(padStep(12)).toBe("12");
+    });
+});
+
+describe("splitParagraphs", () => {
+    it("splits on blank lines and drops empty parts", () => {
+        expect(splitParagraphs("One.\n\nTwo.\n  \n\nThree.")).toEqual(["One.", "Two.", "Three."]);
+        expect(splitParagraphs("  ")).toEqual([]);
+        expect(splitParagraphs(undefined)).toEqual([]);
     });
 });

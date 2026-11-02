@@ -34,7 +34,7 @@ export function ProjectCard({ project, headingLevel = "h3", index = 0 }: Project
 
             <div className="mt-5 flex items-center justify-between gap-4 border-t border-ink pt-4">
                 <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
-                    {project.category}
+                    {[project.clientName, project.category].filter(Boolean).join(" · ")}
                 </span>
                 <span className="font-mono text-[11px] tabular-nums text-muted" aria-hidden="true">
                     {String(index + 1).padStart(2, "0")}
