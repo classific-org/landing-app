@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
+import { openEnquiry, scrollToSection } from "@/lib/smooth-scroll";
 import { Dialog } from "@sometic/react/overlay";
 import { Container } from "@/components/layout/Container";
 import { useScrolled } from "@/components/motion/motion.hooks";
@@ -10,6 +11,25 @@ import { useSiteHeader } from "@/components/layout/SiteHeader.hooks";
 /** Sections the header turns dark over: the dark heroes and any section on the ink ground. */
 const DARK_GROUND = ".hero, [data-dark-hero], section.bg-ink";
 
+/**
+ * Navigation jumps to the home page's sections: on the home page it glides there; elsewhere
+ * (the legal pages) it is a plain link to the section on the home page.
+ */
+function jumpTo(event: React.MouseEvent<HTMLAnchorElement>, href: string) {
+    const id = href.split("#")[1];
+    if (id && scrollToSection(id)) {
+        event.preventDefault();
+    }
+}
+
+/** Start a Project opens the enquiry form on the home page; elsewhere it links there. */
+function enquire(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (document.getElementById("contact")) {
+        event.preventDefault();
+        openEnquiry();
+    }
+}
+
 export function SiteHeader() {
     const { navigation, cta, isMenuOpen, menuId, menuTitleId, openMenu, closeMenu, setMenuOpen } =
         useSiteHeader();
@@ -17,37 +37,46 @@ export function SiteHeader() {
     useScrolled(8, setScrolled);
 
     // The header takes the tone of whatever section is passing under it, so it stays dark over
-    // the hero and every dark section after it. The initial guess keeps the server-rendered
-    // header right; the effect confirms it on the client, on every route change and scroll.
+    // the hero and every dark section after it. An observer watches a one-pixel line just under
+    // the header and reports only when a dark section starts or stops crossing it (no work on
+    // every scroll frame); its first report also sets the right tone as the page loads. The
+    // initial guess keeps the server-rendered header right until then.
     const { pathname } = useLocation();
     const [dark, setDark] = useState(!/^\/insights\/./.test(pathname));
     useEffect(() => {
-        let frame = 0;
-        const check = () => {
-            frame = 0;
-            if (typeof document.elementsFromPoint !== "function") {
-                return;
-            }
+        if (typeof IntersectionObserver === "undefined") {
+            return;
+        }
+        let observer: IntersectionObserver | null = null;
+        const crossing = new Set<Element>();
+        const watch = () => {
+            observer?.disconnect();
+            crossing.clear();
             const header = document.querySelector<HTMLElement>(".site-header");
-            const below = (header?.getBoundingClientRect().bottom ?? 72) + 1;
-            const under = document
-                .elementsFromPoint(window.innerWidth / 2, below)
-                .find((element) => element.closest("main section"));
-            const section = under?.closest<HTMLElement>("main section");
-            setDark(Boolean(section?.matches(DARK_GROUND)));
+            const line = Math.round(header?.getBoundingClientRect().bottom ?? 72);
+            const below = Math.max(0, window.innerHeight - line - 1);
+            observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            crossing.add(entry.target);
+                        } else {
+                            crossing.delete(entry.target);
+                        }
+                    });
+                    setDark(crossing.size > 0);
+                },
+                { rootMargin: `-${line}px 0px -${below}px 0px` },
+            );
+            document
+                .querySelectorAll(`main :is(${DARK_GROUND})`)
+                .forEach((section) => observer?.observe(section));
         };
-        const queue = () => {
-            if (!frame) {
-                frame = requestAnimationFrame(check);
-            }
-        };
-        check();
-        window.addEventListener("scroll", queue, { passive: true });
-        window.addEventListener("resize", queue, { passive: true });
+        watch();
+        window.addEventListener("resize", watch, { passive: true });
         return () => {
-            cancelAnimationFrame(frame);
-            window.removeEventListener("scroll", queue);
-            window.removeEventListener("resize", queue);
+            observer?.disconnect();
+            window.removeEventListener("resize", watch);
         };
     }, [pathname]);
 
@@ -63,17 +92,28 @@ export function SiteHeader() {
                     className="inline-flex items-center transition-opacity duration-200 hover:opacity-75"
                     aria-label="Classific home"
                 >
+                    {/* Both logos stay loaded; the tone only shows one or the other, so a
+                        switch never swaps an image. */}
                     <Wordmark
-                        className="h-8 w-auto object-contain sm:h-9"
-                        variant={dark ? "chrome" : "dark"}
+                        className={`h-8 w-auto object-contain sm:h-9 ${dark ? "" : "hidden"}`}
+                        variant="chrome"
+                    />
+                    <Wordmark
+                        className={`h-8 w-auto object-contain sm:h-9 ${dark ? "hidden" : ""}`}
+                        variant="dark"
                     />
                 </Link>
 
                 <nav aria-label="Primary" className="hidden items-center gap-9 lg:flex">
                     {navigation.map((item) => (
-                        <NavLink key={item.href} to={item.href} className="nav-link">
+                        <Link
+                            key={item.href}
+                            to={item.href}
+                            className="nav-link"
+                            onClick={(event) => jumpTo(event, item.href)}
+                        >
                             {item.label}
-                        </NavLink>
+                        </Link>
                     ))}
                 </nav>
 
@@ -82,7 +122,9 @@ export function SiteHeader() {
                         to={cta.href}
                         variant={dark ? "ghost-inverse" : "secondary"}
                         withArrow
+                        onClick={enquire}
                         className="btn-sm"
+                        cursor="TALK"
                     >
                         {cta.label}
                     </ButtonLink>
@@ -164,17 +206,13 @@ export function SiteHeader() {
                                     data-menu-item
                                     style={{ "--menu-i": index } as React.CSSProperties}
                                 >
-                                    <NavLink
+                                    <Link
                                         to={item.href}
-                                        onClick={closeMenu}
-                                        className={({ isActive }) =>
-                                            [
-                                                "flex items-baseline justify-between py-5 text-h1 tracking-tight transition-colors",
-                                                isActive
-                                                    ? "text-accent"
-                                                    : "text-ink hover:text-accent",
-                                            ].join(" ")
-                                        }
+                                        onClick={(event) => {
+                                            closeMenu();
+                                            jumpTo(event, item.href);
+                                        }}
+                                        className="flex items-baseline justify-between py-5 text-h1 tracking-tight text-ink transition-colors hover:text-accent"
                                     >
                                         {item.label}
                                         <span
@@ -183,7 +221,7 @@ export function SiteHeader() {
                                         >
                                             0{index + 1}
                                         </span>
-                                    </NavLink>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
@@ -196,8 +234,11 @@ export function SiteHeader() {
                                 to={cta.href}
                                 variant="primary"
                                 withArrow
+                                onClick={(event) => {
+                                    closeMenu();
+                                    enquire(event);
+                                }}
                                 className="w-full"
-                                onClick={closeMenu}
                             >
                                 {cta.label}
                             </ButtonLink>

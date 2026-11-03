@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { scrollToSection } from "@/lib/smooth-scroll";
 import { Container } from "@/components/layout/Container";
 import { Fold } from "@/components/layout/Fold";
 import { Reveal, TextReveal } from "@/components/motion/Reveal";
@@ -46,6 +48,22 @@ const delay = (ms: number) => ({ "--enter-delay": `${ms}ms` }) as React.CSSPrope
 
 export function HomePage() {
     const { hero, services, stages, principles, featuredProjects, hasFeaturedWork } = useHomePage();
+
+    // A link to one of the sections (from an old page's redirect or a legal page) opens the
+    // page there; index.html skips the intro for it. Wait for the fonts so the layout is final.
+    useEffect(() => {
+        const id = decodeURIComponent(window.location.hash.slice(1));
+        if (!id) {
+            return;
+        }
+        let frame = 0;
+        void document.fonts?.ready.then(() => {
+            frame = requestAnimationFrame(() => {
+                frame = requestAnimationFrame(() => scrollToSection(id, true));
+            });
+        });
+        return () => cancelAnimationFrame(frame);
+    }, []);
 
     return (
         <div className="relative overflow-x-clip">

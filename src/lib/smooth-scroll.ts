@@ -42,3 +42,55 @@ export function releaseHeroScrollLock(): void {
     document.documentElement.classList.remove("hero-playing");
     lenis?.start();
 }
+
+/** The id of each home section a link can jump to (see the scenes' `anchor`). */
+export const HOME_SECTIONS = [
+    "services",
+    "web-applications",
+    "mobile-applications",
+    "desktop-applications",
+    "crm-cms-erp",
+    "custom-software",
+    "process",
+    "about",
+    "work",
+    "contact",
+] as const;
+
+/**
+ * Glides to a home section by id (Lenis when it is running, else a native smooth scroll),
+ * stopping with the section's top just under the sticky header. Returns false if the section
+ * is not on this page, so a link can fall back to navigating.
+ */
+export function scrollToSection(id: string, immediate = false): boolean {
+    const target = document.getElementById(id);
+    if (!target) {
+        return false;
+    }
+    const header = document.querySelector<HTMLElement>(".site-header")?.offsetHeight ?? 72;
+    if (lenis) {
+        // Right after load Lenis may not have measured the page yet and would clamp to 0.
+        lenis.resize();
+        lenis.scrollTo(target, { offset: -header, immediate, force: true });
+    } else {
+        const top = target.getBoundingClientRect().top + window.scrollY - header;
+        window.scrollTo({ top, behavior: immediate ? "auto" : "smooth" });
+    }
+    history.replaceState(null, "", `#${id}`);
+    return true;
+}
+
+/** Asks the home page's closing scene to open the enquiry form (see ClosingScene). */
+export function openEnquiry(): void {
+    window.dispatchEvent(new Event("classific:enquire"));
+}
+
+/** Glides back to the top of the page. */
+export function scrollToTop(): void {
+    if (lenis) {
+        lenis.scrollTo(0);
+    } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    history.replaceState(null, "", window.location.pathname);
+}

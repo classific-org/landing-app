@@ -1143,6 +1143,11 @@
         transition: opacity var(--motion-reveal) var(--ease-interface);
     }
 
+    /* On the home page the thread does not stop at its end: the loose end carries it on. */
+    .thread-live:has(.loose-end) .page-thread-end {
+        visibility: hidden;
+    }
+
     .page-enter {
         animation: pageIn 520ms var(--ease-physical) backwards;
     }
@@ -1670,6 +1675,195 @@
         container-type: inline-size;
     }
 
+    /*
+     * The enquiry form over the page, opened from the page thread's loose end. The dialog fills the
+     * screen (so a click outside the panel closes it); the panel slides up and the thread traces
+     * its edge.
+     */
+    .enquiry-dialog {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        padding: 1rem;
+        border: 0;
+        background: transparent;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .enquiry-dialog[open] {
+        display: grid;
+        place-items: center;
+    }
+
+    .enquiry-dialog::backdrop {
+        background: rgb(7 7 7 / 0.74);
+        backdrop-filter: blur(4px);
+    }
+
+    .enquiry-dialog-panel {
+        position: relative;
+        width: min(72rem, 100%);
+        margin-block: auto;
+        background: var(--color-paper);
+        color: var(--color-ink);
+        padding: clamp(1.5rem, 4vw, 3.5rem);
+    }
+
+    .enquiry-dialog-body {
+        display: grid;
+        gap: 3rem;
+    }
+
+    @media (min-width: 1024px) {
+        .enquiry-dialog-body {
+            grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+            gap: 4rem;
+        }
+    }
+
+    .enquiry-dialog-title {
+        margin-top: 1.25rem;
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
+        font-weight: 800;
+        line-height: 0.88;
+        letter-spacing: -0.05em;
+        text-transform: uppercase;
+    }
+
+    .enquiry-dialog-trace {
+        position: absolute;
+        inset: -7px;
+        width: calc(100% + 14px);
+        height: calc(100% + 14px);
+        overflow: visible;
+        pointer-events: none;
+    }
+
+    .enquiry-dialog-trace rect {
+        x: 1px;
+        y: 1px;
+        width: calc(100% - 2px);
+        height: calc(100% - 2px);
+        fill: none;
+        stroke: var(--color-thread);
+        stroke-width: 2;
+    }
+
+    .enquiry-dialog-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: grid;
+        width: 2.75rem;
+        height: 2.75rem;
+        place-items: center;
+        border: 1px solid rgb(17 19 21 / 0.2);
+        background: transparent;
+        color: var(--color-ink);
+        transition: border-color 200ms var(--ease-interface);
+    }
+
+    .enquiry-dialog-close:hover {
+        border-color: var(--color-ink);
+    }
+
+    .enquiry-dialog-close svg {
+        width: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.6;
+    }
+
+    /*
+     * The custom cursor (see CustomCursor), for a mouse or trackpad: a small disc in the
+     * thread's blue that eases after the pointer and grows into a labelled disc over
+     * `data-cursor` targets, where the native cursor steps aside.
+     */
+    .custom-cursor {
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 300;
+        display: none;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    .has-cursor .custom-cursor {
+        display: block;
+    }
+
+    .custom-cursor::before {
+        content: "";
+        position: absolute;
+        left: -5px;
+        top: -5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--color-thread);
+        transition:
+            transform 320ms cubic-bezier(0.3, 1.3, 0.5, 1),
+            opacity 250ms var(--ease-interface);
+    }
+
+    /* No dot at rest: the cursor only shows over links (a soft swell) and labelled targets. */
+    .custom-cursor::before {
+        opacity: 0;
+        transform: scale(0.4);
+    }
+
+    .custom-cursor[data-shown="false"]::before,
+    .custom-cursor[data-shown="false"] .custom-cursor-label {
+        opacity: 0;
+    }
+
+    .custom-cursor[data-shown="true"][data-link="true"]::before {
+        transform: scale(2.2);
+        opacity: 0.35;
+    }
+
+    .custom-cursor[data-shown="true"][data-label="true"]::before {
+        transform: scale(7.2);
+        opacity: 1;
+    }
+
+    .custom-cursor[data-label="true"][data-pressed="true"]::before {
+        transform: scale(6.4);
+    }
+
+    .custom-cursor-label {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform: translate(-50%, -50%) scale(0.6);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        color: var(--color-paper);
+        white-space: nowrap;
+        opacity: 0;
+        transition:
+            opacity 200ms var(--ease-interface),
+            transform 320ms cubic-bezier(0.3, 1.3, 0.5, 1);
+    }
+
+    .custom-cursor[data-label="true"] .custom-cursor-label {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+
+    .has-cursor [data-cursor],
+    .has-cursor [data-cursor] * {
+        cursor: none;
+    }
+
     /* Why: the dots that carry work across the bridge once its road is lit (hidden otherwise). */
     .why-traffic {
         position: absolute;
@@ -1737,40 +1931,98 @@
         padding-left: 1.5rem;
     }
 
-    /* Closing: the socket meets the plug on the end of the thread. Finished state by default. */
-    .socket .world-paper-card {
+    /*
+     * Closing: the loose end of the page thread (see LooseEnd). The coil is drawn in its own
+     * svg in the thread's colour and weight; the grip on its free end is a button you drag.
+     */
+    .loose-end {
         position: relative;
-        z-index: 1;
-        transform: translateX(-71px);
+        width: 100%;
+        aspect-ratio: 1;
     }
 
-    .socket .plug {
-        z-index: 0;
+    /* While the thread is away framing the enquiry form, the coil is not here; it fades back. */
+    .loose-end {
+        transition: opacity 500ms var(--ease-interface);
     }
 
-    .socket-pulse {
+    .loose-end[data-away="true"] {
+        opacity: 0;
+        transition-duration: 0ms;
+    }
+
+    .loose-end-art {
         position: absolute;
         inset: 0;
-        z-index: 0;
-        border-radius: 14px;
-        pointer-events: none;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .loose-end-line {
+        fill: none;
+        stroke: var(--color-thread);
+        stroke-width: 2.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .loose-end-grip {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 48px;
+        height: 48px;
+        margin: -24px 0 0 -24px;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        background: none;
+        cursor: grab;
+        touch-action: none;
+    }
+
+    .loose-end[data-dragging="true"] .loose-end-grip {
+        cursor: grabbing;
+    }
+
+    .loose-end-grip:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+    }
+
+    .loose-end-ring {
+        position: absolute;
+        inset: 15px;
+        border: 2px solid var(--color-thread);
+        border-radius: 999px;
+        background: var(--color-ink);
+        box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-thread) 16%, transparent);
+    }
+
+    .loose-end-label {
+        position: absolute;
+        top: 46px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: rgb(241 238 230 / 0.65);
+        transition: opacity 300ms var(--ease-interface);
+    }
+
+    .loose-end[data-dragging="true"] .loose-end-label {
         opacity: 0;
     }
 
-    .world-art .socket-connected {
-        fill: #2fbf71;
-    }
-
-    .socket-led {
-        fill: #2fbf71;
-        stroke: none;
-    }
-
     /*
-     * Service worlds stack back to front: the giant title, the thread (z 10), the main
-     * drawing (filled with the stage colour, so it hides the title behind it and the thread
-     * passes under it), then the paper cards. Nothing is ever drawn across the text inside a
-     * drawing or a card.
+     * Service worlds stack back to front, after the reference site: the thread (z 10), then
+     * the giant title over it (the line passes behind the letters, never across them), then
+     * the main drawing (filled with the stage colour, so it sits in front of the title) and
+     * the paper cards. Nothing is ever drawn across the text inside a drawing or a card.
      */
     .service-world {
         --stage: var(--color-paper);
@@ -1781,7 +2033,7 @@
     }
 
     .service-world .world-title {
-        z-index: 2;
+        z-index: 15;
     }
 
     @media (min-width: 1024px) {
@@ -1832,7 +2084,7 @@
     }
 
     .service-world .world-flat {
-        z-index: 12;
+        z-index: 18;
     }
 
     .service-world .world-flat .world-art > rect:first-child {
@@ -1936,8 +2188,7 @@
         transition: transform 1100ms cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .thread-live
-        .world-card:not(.world-still):not(.dial-node):not(.socket):not([data-threaded="true"]) {
+    .thread-live .world-card:not(.world-still):not(.dial-node):not([data-threaded="true"]) {
         transform: translateY(18px) rotate(calc(var(--r) * 2.4));
     }
 
@@ -1979,170 +2230,108 @@
         transform: translate(-6%, 8%) rotate(4deg);
     }
 
+    /* The seal stamps down as the line runs into it (scrubbed by its `--p`). */
     .thread-live .seal-art {
-        transition:
-            transform 520ms cubic-bezier(0.3, 1.6, 0.5, 1),
-            opacity 300ms var(--ease-interface);
-    }
-
-    .thread-live .seal:not([data-played="true"]) .seal-art {
-        opacity: 0.14;
-        transform: scale(1.25);
+        --k: clamp(0, var(--p, 1) * 4, 1);
+        opacity: calc(0.14 + 0.86 * var(--k));
+        transform: scale(calc(1.25 - 0.25 * var(--k)));
     }
 
     .thread-live [data-threaded="true"] .principle-icon {
         color: var(--color-accent);
     }
-
-    .thread-live .socket .world-paper-card {
-        transition: transform 900ms cubic-bezier(0.3, 1.3, 0.5, 1);
-    }
-
-    .thread-live .socket:not([data-played="true"]) .world-paper-card {
-        transform: none;
-    }
-
-    .thread-live .socket[data-played="true"] .socket-pulse {
-        animation: socketPulse 1200ms var(--ease-interface) 700ms both;
-    }
-
-    /* Once connected it stays connected: the socket's states follow data-played. */
-    .thread-live .socket.socket[data-played="true"] .when-off {
-        opacity: 0;
-    }
-
-    .thread-live .socket.socket[data-played="true"] .when-on {
-        opacity: 1;
-        transform: none;
-    }
-
-    .thread-live .socket-led {
-        transition:
-            fill 400ms var(--ease-interface) 500ms,
-            filter 400ms var(--ease-interface) 500ms;
-    }
-
-    .thread-live .socket[data-played="true"] .socket-led {
-        filter: drop-shadow(0 0 4px #2fbf71);
-    }
-
-    .thread-live .socket:not([data-played="true"]) .socket-led {
-        fill: rgb(17 19 21 / 0.2);
-    }
-
-    .thread-live .next-steps {
-        transition:
-            opacity 700ms var(--ease-interface) 700ms,
-            transform 700ms var(--ease-interface) 700ms;
-    }
-
-    .thread-live .world:not(:has(.socket[data-played="true"])) .next-steps {
-        opacity: 0.2;
-        transform: translateY(14px) rotate(var(--r));
-    }
 }
 
 /*
- * Drawings come alive as the line passes, at every width (the narrow route stitches through
- * the cards too). A service world's main drawing waits dimmed, then brightens; any object's
- * drawing (a world's, or a card's) plays its short story once: `data-played` is never taken back, so scrolling up does not rewind it.
- * `story-wipe` draws left to right, `story-drop` renders top to bottom, `story-in` fades up,
- * `story-type` types out (`--n` characters), `story-sweep` and `story-move` slide in from
- * `--from`. `--d` delays a step and `--t` sets its length.
+ * Drawings are scrubbed by the line, at every width (the narrow route stitches through the
+ * cards too), after the reference site. PageThread gives each lit object `--p`: 0 when the
+ * line reaches it, rising to 1 as the line runs on. Every step of a drawing's story is a pure
+ * function of that number, so it plays forwards scrolling down and backwards scrolling up,
+ * exactly with the scroll, as many times as you like.
+ *
+ * A story is timed in ms of an imagined run (`--story-ms`, 2200 by default) and the scroll
+ * plays through it: a step starts at `--d` and lasts `--t`. `story-wipe` draws left to right,
+ * `story-drop` renders top to bottom, `story-in` fades up, `story-type` types out (`--n`
+ * characters), `story-sweep` and `story-move` slide in from `--from`. Without the running
+ * thread (no script, reduced motion) `--p` is unset and everything shows finished.
  */
 @media (prefers-reduced-motion: no-preference) {
     .thread-live .service-world .world-flat .world-art > :not(:first-child) {
-        transition: opacity 900ms var(--ease-interface);
+        opacity: calc(0.38 + 0.62 * clamp(0, var(--p, 1) * 3, 1));
     }
 
-    .thread-live
-        .service-world
-        .world-flat:not([data-played="true"])
-        .world-art
-        > :not(:first-child) {
-        opacity: 0.38;
+    .thread-live :is(.story-wipe, .story-type, .story-drop, .story-in, .story-sweep, .story-move) {
+        --k: clamp(
+            0,
+            (var(--p, 1) * var(--story-ms, 2200) - var(--d, 0)) / var(--t, var(--t-default, 400)),
+            1
+        );
     }
 
-    .thread-live .world-object:not([data-played="true"]) :is(.story-wipe, .story-type) {
-        clip-path: inset(0 100% 0 0);
+    .thread-live :is(.story-wipe, .story-drop, .story-sweep, .story-move) {
+        --t-default: 1400;
     }
 
-    .thread-live .world-object:not([data-played="true"]) .story-drop {
-        clip-path: inset(0 0 100% 0);
+    .thread-live .story-type {
+        --t-default: calc(var(--n) * 15);
     }
 
-    .thread-live .world-object:not([data-played="true"]) .story-in {
-        opacity: 0;
+    .thread-live .story-wipe {
+        clip-path: inset(0 calc((1 - var(--k)) * 100%) 0 0);
     }
 
-    .thread-live .world-object:not([data-played="true"]) :is(.story-sweep, .story-move) {
-        transform: translateX(var(--from));
+    .thread-live .story-type {
+        clip-path: inset(0 calc((1 - round(down, var(--k) * var(--n), 1) / var(--n)) * 100%) 0 0);
     }
 
-    .thread-live .world-object[data-played="true"] .story-wipe {
-        animation: storyWipe var(--t, 1400ms) var(--ease-interface) var(--d, 0ms) both;
+    .thread-live .story-drop {
+        clip-path: inset(0 0 calc((1 - var(--k)) * 100%) 0);
     }
 
-    .thread-live .world-object[data-played="true"] .story-drop {
-        animation: storyDrop var(--t, 1400ms) var(--ease-interface) var(--d, 0ms) both;
+    .thread-live .story-in {
+        opacity: var(--k);
+        transform: translateY(calc((1 - var(--k)) * 4px));
     }
 
-    .thread-live .world-object[data-played="true"] .story-type {
-        animation: storyWipe calc(var(--n) * 15ms) steps(var(--n)) var(--d, 0ms) both;
+    .thread-live :is(.story-sweep, .story-move) {
+        transform: translateX(calc((1 - var(--k)) * var(--from)));
     }
 
-    .thread-live .world-object[data-played="true"] .story-in {
-        animation: storyIn var(--t, 400ms) var(--ease-interface) var(--d, 0ms) both;
-    }
-
-    .thread-live .world-object[data-played="true"] :is(.story-sweep, .story-move) {
-        animation: storySlide var(--t, 1400ms) cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms) both;
+    .thread-live .story-blink {
+        animation: storyBlink 1s steps(1) infinite;
     }
 
     /*
-     * The case file's sections tick as the line runs down its check column (each row lights
-     * on its own); on phones the whole file plays at once, the ticks in turn, then the stamp.
+     * The case file's sections tick as the line runs down its check column (each row has its
+     * own short scrub); on phones the whole file plays through, the ticks in turn.
      */
-    .thread-live .case-file .case-tick,
+    .thread-live .case-file :is(.case-tick, .case-label) {
+        --k: clamp(0, (var(--p, 1) * 2200 - var(--stagger, 0)) / 300, 1);
+    }
+
+    @media (min-width: 1024px) {
+        .thread-live .case-file :is(.case-tick, .case-label) {
+            --k: var(--p, 1);
+        }
+    }
+
+    .thread-live .case-file .case-tick {
+        opacity: var(--k);
+        transform: scale(calc(0.4 + 0.6 * var(--k)));
+    }
+
     .thread-live .case-file .case-label {
-        transition:
-            opacity 350ms var(--ease-interface),
-            transform 500ms cubic-bezier(0.3, 1.6, 0.5, 1);
+        opacity: calc(0.4 + 0.6 * var(--k));
     }
 
-    .thread-live .case-file[data-played="true"] :is(.case-tick, .case-label) {
-        transition-delay: var(--d, 0ms);
+    /* Capabilities: each bezel tick lights as the line sweeps past it (see DialArt). */
+    .dial-tick-lit {
+        opacity: clamp(0, (var(--p, 1) - var(--f)) * 40, 1);
+        stroke-width: 2;
     }
 
-    .thread-live
-        .case-file:not([data-played="true"])
-        .case-row:not([data-played="true"])
-        .case-tick {
-        opacity: 0;
-        transform: scale(0.4);
-    }
-
-    .thread-live
-        .case-file:not([data-played="true"])
-        .case-row:not([data-played="true"])
-        .case-label {
-        opacity: 0.4;
-    }
-
-    .thread-live .case-file:not([data-played="true"]) .case-stamp {
-        opacity: 0;
-    }
-
-    .thread-live .case-file[data-played="true"] .case-stamp {
-        animation: storyIn 400ms var(--ease-interface) 1600ms both;
-    }
-
-    .thread-live .world-object[data-played="true"] .compact-car {
-        animation: compactTraffic 6s linear calc(2.6s + var(--i) * 2s) infinite;
-    }
-
-    .thread-live .world-object[data-played="true"] .story-blink {
-        animation: storyBlink 1s steps(1) var(--d, 0ms) infinite;
+    .thread-live .compact-car {
+        animation: compactTraffic 6s linear calc(var(--i) * 2s) infinite;
     }
 
     /* Below the large breakpoint, the cards settle and flip as the line stitches through. */
@@ -2198,44 +2387,6 @@
     }
 }
 
-@keyframes storyWipe {
-    from {
-        clip-path: inset(0 100% 0 0);
-    }
-    to {
-        clip-path: inset(0 0 0 0);
-    }
-}
-
-@keyframes storyDrop {
-    from {
-        clip-path: inset(0 0 100% 0);
-    }
-    to {
-        clip-path: inset(0 0 0 0);
-    }
-}
-
-@keyframes storyIn {
-    from {
-        opacity: 0;
-        transform: translateY(4px);
-    }
-    to {
-        opacity: 1;
-        transform: none;
-    }
-}
-
-@keyframes storySlide {
-    from {
-        transform: translateX(var(--from));
-    }
-    to {
-        transform: none;
-    }
-}
-
 @keyframes whyTraffic {
     0% {
         left: 0;
@@ -2266,14 +2417,129 @@
     }
 }
 
-@keyframes socketPulse {
+/*
+ * Opened by pulling the thread, the dialog first flies the thread's line into a frame round
+ * the (still hidden) panel, then shows the panel inside it with the frame already drawn.
+ * Opened any other way, the panel rises in and its frame traces itself round.
+ */
+.enquiry-dialog-thread {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.enquiry-dialog-thread path {
+    fill: none;
+    stroke: var(--color-thread);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.enquiry-dialog:not([data-phase="forming"]) .enquiry-dialog-thread {
+    display: none;
+}
+
+.enquiry-dialog[data-phase="forming"] .enquiry-dialog-panel {
+    opacity: 0;
+}
+
+.enquiry-dialog[data-phase="forming"] .enquiry-dialog-trace {
+    visibility: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .enquiry-dialog[open][data-formed="trace"] .enquiry-dialog-panel {
+        animation: dialogIn 480ms var(--ease-physical) both;
+    }
+
+    .enquiry-dialog[open][data-formed="trace"] .enquiry-dialog-trace rect {
+        stroke-dasharray: 100;
+        animation: dialogTrace 1200ms var(--ease-interface) 200ms both;
+    }
+
+    .enquiry-dialog[open][data-formed="thread"][data-phase="open"] .enquiry-dialog-panel {
+        animation: dialogFade 260ms var(--ease-interface) both;
+    }
+
+    .enquiry-dialog[open][data-formed="thread"][data-phase="open"] .enquiry-dialog-body,
+    .enquiry-dialog[open][data-formed="thread"][data-phase="open"] .enquiry-dialog-close {
+        animation: dialogContent 460ms var(--ease-interface) 80ms both;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    /*
+     * The page thread draws the coil as you scroll; the grip on its end comes up once the coil
+     * is drawn and the rope is live, and breathes until pulled.
+     */
+    .loose-end-grip {
+        transition:
+            opacity 400ms var(--ease-interface),
+            scale 400ms var(--ease-interface);
+    }
+
+    .thread-live .loose-end[data-live="false"] .loose-end-grip {
+        opacity: 0;
+        scale: 0.6;
+        pointer-events: none;
+    }
+
+    .thread-live .loose-end[data-live="true"] .loose-end-ring {
+        animation: gripBreathe 2.4s var(--ease-interface) infinite;
+    }
+}
+
+@keyframes gripBreathe {
+    0%,
+    100% {
+        box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-thread) 16%, transparent);
+    }
+    50% {
+        box-shadow: 0 0 0 11px color-mix(in srgb, var(--color-thread) 6%, transparent);
+    }
+}
+
+@keyframes dialogIn {
     from {
-        opacity: 0.7;
-        box-shadow: 0 0 0 0 color-mix(in srgb, #2fbf71 55%, transparent);
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
     }
     to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes dialogFade {
+    from {
         opacity: 0;
-        box-shadow: 0 0 0 28px color-mix(in srgb, #2fbf71 0%, transparent);
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes dialogContent {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes dialogTrace {
+    from {
+        stroke-dashoffset: 100;
+    }
+    to {
+        stroke-dashoffset: 0;
     }
 }
 
@@ -2286,35 +2552,26 @@
 /*
  * Why: the line lays the bridge's cable. Each principle's label comes up as the cable reaches
  * its ring; once the cable is anchored at the BUSINESS end the road lights from TECHNOLOGY to
- * BUSINESS and work starts flowing across it. Nothing rewinds on the way back up.
+ * BUSINESS and work starts flowing across it. All of it scrubs with the scroll.
  */
 @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    /* Each label comes up as the cable reaches its ring, and goes back down with it. */
     .thread-live .why-label {
-        transition: opacity 700ms var(--ease-interface);
+        opacity: calc(0.25 + 0.75 * clamp(0, var(--p, 1) * 4, 1));
     }
 
-    .thread-live .why-label:not([data-played="true"]) {
-        opacity: 0.25;
+    /* The road lights from TECHNOLOGY to BUSINESS in step with the cable crossing above... */
+    .thread-live .why-deck .deck-glow {
+        clip-path: inset(0 calc((1 - var(--p, 1)) * 100%) 0 0);
     }
 
-    .thread-live .why-deck:not([data-played="true"]) .deck-glow {
-        clip-path: inset(0 100% 0 0);
+    /* ...and then work flows across it. */
+    .thread-live .why-traffic {
+        opacity: clamp(0, (var(--p, 1) - 0.85) * 7, 1);
     }
 
-    .thread-live .why-deck[data-played="true"] .deck-glow {
-        animation: storyWipe 1800ms var(--ease-interface) both;
-    }
-
-    .thread-live .world:has(.why-deck[data-played="true"]) .why-car {
-        animation: whyTraffic 9s linear calc(1.8s + var(--i) * 2.25s) infinite;
-    }
-
-    .thread-live .why-bank {
-        transition: color 600ms var(--ease-interface) 1600ms;
-    }
-
-    .thread-live .world:has(.why-deck[data-played="true"]) .why-bank {
-        color: var(--color-paper);
+    .thread-live .why-car {
+        animation: whyTraffic 9s linear calc(var(--i) * 2.25s) infinite;
     }
 }
 

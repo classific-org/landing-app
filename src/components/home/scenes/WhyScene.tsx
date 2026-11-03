@@ -103,16 +103,18 @@ function CompactBridgeArt() {
             <g className="accent story-wipe" style={story(1500, 1200)}>
                 <rect x="4" y="100" width="292" height="6" className="tint" />
             </g>
-            {[0, 1, 2].map((index) => (
-                <circle
-                    key={index}
-                    cx="6"
-                    cy="103"
-                    r="2.5"
-                    className="compact-car fill accent"
-                    style={{ "--i": index } as CSSProperties}
-                />
-            ))}
+            <g className="story-in" style={story(2000, 200)}>
+                {[0, 1, 2].map((index) => (
+                    <circle
+                        key={index}
+                        cx="6"
+                        cy="103"
+                        r="2.5"
+                        className="compact-car fill accent"
+                        style={{ "--i": index } as CSSProperties}
+                    />
+                ))}
+            </g>
             <text x="4" y="126" fontSize="9" className="faint">
                 TECHNOLOGY
             </text>
@@ -128,13 +130,13 @@ export function WhyScene({ principles }: { principles: Principle[] }) {
     return (
         <Scene
             id="why-title"
+            anchor="about"
             tone="ink"
             exit="right"
             route="bridge"
             index="08"
             label="Why Classific"
             description="We measure our work by what changes for the people who use it."
-            link={{ to: "/about", label: "About Classific" }}
             height="max(56rem, 108svh)"
         >
             <Place x="5%" y="11%" w="56%" still>
@@ -169,7 +171,12 @@ export function WhyScene({ principles }: { principles: Principle[] }) {
                     aria-hidden="true"
                 />
                 {/* Work flowing from TECHNOLOGY to BUSINESS once the road is lit. */}
-                <div className="why-traffic" style={{ top: `${DECK + 0.8}%` }} aria-hidden="true">
+                <div
+                    id="why-traffic"
+                    className="why-traffic"
+                    style={{ top: `${DECK + 0.8}%` }}
+                    aria-hidden="true"
+                >
                     {[0, 1, 2, 3].map((index) => (
                         <span
                             key={index}

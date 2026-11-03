@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { openEnquiry } from "@/lib/smooth-scroll";
 import {
     Meta,
     Paper,
@@ -7,6 +8,7 @@ import {
     Port,
     Scene,
     SceneHeadline,
+    story,
     Swap,
 } from "@/components/services/worlds/World";
 
@@ -27,6 +29,54 @@ const redactions = [
 const ROW_TOP = 128;
 const ROW_GAP = 56;
 const TICK_X = 452;
+
+/** One section's tick: an empty ring, filled and ticked in blue as the thread reaches it. */
+function Tick({ index }: { index: number }) {
+    const y = ROW_TOP + index * ROW_GAP;
+    return (
+        <>
+            <circle cx={TICK_X} cy={y + 24} r="10" className="faint" />
+            <g
+                className="case-tick accent"
+                style={{ "--stagger": String(300 + index * 320) } as CSSProperties}
+            >
+                <circle cx={TICK_X} cy={y + 24} r="10" className="tint" />
+                <path d={`M${TICK_X - 4.5} ${y + 24} l3.2 3.4 l6 -7`} strokeWidth="1.8" />
+            </g>
+        </>
+    );
+}
+
+/**
+ * The case file's check column on its own, drawn over the file and above the thread from the
+ * large breakpoint, so the line runs down under the ticks. Each row lights on its own as the
+ * thread reaches it.
+ */
+function CheckColumn() {
+    return (
+        <svg className="world-art" viewBox="0 0 520 380" aria-hidden="true" focusable="false">
+            {sections.map((section, index) => (
+                <g
+                    key={section}
+                    id={`case-row-${index + 1}`}
+                    className="case-row"
+                    data-thread-span="220"
+                >
+                    <rect
+                        x={TICK_X - 11}
+                        y={ROW_TOP + index * ROW_GAP + 13}
+                        width="22"
+                        height="22"
+                        rx="11"
+                        className="case-sheet"
+                        style={{ stroke: "none" }}
+                    />
+                    <Tick index={index} />
+                </g>
+            ))}
+        </svg>
+    );
+}
 
 /** The case file: a folder with the case study clipped inside, its contents redacted. */
 function CaseFileArt() {
@@ -57,7 +107,7 @@ function CaseFileArt() {
                 const y = ROW_TOP + index * ROW_GAP;
                 const [first, second] = redactions[index]!;
                 return (
-                    <g key={section} id={`case-row-${index + 1}`} className="case-row">
+                    <g key={section} className="case-row">
                         <text
                             x="64"
                             y={y + 14}
@@ -83,16 +133,11 @@ function CaseFileArt() {
                             rx="1.5"
                             className="fill"
                         />
-                        <circle cx={TICK_X} cy={y + 24} r="10" className="faint" />
-                        <g
-                            className="case-tick accent"
-                            style={{ "--d": `${300 + index * 320}ms` } as CSSProperties}
-                        >
-                            <circle cx={TICK_X} cy={y + 24} r="10" className="tint" />
-                            <path
-                                d={`M${TICK_X - 4.5} ${y + 24} l3.2 3.4 l6 -7`}
-                                strokeWidth="1.8"
-                            />
+                        {/* Phones: the check column is drawn in the file (the thread runs down
+                            the margin there); from the large breakpoint it is drawn above the
+                            thread instead (CheckColumn), so the line passes under the ticks. */}
+                        <g className="lg:hidden">
+                            <Tick index={index} />
                         </g>
                         {index < sections.length - 1 ? (
                             <path d={`M64 ${y + 50} H458`} className="faint" />
@@ -102,7 +147,7 @@ function CaseFileArt() {
             })}
             {/* Phones show the approval as a stamp on the sheet (desktop has the seal itself). */}
             <g transform="rotate(-10 400 322)">
-                <g className="case-stamp accent">
+                <g className="case-stamp story-in accent" style={story(1600, 300)}>
                     <circle cx="400" cy="322" r="30" strokeWidth="1.6" />
                     <path d="M386 322 l9 9 l19 -21" strokeWidth="2" />
                 </g>
@@ -159,6 +204,7 @@ export function WorkScene() {
     return (
         <Scene
             id="work-title"
+            anchor="work"
             tone="paper"
             exit="right"
             index="09"
@@ -180,7 +226,15 @@ export function WorkScene() {
                     real work privately.
                 </p>
                 <div className="mt-8">
-                    <ButtonLink to="/contact" withArrow>
+                    <ButtonLink
+                        to="/contact"
+                        withArrow
+                        cursor="TALK"
+                        onClick={(event) => {
+                            event.preventDefault();
+                            openEnquiry();
+                        }}
+                    >
                         Request a private walkthrough
                     </ButtonLink>
                 </div>
@@ -197,6 +251,10 @@ export function WorkScene() {
                         light={`case-row-${index + 1}`}
                     />
                 ))}
+            </Place>
+
+            <Place x="50%" y="12%" w="40%" still className="case-file hidden lg:block">
+                <CheckColumn />
             </Place>
 
             <Place x="80%" y="51%" w="10%" rotate={-9} className="seal hidden text-accent lg:block">

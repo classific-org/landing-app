@@ -1,4 +1,5 @@
-import { Link } from "react-router";
+import type { CSSProperties, MouseEvent } from "react";
+import { scrollToSection } from "@/lib/smooth-scroll";
 import { Paper, Place, Scene, SceneHeadline } from "@/components/services/worlds/World";
 
 type Discipline = { name: string; detail: string; href: string };
@@ -47,9 +48,14 @@ const labelFor = (degrees: number) => {
     };
 };
 
+/** Where the line joins the ring (degrees, 0 at 3 o'clock), see dialRoute. */
+const ORBIT_START = -150;
+
 /**
  * A fine bezel: a tick every 6 degrees, a longer one pointing to each discipline, and none
- * just beside it, so the labels have open ground.
+ * just beside it, so the labels have open ground. Each tick lights in the thread's blue as
+ * the line sweeps past it, so the bezel fills round in step with the scroll (and empties
+ * again scrolling up).
  */
 function DialArt() {
     const ticks = Array.from({ length: 60 }, (_, index) => {
@@ -64,12 +70,19 @@ function DialArt() {
             return null;
         }
         const inner = major ? 45 : 46.5;
+        const d = `M${50 + inner * Math.cos(angle)} ${50 + inner * Math.sin(angle)} L${50 + 48 * Math.cos(angle)} ${50 + 48 * Math.sin(angle)}`;
+        // How far round the line has to go (0-1 of one turn) to pass this tick: it starts at
+        // ORBIT_START and runs anticlockwise.
+        const reached = normal(ORBIT_START - degrees) / 360;
         return (
-            <path
-                key={index}
-                d={`M${50 + inner * Math.cos(angle)} ${50 + inner * Math.sin(angle)} L${50 + 48 * Math.cos(angle)} ${50 + 48 * Math.sin(angle)}`}
-                className={major ? "" : "faint"}
-            />
+            <g key={index}>
+                <path d={d} className={major ? "" : "faint"} />
+                <path
+                    d={d}
+                    className="dial-tick-lit accent"
+                    style={{ "--f": reached.toFixed(4) } as CSSProperties}
+                />
+            </g>
         );
     });
     return (
@@ -86,17 +99,29 @@ function DialArt() {
     );
 }
 
+/** A discipline's section on this page: the last part of its service link. */
+const slugOf = (href: string) => href.split("/").pop() ?? "";
+
+/** Jump to the discipline's own section, gliding. */
+const jump = (event: MouseEvent<HTMLAnchorElement>) => {
+    const id = event.currentTarget.hash.slice(1);
+    if (scrollToSection(id)) {
+        event.preventDefault();
+    }
+};
+
 export function CapabilitiesScene({ items }: { items: Discipline[] }) {
     return (
         <Scene
             id="capabilities-title"
+            anchor="services"
             tone="paper"
             exit="right"
             route="dial"
             index="01"
             label="Capabilities"
             description="One team, one way of working, from the first conversation to long after launch."
-            link={{ to: "/services", label: "All services" }}
+            height="max(46rem, 84svh)"
         >
             <Place x="5%" y="20%" w="42%" still>
                 <SceneHeadline
@@ -135,9 +160,11 @@ export function CapabilitiesScene({ items }: { items: Discipline[] }) {
                         className="dial-node hidden lg:block"
                     >
                         <span className="dial-dot" aria-hidden="true" />
-                        <Link
-                            to={item.href}
+                        <a
+                            href={`#${slugOf(item.href)}`}
+                            onClick={jump}
                             className={`dial-label dial-label-${label.side} group`}
+                            data-cursor="VIEW"
                             style={{ left: label.left, top: label.top }}
                         >
                             <span className="font-mono text-[10px] tabular-nums text-muted">
@@ -149,7 +176,7 @@ export function CapabilitiesScene({ items }: { items: Discipline[] }) {
                             <span className="block whitespace-nowrap text-small text-muted">
                                 {item.detail}
                             </span>
-                        </Link>
+                        </a>
                         <span
                             data-thread-anchor="dial-node"
                             data-angle={degrees}
@@ -253,7 +280,7 @@ export function CapabilitiesScene({ items }: { items: Discipline[] }) {
                         id={`capability-${index}`}
                         className="dial-item border-t border-rule pt-4"
                     >
-                        <Link to={item.href} className="group block">
+                        <a href={`#${slugOf(item.href)}`} onClick={jump} className="group block">
                             <span className="font-mono text-[10px] tabular-nums text-muted">
                                 0{index + 1}
                             </span>
@@ -261,7 +288,7 @@ export function CapabilitiesScene({ items }: { items: Discipline[] }) {
                                 {item.name}
                             </span>
                             <span className="block text-small text-muted">{item.detail}</span>
-                        </Link>
+                        </a>
                     </li>
                 ))}
             </ul>

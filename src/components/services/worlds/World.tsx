@@ -21,8 +21,11 @@ export function World({
     exit,
     titleY,
     titleAlign = "center",
+    anchor,
     children,
 }: {
+    /** The section's id, for links that jump to it (by default the service's slug). */
+    anchor?: string;
     id: string;
     index: string;
     label: string;
@@ -41,6 +44,7 @@ export function World({
     const dark = tone === "ink";
     return (
         <section
+            id={anchor ?? href.split("/").pop()}
             aria-labelledby={id}
             data-thread-route="world"
             data-thread-exit={exit}
@@ -73,21 +77,6 @@ export function World({
             <div className="world-stage relative mt-10 flex flex-col items-center gap-10 pb-10 pl-5 pr-11 sm:pr-5 lg:absolute lg:inset-x-[max(0px,calc((100%_-_108rem)/2))] lg:inset-y-0 lg:mt-0 lg:block lg:p-0">
                 {children}
             </div>
-
-            <div className="container-page relative z-30 flex justify-end pb-12 pr-6 sm:pr-0 lg:absolute lg:inset-x-0 lg:bottom-10 lg:pb-0">
-                <Link
-                    to={href}
-                    className={`group inline-flex items-center gap-3 border-b pb-1.5 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors hover:text-accent ${
-                        dark ? "border-paper/40 text-paper/80" : "border-ink/40 text-ink/80"
-                    }`}
-                >
-                    Explore service
-                    <Icon
-                        name="arrow-right"
-                        className="h-3.5 w-3.5 -rotate-45 transition-transform group-hover:translate-x-0.5"
-                    />
-                </Link>
-            </div>
         </section>
     );
 }
@@ -105,6 +94,8 @@ export function Place({
     depth = "card",
     still = false,
     wideOnly = false,
+    span,
+    scrub,
     id,
     className = "",
     children,
@@ -118,6 +109,14 @@ export function Place({
     still?: boolean;
     /** Left out below the large breakpoint, so phones show only the main drawing and a card or two. */
     wideOnly?: boolean;
+    /** How far (px along the thread) the line runs past this object while its drawing plays. */
+    span?: number;
+    /**
+     * What plays this object's drawing: the line running on past it ("thread"), or the line's
+     * head coming down through it ("scroll", so the story plays out on screen). Main drawings
+     * (`depth="flat"`) follow the scroll by default.
+     */
+    scrub?: "thread" | "scroll";
     /** Lets a `Port` elsewhere on the stage light this object (`<Port light={id} />`). */
     id?: string;
     className?: string;
@@ -127,6 +126,12 @@ export function Place({
         <div
             id={id}
             data-thread-object={still ? undefined : true}
+            data-thread-span={span}
+            data-thread-scrub={
+                (scrub ?? (depth === "flat" ? "scroll" : "thread")) === "scroll"
+                    ? "scroll"
+                    : undefined
+            }
             className={`world-object world-${depth} ${still ? "world-still" : ""} ${wideOnly ? "hidden lg:block" : ""} ${className}`}
             style={
                 {
@@ -220,8 +225,11 @@ export function Scene({
     link,
     height,
     route = "world",
+    anchor,
     children,
 }: {
+    /** The section's id, for links that jump to it. */
+    anchor?: string;
     id: string;
     tone: "ink" | "paper";
     /** The side margin the thread leaves by; "end" when the thread finishes in this scene. */
@@ -242,6 +250,7 @@ export function Scene({
     const stitch = route === "world" || route === "bridge";
     return (
         <section
+            id={anchor}
             aria-labelledby={id}
             data-thread-route={route}
             data-thread-exit={exit}
@@ -280,6 +289,7 @@ export function Scene({
                 >
                     <Link
                         to={link.to}
+                        data-cursor="VIEW"
                         className={`group inline-flex items-center gap-3 border-b pb-1.5 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors hover:text-accent ${
                             dark ? "border-paper/40 text-paper/80" : "border-ink/40 text-ink/80"
                         }`}
@@ -315,8 +325,9 @@ export function SceneHeadline({
 }
 
 /**
- * A number in a drawing that counts up from zero when the thread reaches its object (after
- * `delay` ms). Without a running thread it simply shows its value.
+ * A number in a drawing that counts up from zero as the thread scrubs through its object
+ * (starting `delay` ms into the story, over 1300 ms), and back down scrolling up. Without a
+ * running thread it simply shows its value.
  */
 export function CountText({
     value,
@@ -343,47 +354,25 @@ export function CountText({
         if (!text || !object || typeof MutationObserver === "undefined") {
             return;
         }
-        const show = (n: number) => {
-            text.textContent = format(n);
-        };
-        let frame = 0;
-        let state = "";
+        let shown = "";
         const update = () => {
-            const next = !object.closest(".thread-live")
-                ? "final"
-                : object.dataset.played === "true"
-                  ? "count"
-                  : "zero";
-            if (next === state) {
-                return;
+            const raw = object.dataset.threadProgress;
+            const live = object.closest(".thread-live") !== null && raw !== undefined;
+            const story = live ? Math.min(1, Math.max(0, (Number(raw) * 2200 - delay) / 1300)) : 1;
+            const next = format(value * (1 - (1 - story) ** 3));
+            if (next !== shown) {
+                shown = next;
+                text.textContent = next;
             }
-            state = next;
-            cancelAnimationFrame(frame);
-            if (next !== "count") {
-                show(next === "final" ? value : 0);
-                return;
-            }
-            const start = performance.now() + delay;
-            const step = (now: number) => {
-                const t = Math.min(1, Math.max(0, (now - start) / 1300));
-                show(value * (1 - (1 - t) ** 3));
-                if (t < 1) {
-                    frame = requestAnimationFrame(step);
-                }
-            };
-            frame = requestAnimationFrame(step);
         };
         const observer = new MutationObserver(update);
-        observer.observe(object, { attributes: true, attributeFilter: ["data-played"] });
+        observer.observe(object, { attributes: true, attributeFilter: ["data-thread-progress"] });
         // The page wrapper gains .thread-live once the thread is running.
         for (let node = object.parentElement; node; node = node.parentElement) {
             observer.observe(node, { attributes: true, attributeFilter: ["class"] });
         }
         update();
-        return () => {
-            observer.disconnect();
-            cancelAnimationFrame(frame);
-        };
+        return () => observer.disconnect();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value, decimals, suffix, delay]);
 
@@ -394,11 +383,15 @@ export function CountText({
     );
 }
 
-/** Timing for a `story-*` step in a drawing (see global.css): its delay and length in ms. */
+/**
+ * Timing for a `story-*` step in a drawing (see global.css): where it starts and how long it
+ * lasts, in ms of the drawing's story; the scroll plays through the story, forwards and back.
+ */
 export function story(delay: number, length?: number, extra?: Record<string, string | number>) {
+    // Unitless ms: the CSS works out each step's own progress from the object's scrub, `--p`.
     return {
-        "--d": `${delay}ms`,
-        ...(length ? { "--t": `${length}ms` } : {}),
+        "--d": String(delay),
+        ...(length ? { "--t": String(length) } : {}),
         ...extra,
     } as CSSProperties;
 }

@@ -112,8 +112,16 @@
                 try {
                     var root = document.documentElement;
                     var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-                    if (location.pathname === "%BASE_URL%" && !reduced) {
-                        /* Every visit to the home page, reloads included, starts at the top and
+                    if (location.pathname === "%BASE_URL%" && location.hash) {
+                        /* A link to a section: the home page opens there (see HomePage), so
+                           the browser must not put back an older position over it. */
+                        if ("scrollRestoration" in history) {
+                            history.scrollRestoration = "manual";
+                        }
+                    }
+                    if (location.pathname === "%BASE_URL%" && !location.hash && !reduced) {
+                        /* Every visit to the home page (unless it links to a section, which it
+                           opens at instead), reloads included, starts at the top and
                            plays through: the intro, then the hero and its thread, with the page
                            held still until the thread has drawn (see HeroThread). */
                         if ("scrollRestoration" in history) {

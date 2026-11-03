@@ -22,6 +22,12 @@ const SIDEWAYS_COST = 0.3;
 const MAX_GLIDE = 90;
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+/**
+ * How far the line runs past an element's first light (in px along the thread) while its
+ * drawing plays from start to finish; an element can set its own with `data-thread-span`.
+ */
+const SCRUB_SPAN = 700;
+
 type Strand = {
     path: SVGPathElement;
     samples: Sample[];
@@ -32,8 +38,18 @@ type Strand = {
     from: number;
     to: number;
     rings: { element: SVGCircleElement; at: number }[];
-    lights: { el: HTMLElement; at: number }[];
+    lights: {
+        el: HTMLElement;
+        at: number;
+        /** For `data-thread-scrub="scroll"`: the element's top and height on the page. */
+        top: number;
+        height: number;
+        /** The head position (wrapper y) at which the line reaches this light. */
+        arrive: number;
+    }[];
     branches: Branch[];
+    /** How much of the strand is drawn by the thread itself (see Route.handoff). */
+    visibleUntil: number;
     target: number;
     shown: number;
 };
@@ -83,6 +99,8 @@ export function PageThread() {
         // A rebuild queued by fonts loading can land after unmount; it must not touch the DOM.
         let disposed = false;
         let strands: Strand[] = [];
+        /** The head of the line (wrapper y) as of the last scroll, for scroll-scrubbed drawings. */
+        let latestHead = 0;
         let lastSignature = "";
         // While the page is still, a ring pulses at the tip of the line; scrolling hides it.
         let idleTimer = 0;
@@ -105,10 +123,17 @@ export function PageThread() {
             // An element can have several lights (a drawing with two ports); it is lit once the
             // line has reached any of them.
             const lit = new Map<HTMLElement, boolean>();
+            // And how far past its first light the line has run, as 0-1 over the element's
+            // span: the scrub that drives its drawing forwards and backwards with the scroll.
+            // Measured along the whole thread, so it carries on smoothly across sections.
+            const progress = new Map<HTMLElement, number>();
+            const drawnTotal = strands.reduce((sum, strand) => sum + strand.shown, 0);
+            let offset = 0;
             strands.forEach((strand) => {
                 const drawn = strand.shown;
-                strand.path.style.strokeDashoffset = String(strand.total - drawn);
-                strand.path.style.visibility = drawn > 0.5 ? "visible" : "hidden";
+                const visible = Math.min(drawn, strand.visibleUntil);
+                strand.path.style.strokeDashoffset = String(strand.total - visible);
+                strand.path.style.visibility = visible > 0.5 ? "visible" : "hidden";
                 strand.rings.forEach((ring) => {
                     ring.element.style.opacity = drawn >= ring.at - 2 ? "1" : "0";
                 });
@@ -121,8 +146,26 @@ export function PageThread() {
                 });
                 strand.lights.forEach((light) => {
                     lit.set(light.el, (lit.get(light.el) ?? false) || drawn >= light.at - 2);
+                    const span = Number(light.el.dataset.threadSpan) || SCRUB_SPAN;
+                    // A drawing scrubbed by the scroll plays out on screen, however far the line
+                    // travels meanwhile: from when its top comes up past 85% of the viewport to
+                    // when its middle settles at 45% (the head rides at HEAD_AT of the viewport).
+                    const byScroll = light.el.dataset.threadScrub === "scroll";
+                    const vh = window.innerHeight;
+                    // ...but never before the line itself has reached it.
+                    const begin = Math.max(light.top - (0.85 - HEAD_AT) * vh, light.arrive);
+                    const finish = Math.max(
+                        light.top + light.height / 2 + (HEAD_AT - 0.45) * vh,
+                        begin + 0.35 * vh,
+                    );
+                    const value = byScroll
+                        ? Math.max(0, Math.min(1, (latestHead - begin) / (finish - begin)))
+                        : Math.max(0, Math.min(1, (drawnTotal - (offset + light.at - 2)) / span));
+                    progress.set(light.el, Math.max(progress.get(light.el) ?? 0, value));
                 });
-                if (drawn > 0.5 && drawn < strand.total - 0.5) {
+                offset += strand.total;
+                // Past a hand-over the page's own drawing carries the line, and its tip.
+                if (drawn > 0.5 && drawn < strand.total - 0.5 && drawn <= strand.visibleUntil) {
                     front = { strand, drawn };
                 }
                 if (drawn > 0.5) {
@@ -133,10 +176,12 @@ export function PageThread() {
                 if (on !== (element.dataset.threaded === "true")) {
                     element.dataset.threaded = String(on);
                 }
-                // One-off stories (a drawing's animation) play once and then stay finished,
-                // so scrolling back up never rewinds them.
-                if (on && !element.dataset.played) {
-                    element.dataset.played = "true";
+            });
+            progress.forEach((value, element) => {
+                const text = value.toFixed(3);
+                if (element.dataset.threadProgress !== text) {
+                    element.dataset.threadProgress = text;
+                    element.style.setProperty("--p", text);
                 }
             });
             const last = strands[strands.length - 1];
@@ -145,9 +190,12 @@ export function PageThread() {
             // when the line has stopped exactly on a section edge.
             const current = front as { strand: Strand; drawn: number } | null;
             const lastReached = reached as Strand | null;
+            const handedOver = Boolean(
+                lastReached && lastReached.shown > lastReached.visibleUntil + 0.5,
+            );
             const tip = current
                 ? pointAt(current.strand.samples, current.drawn)
-                : lastReached
+                : lastReached && !handedOver
                   ? lastReached.samples[lastReached.samples.length - 1]!
                   : null;
             if (tip && !finished) {
@@ -194,15 +242,22 @@ export function PageThread() {
         let gliding = false;
         let glideFrame = 0;
         const glide = () => {
-            let moving = false;
+            // The whole line glides as one length, poured into the strands in order, so a
+            // strand never draws (or retracts) while the one before it is still catching up:
+            // no gap at a section's hand-off however fast the scroll. The further behind it
+            // is, the faster it catches up.
+            const target = strands.reduce((sum, strand) => sum + strand.target, 0);
+            const current = strands.reduce((sum, strand) => sum + strand.shown, 0);
+            const gap = target - current;
+            const moving = Math.abs(gap) >= 0.6;
+            const step = moving
+                ? Math.sign(gap) *
+                  Math.min(Math.abs(gap), Math.max(MAX_GLIDE * 0.1, Math.abs(gap) * 0.18))
+                : gap;
+            let left = current + step;
             strands.forEach((strand) => {
-                const gap = strand.target - strand.shown;
-                if (Math.abs(gap) < 0.6) {
-                    strand.shown = strand.target;
-                    return;
-                }
-                moving = true;
-                strand.shown += Math.max(-MAX_GLIDE, Math.min(MAX_GLIDE, gap * 0.16));
+                strand.shown = Math.max(0, Math.min(strand.total, left));
+                left -= strand.total;
             });
             render();
             if (moving) {
@@ -234,6 +289,7 @@ export function PageThread() {
         };
 
         const apply = (headY: number) => {
+            latestHead = headY;
             markScrolling();
             if (strands.length === 0) {
                 return;
@@ -338,6 +394,7 @@ export function PageThread() {
                 ringRadius: number;
                 lights: Light[];
                 branches: string[];
+                handoff?: { x: number; y: number };
                 from: number;
                 to: number;
             }[] = [];
@@ -397,6 +454,7 @@ export function PageThread() {
                     ringRadius: route.ringRadius ?? 9,
                     lights: route.lights ?? [],
                     branches: route.branches ?? [],
+                    handoff: route.handoff,
                     from,
                     to,
                 });
@@ -481,7 +539,17 @@ export function PageThread() {
                     );
                     const closest = Math.min(...distances);
                     const first = distances.findIndex((distance) => distance <= closest + 3);
-                    return { el: light.el, at: samples[Math.max(0, first)]!.length };
+                    const rect = layoutRect(light.el);
+                    const index = Math.max(0, first);
+                    const lastTime = times[times.length - 1] || 1;
+                    return {
+                        el: light.el,
+                        at: samples[index]!.length,
+                        top: rect.top,
+                        height: rect.bottom - rect.top,
+                        arrive:
+                            route.from + ((times[index] ?? 0) / lastTime) * (route.to - route.from),
+                    };
                 });
 
                 // Side branches, measured the same way, each tied to where the strand passes its
@@ -523,8 +591,21 @@ export function PageThread() {
                     };
                 });
 
+                // Where the page's own drawing takes over: the first sample at the hand-over point.
+                let visibleUntil = total;
+                if (route.handoff) {
+                    const handoff = route.handoff;
+                    const distances = samples.map((sample) =>
+                        Math.hypot(sample.x - handoff.x, sample.y - handoff.y),
+                    );
+                    const closest = Math.min(...distances);
+                    const first = distances.findIndex((distance) => distance <= closest + 1);
+                    visibleUntil = samples[Math.max(0, first)]!.length;
+                }
+
                 const shown = Math.min(previous[index]?.shown ?? 0, total);
                 return {
+                    visibleUntil,
                     path,
                     samples,
                     times,

@@ -1,3 +1,4 @@
+import { coilPoints } from "@/lib/thread/coil";
 import { Pen, type Point } from "@/lib/thread/pen";
 
 export type Rect = {
@@ -49,7 +50,34 @@ export type Route = {
      * between those two points as the route's own line passes them.
      */
     branches?: string[];
+    /**
+     * Where the page's own drawing takes over from the thread (the closing scene's loose end):
+     * past this point the route still runs, setting the pace of the scroll, but is not drawn.
+     */
+    handoff?: Point;
 };
+
+/**
+ * The home page's last section ends in a loose end (see LooseEnd): from its first point the
+ * route runs on through the same coil, so scrolling draws it at the same pace as the rest of
+ * the thread, and the coil element (lit at that point, scrubbed over the coil) draws itself.
+ */
+function intoLooseEnd(context: RouteContext, pen: Pen, lights: Light[]): Point | undefined {
+    const box = context.query(".loose-end")[0];
+    if (!box?.el) {
+        return undefined;
+    }
+    const width = box.right - box.left;
+    const height = box.bottom - box.top;
+    const coil = coilPoints(60).map((point) => ({
+        x: box.left + point.x * width,
+        y: box.top + point.y * height,
+    }));
+    const first = coil[0]!;
+    pen.through(coil.slice(1), 1);
+    lights.push({ el: box.el, point: first });
+    return first;
+}
 
 /** A light for an anchor at a point on the route (by default its centre). */
 export function lightFor(rect: Rect | undefined, point?: Point): Light[] {
@@ -253,7 +281,8 @@ export const worldRoute: RouteBuilder = (context) => {
     if (title?.el) {
         lights.push({ el: title.el, point: { x: title.cx, y: title.cy } });
     }
-    return { pen, lights };
+    const handoff = ends ? intoLooseEnd(context, pen, lights) : undefined;
+    return { pen, lights, handoff };
 };
 
 /**
@@ -304,13 +333,13 @@ function narrowWorldRoute(context: RouteContext): Route {
     if (!context.last) {
         pen.line(lane, bottom);
     } else {
-        // The last section ends in its drawing: the line turns in to where the drawing's own
-        // line starts on its right edge (Closing's plug cord, 28% of the way down).
-        const flat = context.query(".world-flat").pop();
-        if (flat) {
-            const join = { x: flat.right, y: flat.top + (flat.bottom - flat.top) * 0.28 };
-            pen.line(lane, Math.max(pen.y, join.y - 60));
-            pen.curve(lane, join.y - 20, join.x + 18, join.y, join.x, join.y);
+        // The last section ends where its loose end hangs (Closing): the line turns in from
+        // the margin to the top of the coil.
+        const join = context.anchors("rope-start")[0];
+        if (join) {
+            pen.line(lane, Math.max(pen.y, join.cy - 60));
+            pen.curve(lane, join.cy - 20, join.cx + 18, join.cy, join.cx, join.cy);
+            return { pen, lights, handoff: intoLooseEnd(context, pen, lights) };
         }
     }
     return { pen, lights };
@@ -399,6 +428,11 @@ export const dialRoute: RouteBuilder = (context) => {
     // The seal lights as the turn completes: shortly before the line returns to where it
     // began, at a point it passes only once (far enough round that the line falling onto the
     // ring never comes near it).
+    // The bezel's ticks light as the line sweeps past them: the dial is scrubbed over one turn.
+    if (dial.el) {
+        dial.el.dataset.threadSpan = String(Math.round(Math.PI * 2 * r));
+        lights.push({ el: dial.el, point: on(START) });
+    }
     const seal = [
         document.getElementById("dial-seal"),
         document.getElementById("dial-seal-small"),
@@ -546,10 +580,19 @@ export const bridgeRoute: RouteBuilder = (context) => {
             lights.push({ el: label, point });
         }
     });
-    const road = document.getElementById("why-deck");
-    if (road) {
-        lights.push({ el: road, point: rightAnchor });
-    }
+    // The road lights from TECHNOLOGY towards BUSINESS in step with the cable crossing above
+    // it (scrubbed from the left tower top to the BUSINESS end), and work sets off over it
+    // as the cable lands.
+    const crossing = Math.round(
+        (q2.x - q0.x) * 1.15 + Math.hypot(rightAnchor.x - q2.x, rightAnchor.y - q2.y),
+    );
+    ["why-deck", "why-traffic"].forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.dataset.threadSpan = String(crossing);
+            lights.push({ el: element, point: q0 });
+        }
+    });
     return { pen, rings, ringRadius: 6, lights };
 };
 

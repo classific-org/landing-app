@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { Meta, Paper, Place, Port, story, Swap, World } from "@/components/services/worlds/World";
 
 const log = [
@@ -11,7 +12,7 @@ const log = [
 
 /** When each log line starts typing, in ms: one after another, with a short pause between. */
 const starts = log.reduce<number[]>(
-    (times, line, index) => [
+    (times, _line, index) => [
         ...times,
         index === 0 ? 300 : times[index - 1]! + log[index - 1]!.text.length * 15 + 180,
     ],
@@ -22,7 +23,13 @@ const done = starts[starts.length - 1]! + log[log.length - 1]!.text.length * 15;
 /** A terminal with a production deploy, drawn flat under the thread; it runs as the line passes. */
 function TerminalArt() {
     return (
-        <svg className="world-art" viewBox="0 0 560 300" aria-hidden="true" focusable="false">
+        <svg
+            className="world-art"
+            viewBox="0 0 560 300"
+            aria-hidden="true"
+            focusable="false"
+            style={{ "--story-ms": String(done + 200) } as CSSProperties}
+        >
             <rect x="0.5" y="0.5" width="559" height="299" rx="10" />
             <path d="M0.5 32 H559.5" />
             <circle cx="18" cy="16" r="5" />

@@ -100,12 +100,12 @@ export function ProcessScene({ stages }: { stages: ProcessStage[] }) {
     return (
         <Scene
             id="process-title"
+            anchor="process"
             tone="paper"
             exit="left"
             index="07"
             label="Process"
             description="Five stages, the same for every project. The depth of each one depends on the work."
-            link={{ to: "/process", label: "How we work" }}
             height="max(64rem, 120svh)"
         >
             <Place x="5%" y="17%" w="42%" still>
@@ -132,6 +132,7 @@ export function ProcessScene({ stages }: { stages: ProcessStage[] }) {
                         w={`${place.w}%`}
                         rotate={place.rotate}
                         className="process-stage"
+                        scrub="scroll"
                     >
                         <Paper>
                             <Meta>Stage 0{stage.number}</Meta>

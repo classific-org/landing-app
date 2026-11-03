@@ -463,7 +463,10 @@ export function HeroThread() {
             if (disposed) {
                 return;
             }
-            resetScrollToTop();
+            // Only while the hero holds the page: a visit that opened at a section stays there.
+            if (root.classList.contains("hero-playing")) {
+                resetScrollToTop();
+            }
             build();
             // The dot appears first, then the line sets off from it.
             showOrigin();
@@ -489,7 +492,9 @@ export function HeroThread() {
         let timer = 0;
         let observer: MutationObserver | null = null;
         const begin = () => {
-            resetScrollToTop();
+            if (root.classList.contains("hero-playing")) {
+                resetScrollToTop();
+            }
             timer = window.setTimeout(() => void play(), SETTLE_MS);
         };
         void document.fonts?.ready.then(() => {
