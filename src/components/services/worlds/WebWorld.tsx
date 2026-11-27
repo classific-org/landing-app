@@ -176,7 +176,7 @@ export function WebWorld({ description, href }: { description: string; href: str
                                     </span>
                                 }
                                 after={
-                                    <span className="text-[#2f855a]">
+                                    <span className="text-[#2a7550]">
                                         <i className="world-dot" />
                                         Live
                                     </span>

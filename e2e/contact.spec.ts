@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { fillValidEnquiry, openEnquiry } from "./enquiry";
 
 test("contact form validates required fields and a bad email", async ({ page }) => {
-    await page.goto("/contact");
+    await openEnquiry(page);
     await page.getByTestId("enquiry-submit").click();
     await expect(page.getByRole("alert").first()).toBeVisible();
     await page.getByLabel(/business email/i).fill("not-an-email");
@@ -10,18 +11,17 @@ test("contact form validates required fields and a bad email", async ({ page }) 
 });
 
 test("does not claim success when the enquiry endpoint is unset", async ({ page }) => {
-    await page.goto("/contact");
+    await openEnquiry(page);
     await expect(page.getByTestId("form-status-notice")).toContainText(/not connected/i);
-    await page.getByLabel(/^name/i).fill("Alex Rivera");
-    await page.getByLabel(/business email/i).fill("alex@company.com");
-    await page.getByRole("combobox", { name: /service interest/i }).click();
-    await page.getByRole("option", { name: "Web Applications" }).click();
-    await page
-        .getByLabel(/project description/i)
-        .fill("We need a customer portal that replaces a set of shared spreadsheets.");
-    await page.getByLabel(/privacy policy/i).check();
+    await fillValidEnquiry(page);
     await page.getByTestId("enquiry-submit").click();
     await expect(page.getByTestId("form-status-unavailable")).toBeVisible();
     await expect(page.getByTestId("form-status-sent")).toHaveCount(0);
     await expect(page.getByText(/has been received/i)).toHaveCount(0);
+});
+
+test("the enquiry dialog closes on Escape", async ({ page }) => {
+    const dialog = await openEnquiry(page);
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
 });

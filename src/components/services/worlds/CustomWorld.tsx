@@ -81,7 +81,7 @@ function Service({ name, detail }: { name: string; detail: string }) {
                 <Swap
                     before={<span className="text-muted">Idle</span>}
                     after={
-                        <span className="text-[#2f855a]">
+                        <span className="text-[#2a7550]">
                             <i className="world-dot" />
                             {detail}
                         </span>
