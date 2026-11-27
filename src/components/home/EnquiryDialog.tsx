@@ -157,7 +157,7 @@ export function EnquiryDialog({
                 </svg>
                 <div className="enquiry-dialog-body">
                     <div>
-                        <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-[#2f855a]">
+                        <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-[#2a7550]">
                             <span
                                 className="h-2 w-2 rounded-full bg-[#2fbf71]"
                                 aria-hidden="true"
