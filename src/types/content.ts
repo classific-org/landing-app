@@ -111,6 +111,8 @@ export type ProcessStage = {
 
 export type Principle = {
     title: string;
+    /** One line, for the compact cards on the home page. */
+    summary: string;
     description: string;
     icon: IconName;
 };

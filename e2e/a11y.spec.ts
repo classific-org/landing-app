@@ -3,9 +3,8 @@ import { expect, test } from "@playwright/test";
 
 const pages = [
     { name: "home", path: "/" },
-    { name: "web applications", path: "/services/web-applications" },
-    { name: "contact", path: "/contact" },
-    { name: "article", path: "/insights/what-discovery-actually-decides" },
+    { name: "privacy", path: "/privacy" },
+    { name: "terms", path: "/terms" },
 ];
 
 // Axe samples colours at the moment it runs. Reduced motion shows the settled page rather than a

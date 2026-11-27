@@ -6,7 +6,7 @@
 export const site = {
     name: "Classific",
     legalName: "Classific",
-    tagline: "Software for what's next.",
+    tagline: "We build software that ships.",
     description:
         "Classific is a software engineering studio that designs and builds web, mobile, desktop and enterprise software for real business challenges.",
     shortDescription:

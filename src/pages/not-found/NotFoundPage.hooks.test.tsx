@@ -12,6 +12,6 @@ describe("not-found model", () => {
         });
         expect(result.current.pathname).toBe("/missing-page");
         expect(result.current.suggestions.some((item) => item.href === "/")).toBe(false);
-        expect(result.current.suggestions.some((item) => item.href === "/services")).toBe(true);
+        expect(result.current.suggestions.some((item) => item.href === "/#services")).toBe(true);
     });
 });
