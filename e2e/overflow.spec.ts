@@ -14,7 +14,7 @@ async function assertNoHorizontalOverflow(page: import("@playwright/test").Page,
     );
 }
 
-const pages = ["/", "/services", "/work", "/process", "/about", "/insights", "/contact"];
+const pages = ["/", "/privacy", "/terms"];
 
 for (const path of pages) {
     for (const width of [390, 768, 1440]) {

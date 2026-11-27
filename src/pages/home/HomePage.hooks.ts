@@ -9,8 +9,6 @@ export type HomePageViewModel = {
     hero: {
         headline: string;
         copy: string;
-        primary: { label: string; to: string };
-        secondary: { label: string; to: string };
     };
     capabilities: string[];
     services: Service[];
@@ -34,9 +32,7 @@ export function useHomePage(): HomePageViewModel {
     return {
         hero: {
             headline: site.tagline,
-            copy: "We design and build web, mobile, desktop, and enterprise software that helps businesses move faster, work smarter, and grow with confidence.",
-            primary: { label: "Start a Project", to: "/contact" },
-            secondary: { label: "See Our Work", to: "/work" },
+            copy: "A digital product studio building web, mobile, desktop and enterprise software.",
         },
         capabilities,
         services,

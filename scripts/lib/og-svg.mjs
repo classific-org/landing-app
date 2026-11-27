@@ -33,6 +33,6 @@ export function buildOgSvg({ title, eyebrow = "Classific" }) {
     <text x="80" y="250" fill="#85898D" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" letter-spacing="3.2">${safeEyebrow}</text>
     <text x="80" y="340" fill="#111315" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="500" letter-spacing="-1.6">${safeTitle}</text>
     <rect x="80" y="546" width="56" height="4" fill="#245BDB"/>
-    <text x="152" y="552" fill="#62666B" font-family="Inter, Arial, sans-serif" font-size="22">Software for what's next.</text>
+    <text x="152" y="552" fill="#62666B" font-family="Inter, Arial, sans-serif" font-size="22">We build software that ships.</text>
 </svg>`;
 }

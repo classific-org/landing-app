@@ -13,6 +13,7 @@ import { routes } from "@/app/routes";
 import { createSiteHeadController } from "@/app/head-controller";
 import { env } from "@/config/env";
 import { releaseIntro } from "@/lib/intro";
+import { startSmoothScroll } from "@/lib/smooth-scroll";
 import { applyClassificTheme } from "@/theme/classific";
 
 async function waitForRouter(router: ReturnType<typeof createBrowserRouter>): Promise<void> {
@@ -58,6 +59,7 @@ async function bootstrap(): Promise<void> {
     }
 
     releaseIntro();
+    startSmoothScroll();
 }
 
 void bootstrap();

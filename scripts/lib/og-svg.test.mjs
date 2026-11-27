@@ -6,7 +6,7 @@ describe("buildOgSvg", () => {
         const svg = buildOgSvg({ title: "Web Applications", eyebrow: "SERVICE" });
         expect(svg).toContain("Web Applications");
         expect(svg).toContain("SERVICE");
-        expect(svg).toContain("Software for what's next.");
+        expect(svg).toContain("We build software that ships.");
         expect(svg).toContain('width="1200"');
         expect(svg).toContain('height="630"');
     });

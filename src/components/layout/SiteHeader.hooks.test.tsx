@@ -25,7 +25,7 @@ describe("site header behaviour", () => {
         act(() => result.current.closeMenu());
         expect(result.current.isMenuOpen).toBe(false);
         expect(result.current.isActive("/about")).toBe(true);
-        expect(result.current.cta.href).toBe("/contact");
+        expect(result.current.cta.href).toBe("/#contact");
     });
 
     it("closes the menu when Escape is pressed", () => {
