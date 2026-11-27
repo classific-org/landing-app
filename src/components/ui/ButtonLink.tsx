@@ -8,6 +8,8 @@ type ButtonLinkProps = {
     withArrow?: boolean;
     className?: string;
     onClick?: React.MouseEventHandler<HTMLAnchorElement>;
+    /** A word for the custom cursor to show over the button (see CustomCursor). */
+    cursor?: string;
 };
 
 const variantClass: Record<NonNullable<ButtonLinkProps["variant"]>, string> = {
@@ -24,6 +26,7 @@ export function ButtonLink({
     withArrow = false,
     className,
     onClick,
+    cursor,
 }: ButtonLinkProps) {
     const classes = ["btn", variantClass[variant], className].filter(Boolean).join(" ");
     const external = /^https?:\/\//.test(to);
@@ -35,6 +38,7 @@ export function ButtonLink({
                 rel="noopener noreferrer"
                 target="_blank"
                 onClick={onClick}
+                data-cursor={cursor}
             >
                 {children}
                 {withArrow ? <Icon name="arrow-right" className="h-4 w-4" /> : null}
@@ -42,7 +46,7 @@ export function ButtonLink({
         );
     }
     return (
-        <Link to={to} className={classes} onClick={onClick}>
+        <Link to={to} className={classes} onClick={onClick} data-cursor={cursor}>
             {children}
             {withArrow ? <Icon name="arrow-right" className="h-4 w-4" /> : null}
         </Link>

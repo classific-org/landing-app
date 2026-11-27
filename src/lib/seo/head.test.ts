@@ -36,7 +36,7 @@ describe("document head patches", () => {
     it("uses the site name as the home title without a suffix", () => {
         const route = findPublicRoute("/");
         const patch = buildRouteHeadPatch(ORIGIN, route!);
-        expect(patch.title).toBe("Classific: Software for what's next.");
+        expect(patch.title).toBe("Classific: We build software that ships.");
         expect(patch.titleTemplate).toBe("%s");
     });
 

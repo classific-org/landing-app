@@ -2,6 +2,7 @@ import { Outlet, ScrollRestoration, useLocation } from "react-router";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { CustomCursor } from "@/components/layout/CustomCursor";
 import { DocumentHead } from "@/components/seo/DocumentHead";
 
 export function SiteLayout() {
@@ -19,6 +20,7 @@ export function SiteLayout() {
                 </div>
             </main>
             <SiteFooter />
+            <CustomCursor />
             <ScrollRestoration />
         </div>
     );
